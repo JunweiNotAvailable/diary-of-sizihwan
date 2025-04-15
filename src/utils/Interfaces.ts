@@ -7,6 +7,7 @@ export interface UserModel {
   created_at: string;
   extra?: {
     school?: string;
+    bio?: string;
   },
   settings?: UserSettings
 }

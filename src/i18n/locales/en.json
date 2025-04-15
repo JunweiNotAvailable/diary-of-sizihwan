@@ -18,19 +18,24 @@
     "createAccount": "Create Account",
     "preparingCamera": "Preparing camera...",
     "positionIdCard": "Position your student ID card within the frame",
-    "processingImage": "Processing image..."
+    "processingImage": "Processing image...",
+    "errors": {
+      "enterStudentId": "Please enter your student ID",
+      "enterPassword": "Please enter your password",
+      "enterName": "Please enter your name",
+      "signInFailed": "Oops! Failed to sign in. Please try again.",
+      "signUpFailed": "Oops! Failed to create account. Please try again.",
+      "cameraPermission": "Camera permission is required to scan ID",
+      "idCardScanFailed": "Failed to process ID card. Please try again."
+    }
   },
   "location": {
     "permissionTitle": "Location Permission",
     "permissionDenied": "We need your location to show where you are on the map. Please enable location permissions in your device settings."
   },
-  "errors": {
-    "enterStudentId": "Please enter your student ID",
-    "enterPassword": "Please enter your password",
-    "enterName": "Please enter your name",
-    "signInFailed": "Oops! Failed to sign in. Please try again.",
-    "signUpFailed": "Oops! Failed to create account. Please try again.",
-    "cameraPermission": "Camera permission is required to scan ID",
-    "idCardScanFailed": "Failed to process ID card. Please try again."
+  "profile": {
+    "title": "Profile",
+    "signOut": "Sign Out",
+    "signingOut": "Signing out..."
   }
 } 

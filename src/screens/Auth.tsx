@@ -15,7 +15,8 @@ import {
   StyleProp,
   ViewStyle,
   ActivityIndicator,
-  Image
+  Image,
+  Animated
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,39 +51,39 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
   const [username, setUsername] = useState('');
   const [school, setSchool] = useState('nsysu');
   const [cameraVisible, setCameraVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
 
   // Handle sign in
   const handleSignIn = async () => {
     // Simple validation
     if (!studentId.trim()) {
-      Alert.alert('', t('errors.enterStudentId'));
+      Alert.alert('', t('auth.errors.enterStudentId'));
       return;
     }
 
     if (!password.trim()) {
-      Alert.alert('', t('errors.enterPassword'));
+      Alert.alert('', t('auth.errors.enterPassword'));
       return;
     }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
       // Get user data from API
       const response = await fetch(`${Config.api.url}/data?table=users&id=${studentId}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
       }
-      
+
       const userData = (await response.json()).data;
-      
+
       // Check password
       const res = await fetch(`${Config.api.url}/auth/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: studentId, password }) });
       const { success } = (await res.json());
       if (!success) {
-        Alert.alert('', t('errors.signInFailed'));
-        setLoading(false);
+        Alert.alert('', t('auth.errors.signInFailed'));
+        setIsLoading(false);
         return;
       }
       // Set user in app state
@@ -90,12 +91,12 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
 
       // Save user ID to AsyncStorage
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
-      setLoading(false);
+      setIsLoading(false);
       navigation.replace('Main');
       console.log('Signing in with:', { studentId });
     } catch (error) {
-      setLoading(false);
-      Alert.alert('', t('errors.signInFailed'));
+      setIsLoading(false);
+      Alert.alert('', t('auth.errors.signInFailed'));
       console.error('Sign in error:', error);
     }
   };
@@ -105,7 +106,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
     if (!permission?.granted) {
       const permissionResult = await requestPermission();
       if (!permissionResult.granted) {
-        Alert.alert('', t('errors.cameraPermission'));
+        Alert.alert('', t('auth.errors.cameraPermission'));
         return;
       }
     }
@@ -117,32 +118,32 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
   // Handle process scan
   const handleProcessScan = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       // Take a picture using the camera view
       const photo = await cameraRef.current?.takePictureAsync({
         quality: 0.8,
       });
-      
+
       if (!photo || !photo.uri) {
         throw new Error('Failed to capture image');
       }
-      
+
       setCameraVisible(false);
-      
+
       // Resize the image
       const resizedImage = await ImageManipulator.manipulateAsync(
         photo.uri,
         [{ resize: { width: MAX_IMAGE_WIDTH, height: MAX_IMAGE_HEIGHT } }],
         { base64: true, compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
-      
+
       if (!resizedImage || !resizedImage.base64) {
         throw new Error('Failed to process image');
       }
-      
+
       // Get base64 data for the image
       const base64Data = `data:image/jpeg;base64,${resizedImage.base64}`;
-      
+
       // Send the resized image to the server for processing
       const response = await fetch(`${Config.api.url}/image`, {
         method: 'POST',
@@ -151,13 +152,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         },
         body: JSON.stringify({ imageUrl: base64Data })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to process image');
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         // Set the student ID from the processed image
         setStudentId(result.data.id || '');
@@ -165,17 +166,17 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         setPassword('');
         setAuthStep('VERIFY_ID');
       } else {
-        Alert.alert('', t('errors.idCardScanFailed'));
+        Alert.alert('', t('auth.errors.idCardScanFailed'));
         setStudentId('');
         setPassword('');
         setAuthStep('SIGN_IN');
       }
-      
-      setLoading(false);
+
+      setIsLoading(false);
     } catch (error) {
       console.error('Error processing scan:', error);
-      setLoading(false);
-      Alert.alert('', t('errors.idCardScanFailed'));
+      setIsLoading(false);
+      Alert.alert('', t('auth.errors.idCardScanFailed'));
       setStudentId('');
       setPassword('');
       setAuthStep('SIGN_IN');
@@ -191,34 +192,34 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
   // Check if user exists, proceed to sign in or sign up
   const handleVerifyAndProceed = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       // Check if user exists in the database
       const response = await fetch(`${Config.api.url}/data?table=users&id=${studentId}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
           // User exists, go to sign in
-          setLoading(false);
+          setIsLoading(false);
           setPassword('');
           setAuthStep('SIGN_IN');
-          
+
           // Focus on password input after a short delay to ensure the UI has updated
           setTimeout(() => {
             passwordInputRef.current?.focus();
           }, 100);
-          
+
           return;
         }
       }
-      
+
       // User doesn't exist, go to sign up
-      setLoading(false);
+      setIsLoading(false);
       setUsername('');
       setPassword('');
       setAuthStep('SIGN_UP');
     } catch (error) {
-      setLoading(false);
+      setIsLoading(false);
       console.error('Error checking user:', error);
       // For error handling, let's go to sign up
       setUsername('');
@@ -231,18 +232,18 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
   const handleSignUp = async () => {
     // Simple validation
     if (!username.trim()) {
-      Alert.alert('', t('errors.enterName'));
+      Alert.alert('', t('auth.errors.enterName'));
       return;
     }
 
     if (!password.trim()) {
-      Alert.alert('', t('errors.enterPassword'));
+      Alert.alert('', t('auth.errors.enterPassword'));
       return;
     }
 
     try {
-      setLoading(true);
-      
+      setIsLoading(true);
+
       // Create user data conforming to UserModel
       const hpRes = await fetch(`${Config.api.url}/auth/hash-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
       const hpData = await hpRes.json();
@@ -272,15 +273,15 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
 
       // Set user in app state
       setUser({ ...userData, password: '' });
-      
+
       // Save user ID to AsyncStorage
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
-      setLoading(false);
+      setIsLoading(false);
       navigation.replace('Main');
       console.log('Signing up with:', { studentId, username });
     } catch (error) {
-      setLoading(false);
-      Alert.alert('', t('errors.signUpFailed'));
+      setIsLoading(false);
+      Alert.alert('', t('auth.errors.signUpFailed'));
       console.error('Sign up error:', (error as any).stack);
     }
   };
@@ -295,22 +296,47 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
     style = {}
   }: {
     onPress: () => void;
-    title: string;
+    title: string | React.ReactNode;
     type?: 'primary' | 'secondary';
     icon?: React.ReactNode;
     disabled?: boolean;
     style?: StyleProp<ViewStyle>;
   }) => {
+    const animatedScale = useRef(new Animated.Value(1)).current;
+
+    // Create an animated version of Pressable
+    const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+    const handlePressIn = () => {
+      Animated.spring(animatedScale, {
+        toValue: 0.95,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 4
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(animatedScale, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 20,
+        bounciness: 4
+      }).start();
+    };
+
     return (
-      <Pressable
-        style={({ pressed }) => [
+      <AnimatedPressable
+        style={[
           styles.buttonBase,
           type === 'primary' ? styles.primaryButton : styles.secondaryButton,
-          pressed && (type === 'primary' ? styles.primaryButtonPressed : styles.secondaryButtonPressed),
           disabled && styles.buttonDisabled,
+          { transform: [{ scale: animatedScale }] }
         ]}
         onPress={onPress}
-        disabled={disabled || loading}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || isLoading}
         android_ripple={{ color: type === 'primary' ? '#2980b9' : '#e1f0fa' }}
       >
         <View style={[styles.buttonContent, style]}>
@@ -324,7 +350,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
             {title}
           </Text>
         </View>
-      </Pressable>
+      </AnimatedPressable>
     );
   };
 
@@ -349,7 +375,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       />
       <View style={styles.buttonRow}>
         <PrettyButton
-          title={t('auth.signIn')}
+          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.signIn')}
           onPress={handleSignIn}
         />
       </View>
@@ -373,13 +399,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
   // Render camera screen
   const renderScanCamera = () => (
     <View style={styles.cameraContainer}>
-      {loading && (
+      {isLoading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>{t('auth.processingImage')}</Text>
         </View>
       )}
-      
+
       {cameraVisible && (
         <View style={styles.cameraContainer}>
           <Text style={styles.title}>{t('auth.scanIdCard')}</Text>
@@ -400,13 +426,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
             />
             <PrettyButton
               style={styles.cameraButton}
-              title={t('auth.scan')}
+              title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.scan')}
               onPress={handleProcessScan}
             />
           </View>
         </View>
       )}
-      {!cameraVisible && !loading && (
+      {!cameraVisible && !isLoading && (
         <View style={styles.loadingContainer}>
           <Text style={styles.title}>{t('auth.preparingCamera')}</Text>
         </View>
@@ -427,11 +453,11 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           onPress={handleRescan}
         />
         <PrettyButton
-          title={t('auth.continue')}
+          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.continue')}
           onPress={handleVerifyAndProceed}
         />
       </View>
-      
+
     </View>
   );
 
@@ -463,7 +489,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           onPress={() => setAuthStep('SIGN_IN')}
         />
         <PrettyButton
-          title={t('auth.createAccount')}
+          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.createAccount')}
           onPress={handleSignUp}
         />
       </View>

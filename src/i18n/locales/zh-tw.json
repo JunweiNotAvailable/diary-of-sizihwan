@@ -5,6 +5,7 @@
   "auth": {
     "signIn": "登入",
     "signUp": "註冊",
+    "signOut": "登出",
     "studentId": "學號",
     "password": "密碼",
     "setupPassword": "設定密碼",
@@ -18,19 +19,32 @@
     "createAccount": "建立帳戶",
     "preparingCamera": "準備相機中...",
     "positionIdCard": "將學生證放在框內",
-    "processingImage": "正在辨識..."
+    "processingImage": "正在辨識...",
+    "errors": {
+      "enterStudentId": "輸入你的學號",
+      "enterPassword": "輸入你的密碼",
+      "enterName": "輸入你的姓名",
+      "signInFailed": "帳號或密碼錯誤，請再試一次",
+      "signUpFailed": "建立帳戶失敗，請再試一次",
+      "cameraPermission": "需要相機權限以掃描學生證",
+      "idCardScanFailed": "處理學生證失敗，請再試一次"
+    }
   },
   "location": {
     "permissionTitle": "位置權限",
     "permissionDenied": "我們需要您的位置權限來顯示您在地圖上的位置。請在設定中啟用位置權限。"
   },
-  "errors": {
-    "enterStudentId": "輸入你的學號",
-    "enterPassword": "輸入你的密碼",
-    "enterName": "輸入你的姓名",
-    "signInFailed": "帳號或密碼錯誤，請再試一次",
-    "signUpFailed": "建立帳戶失敗，請再試一次",
-    "cameraPermission": "需要相機權限以掃描學生證",
-    "idCardScanFailed": "處理學生證失敗，請再試一次"
+  "profile": {
+    "title": "我ㄉ個人資料",
+    "signOut": "登出",
+    "signingOut": "登出中...",
+    "settings": "設定",
+    "preferences": "偏好",
+    "account": "帳號",
+    "reviews": "我的回顧",
+    "askHistory": "我的問題"
+  },
+  "ask": {
+    "placeholder": "對校園有疑問嗎？"
   }
 } 

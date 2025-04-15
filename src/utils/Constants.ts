@@ -1,6 +1,9 @@
 export const Colors = {
-  primary: '#e434fa',
-  secondary: '#f3a7fc',
+  primary: '#331177',
+  secondary: '#eee9ff',
+  primaryGray: '#88808f',
+  primaryLightGray: '#e6e4e8',
+  secondaryGray: '#f7f6f8',
 }
 
 export const Map = {
