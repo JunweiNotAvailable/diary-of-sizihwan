@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "AskHisyam",
-    "slug": "askhisyam",
-    "scheme": "askhisyam",
+    "name": "ReviewMyCampus",
+    "slug": "rmc",
+    "scheme": "rmc",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -17,20 +17,20 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app wants to access your photos."
+          "photosPermission": "ReviewMyCampus wants to access your photos."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow AskHisyam to access your camera to scan student ID cards."
+          "cameraPermission": "Allow ReviewMyCampus to access your camera."
         }
       ],
       "expo-secure-store",
       "expo-localization"
     ],
     "ios": {
-      "bundleIdentifier": "com.junweialreadyexist.askhisyam",
+      "bundleIdentifier": "com.junweialreadyexist.rmc",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show it on the map.",
         "NSCameraUsageDescription": "This app uses the camera to scan student ID cards."
@@ -44,7 +44,7 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA"
       ],
-      "package": "com.junweialreadyexist.askhisyam",
+      "package": "com.junweialreadyexist.rmc",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
