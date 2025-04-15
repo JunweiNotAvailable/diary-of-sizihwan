@@ -1,179 +1,188 @@
-import React, { useEffect } from 'react';
-import MapView from 'react-native-maps';
-import { 
-	StyleSheet, 
-	View, 
-	TouchableOpacity, 
-	Text, 
-	Pressable,
+import React, { useEffect, useState, useRef } from 'react';
+import MapView, { PROVIDER_GOOGLE, MapStyleElement, Marker } from 'react-native-maps';
+import {
+	StyleSheet,
+	View,
 	Platform,
-	ActivityIndicator 
+	Alert,
+	Text,
+	TouchableOpacity,
+	Image,
+	SafeAreaView
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppState } from '../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
-import { Config } from '../utils/Config';
+import * as Location from 'expo-location';
+import { Colors, Map } from '../utils/Constants';
+import { Ionicons } from '@expo/vector-icons';
 
-const USER_STORAGE_KEY = Config.storage.user;
+// Custom map style to remove text labels for geographical elements while preserving user annotations
+const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
+	featureType,
+	elementType: "labels",
+	stylers: [{ visibility: "off" }]
+}));
 
 const MainScreen = ({ navigation }: { navigation: any }) => {
-	const { user, setUser } = useAppState() || {};
 	const { t } = useTranslation();
-	const [loading, setLoading] = React.useState(false);
+	const { user } = useAppState();
+	const [locationPermission, setLocationPermission] = useState(false);
+	const [mapError, setMapError] = useState(false);
+	const [initialRegion, setInitialRegion] = useState(Map.defaultLocation);
+	const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+	const [showUser, setShowUser] = useState(false);
 
-	// Load user data on component mount if not already loaded
+	const mapRef = useRef<MapView>(null);
+
+	// Request location permission and get user's location
 	useEffect(() => {
-		const loadUserData = async () => {
+		const getLocationPermission = async () => {
 			try {
-				if (!user) {
-					setLoading(true);
-					const userId = await AsyncStorage.getItem(USER_STORAGE_KEY);
-					
-					if (userId) {
-						// Fetch user data from API
-						const response = await fetch(`${Config.api.url}/data?table=users&id=${userId}`);
-						
-						if (response.ok) {
-							const result = await response.json();
-							if (result && result.data) {
-								setUser(result.data);
-							} else {
-								// No user data, go to auth
-								navigation.replace('Auth');
-							}
-						} else {
-							// API error, go to auth
-							navigation.replace('Auth');
-						}
-					} else {
-						// No stored user ID, go to auth
-						navigation.replace('Auth');
-					}
-					setLoading(false);
+				const { status } = await Location.requestForegroundPermissionsAsync();
+
+				if (status === 'granted') {
+					setLocationPermission(true);
+
+					// Get current location
+					const location = await Location.getCurrentPositionAsync({
+						accuracy: Location.Accuracy.Balanced,
+					});
+
+					const locationCoords = {
+						latitude: location.coords.latitude,
+						longitude: location.coords.longitude,
+					};
+
+					setCurrentLocation(locationCoords);
+
+					setInitialRegion({
+						...locationCoords,
+						latitudeDelta: 0.0075,
+						longitudeDelta: 0.0075,
+					});
+				} else {
+					// Permission denied
+					Alert.alert(
+						t('location.permissionTitle'),
+						t('location.permissionDenied')
+					);
 				}
 			} catch (error) {
-				console.error('Error loading user data:', error);
-				setLoading(false);
-				navigation.replace('Auth');
+				console.error('Error getting location permission:', error);
 			}
 		};
 
-		loadUserData();
+		getLocationPermission();
 	}, []);
 
-	const handleLogout = async () => {
-		try {
-			setLoading(true);
-			// Clear user data
-			await AsyncStorage.removeItem(USER_STORAGE_KEY);
-			
-			// Clear user state
-			setUser?.(null);
-			
-			setLoading(false);
-			// Navigate back to Auth screen
-			navigation.replace('Auth');
-		} catch (error) {
-			setLoading(false);
-			console.error('Logout error:', error);
+	// Error boundary for map loading
+	useEffect(() => {
+		const handleMapError = () => {
+			try {
+				// Add a timeout to detect if the map fails to load
+				const timeout = setTimeout(() => {
+					if (mapRef.current === null) {
+						setMapError(true);
+					}
+				}, 5000);
+
+				return () => clearTimeout(timeout);
+			} catch (error) {
+				console.error('Map error:', error);
+				setMapError(true);
+			}
+		};
+
+		handleMapError();
+	}, []);
+
+	// Function to center the map on user's current location
+	const centerOnUser = () => {
+		if (currentLocation && mapRef.current) {
+			mapRef.current.animateToRegion({
+				...currentLocation,
+				latitudeDelta: 0.0075,
+				longitudeDelta: 0.0075,
+			}, 500);
 		}
 	};
 
-	// Pretty Button component for consistent styling
-	const PrettyButton = ({ 
-		onPress, 
-		title, 
-		type = 'primary',
-		icon = null 
-	}: { 
-		onPress: () => void; 
-		title: string;
-		type?: 'primary' | 'secondary' | 'danger';
-		icon?: React.ReactNode;
-	}) => {
-		const getStylesByType = () => {
-			switch (type) {
-				case 'danger':
-					return {
-						button: styles.dangerButton,
-						pressedButton: styles.dangerButtonPressed,
-						text: styles.dangerButtonText,
-						ripple: 'rgba(255, 255, 255, 0.2)'
-					};
-				case 'secondary':
-					return {
-						button: styles.secondaryButton,
-						pressedButton: styles.secondaryButtonPressed,
-						text: styles.secondaryButtonText,
-						ripple: 'rgba(52, 152, 219, 0.2)'
-					};
-				default:
-					return {
-						button: styles.primaryButton,
-						pressedButton: styles.primaryButtonPressed,
-						text: styles.primaryButtonText,
-						ripple: 'rgba(255, 255, 255, 0.2)'
-					};
-			}
-		};
-
-		const typeStyles = getStylesByType();
-
+	if (mapError) {
 		return (
-			<Pressable
-				style={({ pressed }) => [
-					styles.buttonBase,
-					typeStyles.button,
-					pressed && typeStyles.pressedButton
-				]}
-				onPress={onPress}
-				disabled={loading}
-				android_ripple={{ color: typeStyles.ripple }}
-			>
-				<View style={styles.buttonContent}>
-					{icon}
-					<Text style={[styles.buttonText, typeStyles.text]}>
-						{title}
-					</Text>
-				</View>
-			</Pressable>
-		);
-	};
-
-	if (loading) {
-		return (
-			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color="#3498db" />
+			<View style={styles.errorContainer}>
+				<Text style={styles.errorText}>Unable to load map</Text>
 			</View>
 		);
 	}
 
 	return (
 		<View style={{ flex: 1 }}>
-			<MapView style={StyleSheet.absoluteFill} />
-			
-			{/* Logout button */}
-			<View style={styles.logoutContainer}>
-				<PrettyButton
-					title={t('main.logout')}
-					type="danger"
-					onPress={handleLogout}
-				/>
-			</View>
+			<MapView
+				ref={mapRef}
+				style={StyleSheet.absoluteFill}
+				provider={PROVIDER_GOOGLE}
+				customMapStyle={mapStyle}
+				initialRegion={initialRegion}
+				showsCompass={false}
+				rotateEnabled={false}
+				liteMode={false}
+			>
+				{/* User marker */}
+				{(currentLocation && showUser) && (
+					<Marker
+						coordinate={currentLocation}
+						anchor={{ x: 0.5, y: 0.5 }}
+					>
+						<TouchableOpacity
+							style={styles.profileButton}
+						>
+							{user?.picture ? (
+								<Image
+									source={{ uri: user.picture }}
+									style={styles.profileImage}
+								/>
+							) : (
+								<View style={styles.profilePlaceholder}>
+									<Ionicons name="person" size={32} color="#ccc" style={{ marginTop: 6 }} />
+								</View>
+							)}
+						</TouchableOpacity>
+					</Marker>
+				)}
+			</MapView>
 
-			{/* Student info display */}
-			{user && (
-				<View style={styles.userInfoContainer}>
-					<Text style={styles.userInfoText}>
-						{t('main.loggedInAs', { id: user.id })}
-					</Text>
-					{user.name && user.name !== user.id && (
-						<Text style={styles.userInfoText}>
-							{t('main.name', { name: user.name })}
-						</Text>
-					)}
+			{/* Top bar with input and settings button using SafeAreaView */}
+			<SafeAreaView style={styles.safeAreaContainer}>
+				<View style={styles.topBarContainer}>
+					{/* Search input button */}
+					<TouchableOpacity
+						style={styles.searchInputButton}
+					>
+						<Text style={styles.searchPlaceholder}>{t('search.placeholder', 'Ask me anything...')}</Text>
+					</TouchableOpacity>
+
+					{/* Settings button */}
+					<TouchableOpacity style={styles.mapButton}>
+						<Ionicons name="settings-outline" size={24} color="#000" />
+					</TouchableOpacity>
 				</View>
-			)}
+			</SafeAreaView>
+
+			<View style={styles.bottomBarContainer}>
+				{/* Space between buttons */}
+				<TouchableOpacity style={{ width: 45 }}></TouchableOpacity>
+				{/* Bottom primary button */}
+				<TouchableOpacity style={styles.primaryButton}>
+
+				</TouchableOpacity>
+				{/* Relocate user button */}
+				<TouchableOpacity
+					style={styles.mapButton}
+					onPress={centerOnUser}
+				>
+					<Ionicons name="locate-outline" size={24} color="#000" />
+				</TouchableOpacity>
+			</View>
 		</View>
 	);
 };
@@ -185,89 +194,121 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: '#fff',
 	},
-	logoutContainer: {
-		position: 'absolute',
-		top: Platform.OS === 'ios' ? 50 : 40,
-		right: 20,
-		zIndex: 999,
+	errorContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#fff',
 	},
-	buttonBase: {
-		minWidth: 100,
-		paddingVertical: 10,
+	errorText: {
+		color: '#e74c3c',
+		fontSize: 16,
+		marginBottom: 20,
+	},
+	profileButton: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		shadowColor: '#0008',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.1,
+		shadowRadius: 3,
+		elevation: 0,
+	},
+	profileImage: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		borderWidth: 2,
+		borderColor: 'white',
+	},
+	profilePlaceholder: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: '#ddd',
+		borderWidth: 2,
+		borderColor: 'white',
+		justifyContent: 'center',
+		alignItems: 'center',
+		overflow: 'hidden',
+	},
+	safeAreaContainer: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+	},
+	topBarContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
 		paddingHorizontal: 16,
-		borderRadius: 25,
+		paddingVertical: 16,
+		gap: 12,
+	},
+	searchInputButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		flex: 1,
+		paddingHorizontal: 16,
+		height: 45,
+		borderRadius: 24,
+		backgroundColor: 'white',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.1,
+		shadowRadius: 2,
+		elevation: 2,
+	},
+	searchPlaceholder: {
+		color: '#aaa',
+		fontWeight: '500',
+		fontSize: 15,
+	},
+	mapButton: {
+		width: 45,
+		height: 45,
+		borderRadius: 24,
+		backgroundColor: 'white',
 		justifyContent: 'center',
 		alignItems: 'center',
 		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.15,
+		shadowOpacity: 0.2,
+		shadowRadius: 3,
+		elevation: 3,
+	},
+	bottomBarContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingHorizontal: 16,
+		paddingVertical: 16,
+		gap: 12,
+		position: 'absolute',
+		bottom: 30,
+		left: 0,
+		right: 0,
+	},
+	primaryButton: {
+		backgroundColor: 'white',
+		width: 54,
+		height: 54,
+		borderRadius: 50,
+		alignItems: 'center',
+		justifyContent: 'center',
+		// borderWidth: 3,
+		borderColor: Colors.primary,
+		shadowColor: '#0008',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.2,
 		shadowRadius: 3,
 		elevation: 4,
 	},
-	buttonContent: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	buttonText: {
-		fontSize: 16,
-		fontWeight: '600',
-	},
-	primaryButton: {
-		backgroundColor: '#3498db',
-	},
-	primaryButtonPressed: {
-		backgroundColor: '#2980b9',
-		transform: [{ scale: 0.97 }],
-	},
 	primaryButtonText: {
 		color: 'white',
-	},
-	secondaryButton: {
-		backgroundColor: 'white',
-		borderWidth: 1,
-		borderColor: '#3498db',
-	},
-	secondaryButtonPressed: {
-		backgroundColor: '#ecf0f1',
-		transform: [{ scale: 0.97 }],
-	},
-	secondaryButtonText: {
-		color: '#3498db',
-	},
-	dangerButton: {
-		backgroundColor: '#e74c3c',
-	},
-	dangerButtonPressed: {
-		backgroundColor: '#c0392b',
-		transform: [{ scale: 0.97 }],
-	},
-	dangerButtonText: {
-		color: 'white',
-	},
-	logoutButton: {
-		backgroundColor: '#ff5252',
-		paddingVertical: 8,
-		paddingHorizontal: 16,
-		borderRadius: 20,
-	},
-	logoutText: {
-		color: 'white',
-		fontWeight: 'bold',
-	},
-	userInfoContainer: {
-		position: 'absolute',
-		bottom: 40,
-		left: 0,
-		right: 0,
-		backgroundColor: 'rgba(0, 0, 0, 0.7)',
-		padding: 10,
-		alignItems: 'center',
-	},
-	userInfoText: {
-		color: 'white',
+		fontWeight: '600',
 		fontSize: 16,
-		marginVertical: 2,
 	}
 });
 

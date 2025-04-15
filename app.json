@@ -34,6 +34,9 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show it on the map.",
         "NSCameraUsageDescription": "This app uses the camera to scan student ID cards."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
       }
     },
     "android": {
@@ -41,7 +44,17 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA"
       ],
-      "package": "com.junweialreadyexist.askhisyam"
+      "package": "com.junweialreadyexist.askhisyam",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
+        }
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ac26a291-a95e-4e00-9ed3-aa8359716a42"
+      }
     }
   }
 }

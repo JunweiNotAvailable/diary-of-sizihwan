@@ -42,7 +42,7 @@ const SplashScreen = ({ navigation }: { navigation: any }) => {
 
       if (currUserId) {
         const res = await fetch(`${Config.api.url}/data?table=users&id=${currUserId}`);
-        const userData = (await res.json()).data;
+        const { password, ...userData} = (await res.json()).data;
         props?.setUser(userData);
         navigation.replace('Main');
       } else {

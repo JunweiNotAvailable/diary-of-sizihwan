@@ -86,7 +86,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         return;
       }
       // Set user in app state
-      setUser(userData);
+      setUser({ ...userData, password: '' }); // Remove password from user data to avoid exposing it
 
       // Save user ID to AsyncStorage
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
@@ -271,7 +271,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       }
 
       // Set user in app state
-      setUser(userData);
+      setUser({ ...userData, password: '' });
       
       // Save user ID to AsyncStorage
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
