@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "AskHisyam",
+    "slug": "askhisyam",
+    "scheme": "askhisyam",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#fff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app wants to access your photos."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow AskHisyam to access your camera to scan student ID cards."
+        }
+      ],
+      "expo-secure-store",
+      "expo-localization"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.junweialreadyexist.askhisyam",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show it on the map.",
+        "NSCameraUsageDescription": "This app uses the camera to scan student ID cards."
+      }
+    },
+    "android": {
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ],
+      "package": "com.junweialreadyexist.askhisyam"
+    }
+  }
+}

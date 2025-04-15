@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "studentId": "Student ID",
+    "password": "Password",
+    "name": "Name",
+    "scanIdCard": "Scan Student ID",
+    "scan": "Scan",
+    "verifyId": "Verify Your ID",
+    "isThisYourId": "Is this your Student ID?",
+    "reScan": "Re-scan",
+    "continue": "Continue",
+    "createAccount": "Create Account",
+    "preparingCamera": "Preparing camera..."
+  },
+  "errors": {
+    "enterStudentId": "Please enter your student ID",
+    "enterPassword": "Please enter your password",
+    "enterName": "Please enter your name",
+    "signInFailed": "Oops! Failed to sign in. Please try again.",
+    "signUpFailed": "Oops! Failed to create account. Please try again.",
+    "cameraPermission": "Camera permission is required to scan ID"
+  }
+} 
