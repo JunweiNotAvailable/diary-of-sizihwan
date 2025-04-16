@@ -299,6 +299,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       />
       <View style={styles.buttonRow}>
         <PrettyButton
+          disabled={isLoading}
           style={{ width: '100%' }}
           title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.signIn')}
           onPress={handleSignIn}
@@ -317,6 +318,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           title={t('auth.scanIdCard')}
           type="secondary"
           onPress={handleScan}
+          disabled={isLoading}
         />
       </View>
     </View>
@@ -350,11 +352,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
               title={t('general.goBack')}
               type="secondary"
               onPress={() => setAuthStep('SIGN_IN')}
+              disabled={isLoading}
             />
             <PrettyButton
               style={{ flex: 1 }}
               title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.scan')}
               onPress={handleProcessScan}
+              disabled={isLoading}
             />
           </View>
         </View>
@@ -379,11 +383,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           title={t('auth.reScan')}
           type="secondary"
           onPress={handleRescan}
+          disabled={isLoading}
         />
         <PrettyButton
           style={{ flex: 1 }}
           title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.continue')}
           onPress={handleVerifyAndProceed}
+          disabled={isLoading}
         />
       </View>
 
@@ -415,11 +421,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           type="secondary"
           title={t('auth.signIn')}
           onPress={() => setAuthStep('SIGN_IN')}
+          disabled={isLoading}
         />
         <PrettyButton
           style={{ flex: 1 }}
           title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.createAccount')}
           onPress={handleSignUp}
+          disabled={isLoading}
         />
       </View>
     </View>

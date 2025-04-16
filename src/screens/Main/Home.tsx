@@ -16,6 +16,7 @@ import { PlusIcon, LocateIcon, PersonIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LocationIcon } from '../../components/LocationIcon';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations
 const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
@@ -36,45 +37,51 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 	const mapRef = useRef<MapView>(null);
 
 	// Request location permission and get user's location
-	useEffect(() => {
-		const getLocationPermission = async () => {
-			try {
-				const { status } = await Location.requestForegroundPermissionsAsync();
+	useFocusEffect(
+		React.useCallback(() => {
+			const getLocationPermission = async () => {
+				try {
+					const { status } = await Location.requestForegroundPermissionsAsync();
 
-				if (status === 'granted') {
-					setLocationPermission(true);
+					if (status === 'granted') {
+						setLocationPermission(true);
 
-					// Get current location
-					const location = await Location.getCurrentPositionAsync({
-						accuracy: Location.Accuracy.Balanced,
-					});
+						// Get current location
+						const location = await Location.getCurrentPositionAsync({
+							accuracy: Location.Accuracy.Balanced,
+						});
 
-					const locationCoords = {
-						latitude: location.coords.latitude,
-						longitude: location.coords.longitude,
-					};
+						const locationCoords = {
+							latitude: location.coords.latitude,
+							longitude: location.coords.longitude,
+						};
 
-					setCurrentLocation(locationCoords);
+						setCurrentLocation(locationCoords);
 
-					setInitialRegion({
-						...locationCoords,
-						latitudeDelta: 0.0042,
-						longitudeDelta: 0.0042,
-					});
-				} else {
-					// Permission denied
-					Alert.alert(
-						t('location.permissionTitle'),
-						t('location.permissionDenied')
-					);
+						setInitialRegion({
+							...locationCoords,
+							latitudeDelta: 0.0042,
+							longitudeDelta: 0.0042,
+						});
+					} else {
+						// Permission denied
+						Alert.alert(
+							t('location.permissionTitle'),
+							t('location.permissionDenied')
+						);
+					}
+				} catch (error) {
+					console.error('Error getting location permission:', error);
 				}
-			} catch (error) {
-				console.error('Error getting location permission:', error);
-			}
-		};
+			};
 
-		getLocationPermission();
-	}, []);
+			getLocationPermission();
+			
+			return () => {
+				// Cleanup if needed
+			};
+		}, [])
+	);
 
 	// Error boundary for map loading
 	useEffect(() => {
@@ -123,7 +130,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				style={StyleSheet.absoluteFill}
 				provider={PROVIDER_GOOGLE}
 				customMapStyle={mapStyle}
-				initialRegion={initialRegion}
+				region={initialRegion}
 				showsCompass={false}
 				rotateEnabled={false}
 				liteMode={false}
