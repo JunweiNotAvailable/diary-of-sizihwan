@@ -317,7 +317,10 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
         {/* Add new review button */}
         <PrettyButton
           style={styles.headerButton}
-          onPress={() => navigation.navigate('New', { locationId: location.id })}
+          onPress={() => navigation.navigate('New', { locationId: location.id, onDone: (review: ReviewModel | undefined) => {
+            if (!review || location.id !== review.location) return;
+            setReviews(prev => [review, ...prev]);
+          } })}
           children={<PlusIcon width={15} height={15} />}
         />
       </View>

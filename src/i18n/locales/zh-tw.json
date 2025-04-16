@@ -1,7 +1,10 @@
 {
   "general": {
     "goBack": "返回",
-    "title": "標題"
+    "title": "標題",
+    "cancel": "取消",
+    "delete": "刪除",
+    "save": "儲存"
   },
   "auth": {
     "signIn": "登入",
@@ -40,12 +43,24 @@
     "title": "我ㄉ個人資料",
     "signOut": "登出",
     "signingOut": "登出中...",
-    "settings": "設定",
-    "preferences": "偏好",
-    "account": "帳號",
-    "reviews": "我的分享文",
-    "askHistory": "我的問題",
-    "score": "你的分享文被引用了{{count}}次"
+    "score": "你的分享文被引用了{{count}}次",
+    "myReviews": {
+      "title": "我的分享文",
+      "noReviews": "還沒有分享文",
+      "options": "選項",
+      "deleteReviewTitle": "刪除分享文",
+      "deleteReviewMessage": "確定要刪除{{title}}嗎？",
+      "deleteReview": "刪除",
+      "editReview": "編輯"
+    },
+    "askHistory": {
+      "title": "我的問題"
+    },
+    "settings": {
+      "title": "設定",
+      "preferences": "偏好",
+      "account": "帳號"
+    }
   },
   "new": {
     "title": "新增分享文",
@@ -56,7 +71,7 @@
     "selectCategories": "選擇類別",
     "addCategory": "新增你覺得最適合的類別",
     "content": "內容",
-    "contentPlaceholder": "讓你的故事成為校園的一部分，你也可以單純留下資訊幫助其他同學",
+    "contentPlaceholder": "讓你的故事成為校園的一部分，也可以單純留下資訊幫助其他同學",
     "allowReference": "允許 AI 引用這篇文章來回答問題",
     "submit": "發布",
     "errors": {
@@ -94,4 +109,4 @@
     "reviews": "{{name}}的分享文",
     "noReviews": "沒有分享文"
   }
-} 
+}

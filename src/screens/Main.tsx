@@ -6,6 +6,8 @@ import NewScreen from './Main/New';
 import AskScreen from './Main/Ask';	
 import ReviewsScreen from './Main/Reviews';	
 import UserProfileScreen from './Main/UserProfile';
+import MyReviewsScreen from './Main/ProfileOptions/MyReviews';
+import EditReviewScreen from './Main/ProfileOptions/EditReview';
 
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
@@ -30,6 +32,25 @@ const MainScreen = () => {
           contentStyle: { backgroundColor: 'transparent' },
         }}
       />
+      {/* My reviews */}
+      <Stack.Screen
+        name="MyReviews"
+        component={MyReviewsScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      {/* Edit review */}
+      <Stack.Screen
+        name="EditReview"
+        component={EditReviewScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      
       {/* New review */}
 			<Stack.Screen
         name="New"

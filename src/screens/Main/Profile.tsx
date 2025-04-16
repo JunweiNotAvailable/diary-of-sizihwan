@@ -104,9 +104,9 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             {/* Reviews */}
             <PrettyButton
               style={styles.card}
-              onPress={() => { }}
+              onPress={() => navigation.navigate('MyReviews')}
             >
-              <Text style={styles.cardTitle}>{t('profile.reviews', 'My Reviews')}</Text>
+              <Text style={styles.cardTitle}>{t('profile.myReviews.title', 'My Reviews')}</Text>
               <View style={styles.cardImage}>
                 <FeatherPenIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
@@ -118,7 +118,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
               style={styles.card}
               onPress={() => { }}
             >
-              <Text style={styles.cardTitle}>{t('profile.askHistory', 'My Questions')}</Text>
+              <Text style={styles.cardTitle}>{t('profile.askHistory.title', 'My Questions')}</Text>
               <View style={styles.cardImage}>
                 <AskIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
@@ -130,7 +130,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
               style={styles.card}
               onPress={() => { }}
             >
-              <Text style={styles.cardTitle}>{t('profile.settings', 'Settings')}</Text>
+              <Text style={styles.cardTitle}>{t('profile.settings.title', 'Settings')}</Text>
               <View style={styles.cardImage}>
                 <SettingsIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>

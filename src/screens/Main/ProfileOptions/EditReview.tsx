@@ -10,35 +10,36 @@ import {
   Switch,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useAppState } from '../../contexts/AppContext';
-import { Categories, Colors, Locations } from '../../utils/Constants';
-import { PlusIcon, PrettyLoadingIcon } from '../../utils/Svgs';
-import { Input, Textarea, PrettyButton, Select } from '../../components';
-import { ReviewModel } from '../../utils/Interfaces';
-import { Config } from '../../utils/Config';
-import { generateRandomString } from '../../utils/Functions';
+import { useAppState } from '../../../contexts/AppContext';
+import { Categories, Colors, Locations } from '../../../utils/Constants';
+import { PlusIcon, PrettyLoadingIcon } from '../../../utils/Svgs';
+import { Input, Textarea, PrettyButton, Select } from '../../../components';
+import { ReviewModel } from '../../../utils/Interfaces';
+import { Config } from '../../../utils/Config';
+import { generateRandomString } from '../../../utils/Functions';
 
-const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
+const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { t } = useTranslation();
   const { user, locale } = useAppState();
-  
-  // Get initial location from route params if available
-  const initialLocation = route.params?.locationId || '';
+  const { reviewId } = route.params;
 
   // Form state
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [location, setLocation] = useState(initialLocation);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [allowReference, setAllowReference] = useState(true);
+  const [review, setReview] = useState<ReviewModel | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Update location if route params change
+  // Get review and setup initial state
   useEffect(() => {
-    if (route.params?.locationId) {
-      setLocation(route.params.locationId);
-    }
-  }, [route.params?.locationId]);
+    if (!reviewId) return;
+
+    // Get review from server
+    (async () => {
+      const res = await fetch(`${Config.api.url}/data?table=reviews&id=${reviewId}`);
+      const reviewData = (await res.json()).data;
+      setReview(reviewData);
+      setIsLoading(false);
+    })();
+  }, [reviewId]);
 
   // UI state
   const [titleError, setTitleError] = useState('');
@@ -55,28 +56,28 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const validateForm = () => {
     let isValid = true;
 
-    if (!title.trim()) {
+    if (!review?.title.trim()) {
       setTitleError(t('new.errors.titleRequired', 'Title is required'));
       isValid = false;
     } else {
       setTitleError('');
     }
 
-    if (!content.trim()) {
+    if (!review?.content.trim()) {
       setContentError(t('new.errors.contentRequired', 'Content is required'));
       isValid = false;
     } else {
       setContentError('');
     }
 
-    if (!location) {
+    if (!review?.location) {
       setLocationError(t('new.errors.locationRequired', 'Please select a location'));
       isValid = false;
     } else {
       setLocationError('');
     }
 
-    if (selectedCategories.length === 0) {
+    if (review?.categories.length === 0) {
       setCategoryError(t('new.errors.categoryRequired', 'Please select at least one category'));
       isValid = false;
     } else {
@@ -88,41 +89,25 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 
   // Handle post
   const handlePost = async () => {
-    if (!validateForm() || !user) return;
+    if (!validateForm() || !user || !review) return;
 
     setIsSubmitting(true);
     try {
-      // Create review object
-      const review: ReviewModel = {
-        id: generateRandomString(30, 'rev'),
-        user_id: user.id,
-        title,
-        content,
-        location,
-        categories: selectedCategories,
-        created_at: new Date().toISOString(),
-        allow_reference: allowReference,
-        extra: {
-          is_anonymous: false,
-          score: 0,
-          likes: []
-        }
-      };
-
       // Post review to server
-      await fetch(`${Config.api.url}/data?table=reviews`, {
-        method: 'POST',
+      const { id, created_at, user_id, ...reviewData } = review;
+      await fetch(`${Config.api.url}/data?table=reviews&id=${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(review)
+        body: JSON.stringify(reviewData)
       });
-
-      // Check if there's an onDone callback and use it to return the new review
+      
+      // Check if there's an onDone callback and use it to return the updated review
       if (route.params?.onDone) {
         route.params.onDone(review);
       }
-
+      
       navigation.goBack();
     } catch (error) {
       console.error('Error posting review:', error);
@@ -130,6 +115,14 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <PrettyLoadingIcon width={28} height={28} stroke={Colors.primaryGray} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.modalContainer}>
@@ -156,9 +149,8 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
           <ScrollView style={styles.content}>
             <Input
               label={t('general.title', '標題')}
-              value={title}
-              autoFocus
-              onChangeText={setTitle}
+              value={review?.title}
+              onChangeText={(text) => review && setReview({ ...review, title: text })}
               placeholder={t('new.titlePlaceholder', 'Enter a title for your review')}
               error={titleError}
               containerStyle={{ marginBottom: 30 }}
@@ -168,11 +160,11 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 
             <Textarea
               label={t('new.content', 'Content')}
-              value={content}
-              onChangeText={setContent}
+              value={review?.content}
+              onChangeText={(text) => review && setReview({ ...review, content: text })}
               placeholder={t('new.contentPlaceholder', 'Write your review here...')}
               error={contentError}
-              rows={Math.min(10, Math.max(4, content.split('\n').length))}
+              rows={Math.min(10, Math.max(4, review?.content?.split('\n').length || 0))}
               containerStyle={{ marginBottom: 30 }}
               labelStyle={{ fontWeight: '600' }}
               textareaStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 10, borderRadius: 0, borderWidth: 0, borderBottomWidth: 1 }}
@@ -182,8 +174,8 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
               label={t('new.location', 'Location')}
               placeholder={t('new.selectLocation', 'Select a location')}
               options={Locations.nsysu.map(location => ({ id: location.id, name: locale === 'zh' ? location.name : location.name_en }))}
-              selectedIds={location}
-              onSelect={(id: string | string[]) => setLocation(id as string)}
+              selectedIds={review?.location || ''}
+              onSelect={(id: string | string[]) => review && setReview({ ...review, location: id as string })}
               error={locationError}
               containerStyle={{ marginBottom: 30 }}
               modalTitle={t('new.location', 'Location')}
@@ -195,8 +187,8 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
               label={t('new.categories', 'Categories')}
               placeholder={t('new.selectCategories', 'Select categories')}
               options={Categories.map((category) => ({ id: category.name, name: t(`categories.${category.name}`) }))}
-              selectedIds={selectedCategories}
-              onSelect={(ids: string | string[]) => setSelectedCategories(ids as string[])}
+              selectedIds={review?.categories || []}
+              onSelect={(ids: string | string[]) => review && setReview({ ...review, categories: ids as string[] })}
               error={categoryError}
               multiSelect={true}
               // allowAddNew={true}
@@ -210,10 +202,10 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
             <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{t('new.allowReference', 'Allow us to reference this post')}</Text>
               <Switch
-                value={allowReference}
-                onValueChange={setAllowReference}
+                value={review?.allow_reference}
+                onValueChange={review ? (value) => setReview({ ...review, allow_reference: value }) : undefined}
                 trackColor={{ false: '#ddd', true: Colors.secondary }}
-                thumbColor={allowReference ? Colors.primary : '#f4f3f4'}
+                thumbColor={review?.allow_reference ? Colors.primary : '#f4f3f4'}
               />
             </View>
           </ScrollView>
@@ -221,7 +213,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
           {/* Footer */}
           <View style={styles.footer}>
             <PrettyButton
-              title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('new.submit', 'Submit')}
+              title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('general.save', 'Save')}
               disabled={isSubmitting}
               onPress={handlePost}
               style={{ width: '100%' }}
@@ -331,4 +323,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewScreen;
+export default EditReviewScreen;

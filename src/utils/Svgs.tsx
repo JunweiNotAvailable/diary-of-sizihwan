@@ -131,10 +131,10 @@ export const PrettyLoadingIcon = (props: SvgProps) => {
   const width = props.width || 24;
   const height = props.height || 24;
   const stroke = props.stroke || Colors.primary;
-  
+
   // Create rotation animation
   const spinValue = useRef(new Animated.Value(0)).current;
-  
+
   // Set up animation on mount
   useEffect(() => {
     const startAnimation = () => {
@@ -146,38 +146,38 @@ export const PrettyLoadingIcon = (props: SvgProps) => {
         useNativeDriver: true,
       }).start(() => startAnimation());
     };
-    
+
     startAnimation();
-    
+
     // Clean up animation when component unmounts
     return () => {
       spinValue.stopAnimation();
     };
   }, []);
-  
+
   // Calculate rotation based on animation value
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
-  
+
   return (
     <Animated.View style={{ transform: [{ rotate: spin }] }}>
       <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
-        <Circle 
-          cx="12" 
-          cy="12" 
-          r="10" 
-          stroke={stroke} 
-          strokeWidth="4" 
-          strokeLinecap="round" 
-          strokeOpacity="0" 
+        <Circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke={stroke}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeOpacity="0"
         />
-        <Path 
+        <Path
           d="M12 2C13.3132 2 14.6136 2.25866 15.8268 2.76121C17.0401 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12"
-          stroke={stroke} 
-          strokeWidth="4" 
-          strokeLinecap="round" 
+          stroke={stroke}
+          strokeWidth="4"
+          strokeLinecap="round"
         />
       </Svg>
     </Animated.View>
@@ -195,6 +195,32 @@ export const TranslateIcon = (props: SvgProps) => {
         d="M12.87 15.07L10.33 12.56L10.36 12.53C12.1 10.59 13.34 8.36 14.07 6H17V4H10V2H8V4H1V6H12.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8H4.69C5.42 9.63 6.42 11.17 7.67 12.56L2.58 17.58L4 19L9 14L12.11 17.11L12.87 15.07ZM18.5 10H16.5L12 22H14L15.12 19H19.87L21 22H23L18.5 10ZM15.88 17L17.5 12.67L19.12 17H15.88Z"
         fill={fill}
       />
+    </Svg>
+  );
+};
+
+export const EllipsisIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const fill = props.fill || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="6" r="1.5" fill={fill} />
+      <Circle cx="12" cy="12" r="1.5" fill={fill} />
+      <Circle cx="12" cy="18" r="1.5" fill={fill} />
+    </Svg>
+  );
+};
+
+export const TrashIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const fill = props.fill || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 68 68" fill="none">
+      <Path d="M56.6666 17C57.3888 17.0008 58.0834 17.2773 58.6085 17.7731C59.1336 18.2688 59.4496 18.9464 59.492 19.6673C59.5343 20.3882 59.2997 21.0981 58.8362 21.6518C58.3727 22.2056 57.7152 22.5615 56.9981 22.6468L56.6666 22.6667H56.4371L53.8333 53.8333C53.8334 56.0014 53.0051 58.0876 51.5177 59.6651C50.0303 61.2425 47.9963 62.192 45.832 62.3192L45.3333 62.3333H22.6666C18.139 62.3333 14.4386 58.7945 14.1893 54.5417L14.1751 54.0685L11.56 22.6667H11.3333C10.6111 22.6659 9.91655 22.3893 9.39143 21.8936C8.86631 21.3978 8.55031 20.7203 8.50799 19.9994C8.46566 19.2785 8.70022 18.5686 9.16372 18.0148C9.62723 17.461 10.2847 17.1051 11.0018 17.0198L11.3333 17H56.6666ZM39.6666 5.66666C41.1695 5.66666 42.6109 6.26368 43.6736 7.32638C44.7363 8.38909 45.3333 9.83043 45.3333 11.3333C45.3325 12.0555 45.056 12.7501 44.5602 13.2752C44.0645 13.8003 43.3869 14.1163 42.666 14.1586C41.9451 14.201 41.2352 13.9664 40.6814 13.5029C40.1277 13.0394 39.7718 12.3819 39.6865 11.6648L39.6666 11.3333H28.3333L28.3135 11.6648C28.2282 12.3819 27.8723 13.0394 27.3185 13.5029C26.7647 13.9664 26.0548 14.201 25.3339 14.1586C24.613 14.1163 23.9355 13.8003 23.4397 13.2752C22.944 12.7501 22.6674 12.0555 22.6666 11.3333C22.6662 9.90369 23.2061 8.52672 24.1782 7.47844C25.1503 6.43016 26.4827 5.78805 27.9083 5.68082L28.3333 5.66666H39.6666Z" fill={fill} />
     </Svg>
   );
 };

@@ -4,12 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   FlatList,
   TextInput,
-  TouchableWithoutFeedback,
   Platform,
-  KeyboardAvoidingView,
   StyleProp,
   ViewStyle,
   TextStyle
@@ -17,6 +14,7 @@ import {
 import { Colors } from '../utils/Constants';
 import { ChevronDownIcon, PlusIcon, CheckIcon } from '../utils/Svgs';
 import PrettyButton from './PrettyButton';
+import BottomModal from './BottomModal';
 
 interface SelectOption {
   id: string;
@@ -98,10 +96,62 @@ const Select: React.FC<SelectProps> = ({
     }
   };
 
-  // Close the modal when clicking outside
-  const handleOverlayPress = () => {
-    setModalVisible(false);
-  };
+  // Render content for the modal
+  const renderModalContent = () => (
+    <>
+      {allowAddNew && (
+        <View style={styles.newOptionContainer}>
+          <TextInput
+            style={styles.newOptionInput}
+            value={newOption}
+            onChangeText={setNewOption}
+            placeholder={addNewPlaceholder}
+            placeholderTextColor="#999"
+          />
+          <PrettyButton
+            onPress={() => {
+              if (newOption.trim()) {
+                onAddNew?.(newOption);
+                setNewOption('');
+              }
+            }}
+            style={[
+              styles.addButton,
+              !newOption.trim() && styles.addButtonDisabled
+            ]}
+            disabled={!newOption.trim()}
+            children={<PlusIcon width={10} height={10} fill={Colors.primary} />}
+          />
+        </View>
+      )}
+
+      <FlatList
+        data={options}
+        style={{ maxHeight: 350 }}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.modalItem}
+            onPress={() => handleSelect(item.id)}
+          >
+            <Text style={styles.modalItemText}>{item.name}</Text>
+            {multiSelect
+              ? ((selectedIds as string[]).includes(item.id) && (
+                <View style={styles.selectedIndicator}>
+                  <CheckIcon width={10} height={10} stroke={'#fff'} />
+                </View>
+              ))
+              : (item.id === selectedIds && (
+                <View style={styles.selectedIndicator}>
+                  <CheckIcon width={10} height={10} stroke={'#fff'} />
+                </View>
+              ))
+            }
+          </TouchableOpacity>
+        )}
+      />
+    </>
+  );
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -119,84 +169,13 @@ const Select: React.FC<SelectProps> = ({
 
       {error ? <Text style={[styles.errorText, errorStyle]}>{error}</Text> : null}
 
-      <Modal
+      <BottomModal
         visible={modalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
+        onClose={() => setModalVisible(false)}
+        title={modalTitle}
       >
-        <TouchableWithoutFeedback onPress={handleOverlayPress}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={e => e.stopPropagation()}>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardAvoid}
-              >
-                <View style={styles.modalContent}>
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>{modalTitle}</Text>
-                    <PrettyButton
-                      onPress={() => setModalVisible(false)}
-                      style={styles.modalClose}
-                      children={
-                        <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-                          <PlusIcon width={14} height={14} fill={Colors.primary} />
-                        </View>
-                      }
-                    />
-                  </View>
-
-                  {allowAddNew && (
-                    <View style={styles.newOptionContainer}>
-                      <TextInput
-                        style={styles.newOptionInput}
-                        value={newOption}
-                        onChangeText={setNewOption}
-                        placeholder={addNewPlaceholder}
-                        placeholderTextColor="#999"
-                      />
-                      <PrettyButton
-                        onPress={() => {
-                          setNewOption('');
-                          onAddNew?.(newOption);
-                        }}
-                        style={styles.addButton}
-                        children={<PlusIcon width={10} height={10} fill={Colors.primary} />}
-                      />
-                    </View>
-                  )}
-
-                  <FlatList
-                    data={options}
-                    style={{ maxHeight: 350 }}
-                    keyExtractor={item => item.id}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={styles.modalItem}
-                        onPress={() => handleSelect(item.id)}
-                      >
-                        <Text style={styles.modalItemText}>{item.name}</Text>
-                        {multiSelect
-                          ? ((selectedIds as string[]).includes(item.id) && (
-                            <View style={styles.selectedIndicator}>
-                              <CheckIcon width={10} height={10} stroke={'#fff'} />
-                            </View>
-                          ))
-                          : (item.id === selectedIds && (
-                            <View style={styles.selectedIndicator}>
-                              <CheckIcon width={10} height={10} stroke={'#fff'} />
-                            </View>
-                          ))
-                        }
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-              </KeyboardAvoidingView>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+        {renderModalContent()}
+      </BottomModal>
     </View>
   );
 };
@@ -240,48 +219,6 @@ const styles = StyleSheet.create({
     color: '#e74c3c',
     fontSize: 12,
     marginTop: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    // backgroundColor: '#0001',
-    justifyContent: 'flex-end',
-  },
-  keyboardAvoid: {
-    width: '100%',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.primaryLightGray,
-    shadowColor: '#000',
-    shadowOffset: { width: 100, height: 300 },
-    shadowOpacity: 1,
-    shadowRadius: 300,
-    elevation: 200,
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.primary,
-  },
-  modalClose: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff0',
   },
   modalItem: {
     flexDirection: 'row',
@@ -329,11 +266,7 @@ const styles = StyleSheet.create({
   },
   addButtonDisabled: {
     backgroundColor: '#ccc',
-  },
-  addButtonText: {
-    color: Colors.primary,
-    fontSize: 20,
-    fontWeight: 'bold',
+    opacity: 0.7,
   },
 });
 

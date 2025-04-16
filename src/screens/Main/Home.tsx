@@ -197,7 +197,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				{/* Bottom primary button */}
 				<PrettyButton 
 					style={styles.primaryButton} 
-					onPress={() => navigation.navigate('New')}
+					onPress={() => navigation.navigate('New', { onDone: () => { }})}
 					contentStyle={{ gap: 0 }}
 					children={<PlusIcon width={20} height={20} fill={'#fff'} />}
 				/>
