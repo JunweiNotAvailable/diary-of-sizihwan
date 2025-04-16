@@ -55,7 +55,7 @@ export const Locations = {
     { id: "dorm-wuling", icon: 'bed', name: "學生宿舍-武嶺", name_en: "Dormitory - Wu-ling Villa", coordinates: {"latitude": 22.630826465076076, "longitude": 120.2637565881014} },
     { id: "dorm-tsuiheng", icon: 'bed', name: "學生宿舍-翠亨", name_en: "Dormitory - Tsui-heng Villa", coordinates: {"latitude": 22.628534268487233, "longitude": 120.26864457875492} },
     { id: "dorm-hl", icon: 'bed', name: "學生宿舍-H/L棟", name_en: "Dormitory - Building (H&L)", coordinates: {"latitude": 22.627821256650268, "longitude": 120.26838574558498} },
-    { id: 're-e', icon: 'fork', name: "第E餐廳", name_en: "E Restaurant", coordinates: {"latitude": 22.628362514671952, "longitude": 120.26836093515158} },
+    { id: 're-e', icon: 'fork', name: "E餐", name_en: "E Restaurant", coordinates: {"latitude": 22.628362514671952, "longitude": 120.26836093515158} },
     { id: 're-sh', icon: 'fork', name: "山海樓", name_en: "Shanghai Restaurant", coordinates: {"latitude": 22.62843926234928, "longitude": 120.26472352445126} },
     { id: 're-milo', icon: 'fork', name: "米羅餐廳", name_en: "Milo Restaurant", coordinates: {"latitude": 22.63022827570103, "longitude": 120.26376463472845} },
     { id: "std-center", icon: 'users', name: "學生活動中心", name_en: "Student Center", coordinates: {"latitude": 22.628271840949587, "longitude": 120.2650474011898} },

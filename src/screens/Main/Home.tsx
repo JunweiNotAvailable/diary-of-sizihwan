@@ -12,7 +12,7 @@ import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
 import { Colors, Map, Locations, IconColors } from '../../utils/Constants';
-import { PlusIcon, LocateIcon, PersonIcon } from '../../utils/Svgs';
+import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LocationIcon } from '../../components/LocationIcon';
@@ -189,12 +189,12 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 			</SafeAreaView>
 
 			<View style={styles.bottomBarContainer}>
-				{/* New reviews */}
+				{/* Latest reviews */}
 				<PrettyButton
 					style={styles.mapButton}
-					onPress={centerOnUser}
+					onPress={() => navigation.navigate('Latest')}
 					contentStyle={{ gap: 0 }}
-					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
+					children={<BubbleIcon width={24} height={24} fill={Colors.primary} />}
 				/>
 				{/* Bottom primary button */}
 				<PrettyButton

@@ -1,7 +1,7 @@
 import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Colors, Categories } from '../../utils/Constants';
+import { Colors, Categories, Locations } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
@@ -10,7 +10,7 @@ import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText } from '../../components';
 
-const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
+const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,33 +19,25 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
-  const location = route.params?.location;
   const { user, locale } = useAppState();
   const { t } = useTranslation();
   // pagination
   const [page, setPage] = useState(0);
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const limit = 20;
+  const limit = 10;
 
   useEffect(() => {
-    // Check if location parameter is provided
-    if (!location) {
-      setError(t('reviews.errors.locationRequired'));
-      setIsLoading(false);
-      return;
-    }
-
     // Fetch reviews and users from database
     (async () => {
       await loadInitialData();
     })();
-  }, [location]);
+  }, []);
 
   const loadInitialData = async () => {
     try {
       // Get reviews
-      const newReviews = await loadReviews(location.id, 0);
+      const newReviews = await loadReviews(0);
       setReviews(newReviews.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
       setPage(0);
       setHasMoreReviews(newReviews.length === limit);
@@ -60,8 +52,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   };
 
   // Load reviews
-  const loadReviews = async (locationId: string, page: number) => {
-    const res = await fetch(`${Config.api.url}/data?table=reviews&query=location:${locationId}&limit=${limit}&offset=${page * limit}&sortBy=created_at&order=desc`);
+  const loadReviews = async (page: number) => {
+    const res = await fetch(`${Config.api.url}/data?table=reviews&limit=${limit}&offset=${page * limit}&sortBy=created_at&order=desc`);
     const data = await res.json();
     return data.data;
   }
@@ -84,7 +76,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
-      const newReviews = await loadReviews(location.id, nextPage);
+      const newReviews = await loadReviews(nextPage);
 
       if (newReviews.length > 0) {
         setReviews(prev => [...prev, ...newReviews].sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
@@ -162,7 +154,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
       }
 
       const data = (await response.json()).data;
-      
+
       // Store the translated text
       setTranslatedReviews(prev => ({
         ...prev,
@@ -211,7 +203,6 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
     const isShowingTranslation = showingTranslations[item.id] || false;
     const isCurrentlyTranslating = isTranslating[item.id] || false;
-    const hasTranslation = !!translatedReviews[item.id];
 
     // Determine which content to show (original or translated)
     const displayContent = isShowingTranslation ? translatedReviews[item.id] : item.content;
@@ -243,6 +234,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
           <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
         </View>
 
+        <Text style={styles.locationText}>{Locations.nsysu.find((location: any) => location.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
+
         <Text style={styles.reviewTitle}>{item.title}</Text>
 
         <View style={styles.contentContainer}>
@@ -254,8 +247,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
           <View style={styles.contentActions}>
             {/* Translate button */}
-            <PrettyButton 
-              style={styles.translateButton} 
+            <PrettyButton
+              style={styles.translateButton}
               onPress={() => translateReview(item.id, item.content)}
               disabled={isCurrentlyTranslating}
             >
@@ -299,30 +292,21 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     <SafeAreaView style={styles.container}>
       {/* header */}
       <View style={styles.locationHeader}>
-        {/* back button */}
-        <PrettyButton
-          style={[styles.headerButton, { alignItems: 'flex-start' }]}
-          onPress={() => navigation.goBack()}
-        >
-          <View style={{ transform: [{ rotate: '90deg' }] }}>
-            <ChevronDownIcon width={20} height={20} />
-          </View>
-        </PrettyButton>
         {/* Title */}
         <View style={styles.titleContainer}>
           <Text style={styles.title} ellipsizeMode="middle" numberOfLines={1}>
-            {locale === 'zh' ? location.name : location.name_en}
+            {t('reviews.latest')}
           </Text>
         </View>
-        {/* Add new review button */}
         <PrettyButton
-          style={styles.headerButton}
-          onPress={() => navigation.navigate('New', { locationId: location.id, onDone: (review: ReviewModel | undefined) => {
-            if (!review || location.id !== review.location) return;
-            setReviews(prev => [review, ...prev]);
-          } })}
-          children={<PlusIcon width={15} height={15} />}
-        />
+          style={styles.closeButton}
+          onPress={() => navigation.goBack()}
+          contentStyle={{ gap: 0 }}
+        >
+          <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+            <PlusIcon width={14} height={14} />
+          </View>
+        </PrettyButton>
       </View>
 
       <FlatList
@@ -380,15 +364,15 @@ const styles = StyleSheet.create({
     width: '100%',
     borderBottomWidth: 1,
   },
-  headerButton: {
-    padding: 0,
-    margin: 0,
-    backgroundColor: '#0000',
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
+  closeButton: {
+    position: 'absolute',
+    right: 20,
+    width: 28,
+    height: 28,
+    borderRadius: 16,
+    backgroundColor: '#f3f3f3',
     alignItems: 'center',
-    flexShrink: 0,
+    justifyContent: 'center',
   },
   titleContainer: {
     flex: 1,
@@ -436,6 +420,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
     marginTop: 2,
+  },
+  locationText: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 10,
   },
   reviewTitle: {
     fontSize: 18,
@@ -538,4 +527,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReviewsScreen;
+export default LatestScreen;

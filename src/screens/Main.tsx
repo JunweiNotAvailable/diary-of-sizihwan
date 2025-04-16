@@ -9,6 +9,7 @@ import UserProfileScreen from './Main/UserProfile';
 import MyReviewsScreen from './Main/ProfileOptions/MyReviews';
 import EditReviewScreen from './Main/ProfileOptions/EditReview';
 import SettingsScreen from './Main/ProfileOptions/Settings';
+import LatestScreen from './Main/Latest';
 
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,13 @@ const MainScreen = () => {
     >
       {/* Home */}
       <Stack.Screen name="Home" component={HomeScreen} />
+      {/* Latest */}
+      <Stack.Screen name="Latest" component={LatestScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       {/* Profile */}
       <Stack.Screen 
         name="Profile" 

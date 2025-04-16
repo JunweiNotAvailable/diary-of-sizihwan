@@ -100,6 +100,7 @@
     "anonymousUser": "匿名用戶",
     "showMore": "顯示更多",
     "showLess": "顯示更少",
+    "latest": "最新分享文",
     "errors": {
       "locationRequired": "請選擇一個地點"
     }

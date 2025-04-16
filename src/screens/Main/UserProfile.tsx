@@ -148,7 +148,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
       }
 
       const data = (await response.json()).data;
-      
+
       // Store the translated text
       setTranslatedReviews(prev => ({
         ...prev,
@@ -185,11 +185,11 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <Text style={styles.reviewTitle}>{item.title}</Text>
+          <Text style={styles.locationText}>{Locations.nsysu.find(l => l.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
           <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
         </View>
 
-        <Text style={styles.locationText}>{Locations.nsysu.find(l => l.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
+        <Text style={styles.reviewTitle}>{item.title}</Text>
 
         <View style={styles.contentContainer}>
           <MarkdownText
@@ -200,8 +200,8 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
 
           <View style={styles.contentActions}>
             {/* Translate button */}
-            <PrettyButton 
-              style={styles.translateButton} 
+            <PrettyButton
+              style={styles.translateButton}
               onPress={() => translateReview(item.id, item.content)}
               disabled={isCurrentlyTranslating}
             >
@@ -302,7 +302,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
       </SafeAreaView>
     );
   }
-  
+
   return (
     <SafeAreaView style={styles.modalContainer}>
       <View style={styles.modalContent}>
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
   reviewTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginVertical: 8,
     color: '#333',
   },
   contentContainer: {
@@ -607,7 +607,6 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 14,
     color: '#888',
-    marginBottom: 8,
   },
   showMoreButton: {
     paddingVertical: 0,

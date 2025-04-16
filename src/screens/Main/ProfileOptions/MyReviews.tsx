@@ -46,8 +46,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
   const loadInitialData = async () => {
     try {
       // Load reviews
-      const reviewsRes = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user?.id}`);
-      const reviewsData = (await reviewsRes.json()).data;
+      const reviewsData = await loadReviews(0);
       setReviews(reviewsData.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -79,7 +78,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
   };
 
   const loadReviews = async (page: number) => {
-    const res = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user?.id}&limit=${limit}&offset=${page * limit}`);
+    const res = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user?.id}&limit=${limit}&offset=${page * limit}&sortBy=created_at&order=desc`);
     const data = await res.json();
     return data.data;
   }
@@ -223,7 +222,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <Text style={styles.reviewTitle}>{item.title}</Text>
+          <Text style={styles.locationText}>{Locations.nsysu.find(l => l.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
             <PrettyButton 
@@ -235,7 +234,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           </View>
         </View>
 
-        <Text style={styles.locationText}>{Locations.nsysu.find(l => l.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
+        <Text style={styles.reviewTitle}>{item.title}</Text>
 
         <View style={styles.contentContainer}>
           <MarkdownText
@@ -336,11 +335,13 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
         >
           <OptionItem
             label={t('profile.myReviews.editReview')}
+            labelStyle={{ fontWeight: '600' }}
             onPress={handleEditReview}
             icon={<FeatherPenIcon width={20} height={20} fill={Colors.primary} />}
           />
           <OptionItem
             label={t('profile.myReviews.deleteReview')}
+            labelStyle={{ fontWeight: '600' }}
             onPress={handleDeleteReview}
             icon={<TrashIcon width={20} height={20} fill="#FF3B30" />}
             destructive
@@ -569,7 +570,7 @@ const styles = StyleSheet.create({
   reviewTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginVertical: 8,
     color: '#333',
   },
   contentContainer: {
@@ -619,7 +620,6 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 14,
     color: '#888',
-    marginBottom: 8,
   },
   showMoreButton: {
     paddingVertical: 0,
