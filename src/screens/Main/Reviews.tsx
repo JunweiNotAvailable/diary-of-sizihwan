@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import { Colors, Categories } from '../../utils/Constants';
@@ -8,97 +8,7 @@ import PrettyButton from '../../components/PrettyButton';
 import { ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
-
-// Function to parse and render markdown in text
-const parseMarkdown = (text: string) => {
-  if (!text) return [];
-
-  // Define regex patterns for different markdown styles
-  const patterns = [
-    { pattern: /\*\*\*(.*?)\*\*\*/g, style: styles.boldItalic },
-    { pattern: /\*\*(.*?)\*\*/g, style: styles.bold },
-    { pattern: /\*(.*?)\*/g, style: styles.italic },
-    { pattern: /_(.*?)_/g, style: styles.underscore },
-    { pattern: /-(.*?)-/g, style: styles.strikethrough }
-  ];
-
-  // Initialize result with the original text
-  let segments: { text: string; style?: any }[] = [{ text }];
-
-  // Process each pattern
-  patterns.forEach(({ pattern, style }) => {
-    const newSegments: { text: string; style?: any }[] = [];
-
-    // Process each existing segment
-    segments.forEach(segment => {
-      // Skip already styled segments
-      if (segment.style) {
-        newSegments.push(segment);
-        return;
-      }
-
-      let lastIndex = 0;
-      const matches = segment.text.matchAll(pattern);
-      let match = matches.next();
-
-      // No matches in this segment
-      if (match.done) {
-        newSegments.push(segment);
-        return;
-      }
-
-      // Process matches in this segment
-      while (!match.done) {
-        const m = match.value;
-        const [fullMatch, content] = m;
-        const startIndex = m.index!;
-        const endIndex = startIndex + fullMatch.length;
-
-        // Add text before the match
-        if (startIndex > lastIndex) {
-          newSegments.push({
-            text: segment.text.substring(lastIndex, startIndex)
-          });
-        }
-
-        // Add the styled text
-        newSegments.push({
-          text: content,
-          style
-        });
-
-        lastIndex = endIndex;
-        match = matches.next();
-      }
-
-      // Add remaining text after the last match
-      if (lastIndex < segment.text.length) {
-        newSegments.push({
-          text: segment.text.substring(lastIndex)
-        });
-      }
-    });
-
-    segments = newSegments;
-  });
-
-  return segments;
-};
-
-// Component to render markdown text
-const MarkdownText = ({ children, style, numberOfLines }: { children: string; style?: any; numberOfLines?: number }) => {
-  const parsedText = parseMarkdown(children);
-
-  return (
-    <Text style={style} numberOfLines={numberOfLines} ellipsizeMode="tail">
-      {parsedText.map((part, index) => (
-        <Text key={index} style={part.style}>
-          {part.text}
-        </Text>
-      ))}
-    </Text>
-  );
-};
+import { MarkdownText } from '../../components';
 
 const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
@@ -167,17 +77,17 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
   const loadMoreReviews = async () => {
     if (!hasMoreReviews || isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
       const newReviews = await loadReviews(location.id, nextPage);
-      
+
       if (newReviews.length > 0) {
         setReviews(prev => [...prev, ...newReviews].sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
         setPage(nextPage);
         setHasMoreReviews(newReviews.length === limit);
-        
+
         // Load users for new reviews
         await loadMoreUsers(newReviews.map((review: ReviewModel) => review.user_id));
       } else {
@@ -233,34 +143,36 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const renderReviewItem = ({ item }: { item: ReviewModel }) => {
     const user = users.find((user: UserModel) => user.id === item.user_id);
     if (!user) return null;
-  
+
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <View style={styles.userInfo}>
-            {(!item.extra.is_anonymous && user.picture) ? (
-              <Image
-                source={{ uri: user.picture }}
-                style={styles.userImage}
-              />
-            ) : (
-              <View style={[styles.userImage, { alignItems: 'center', justifyContent: 'center' }]}>
-                <View style={{ marginTop: 4 }}>
-                  <PersonIcon width={24} height={24} fill={Colors.primaryGray + '44'} />
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('UserProfile', { userId: user.id })}>
+            <View style={styles.userInfo}>
+              {(!item.extra.is_anonymous && user.picture) ? (
+                <Image
+                  source={{ uri: user.picture }}
+                  style={styles.userImage}
+                />
+              ) : (
+                <View style={[styles.userImage, { alignItems: 'center', justifyContent: 'center' }]}>
+                  <View style={{ marginTop: 4 }}>
+                    <PersonIcon width={24} height={24} fill={Colors.primaryGray + '44'} />
+                  </View>
                 </View>
+              )}
+              <View style={styles.userTextContainer}>
+                <Text style={styles.userName}>
+                  {item.extra.is_anonymous ? t('reviews.anonymousUser') : user.name}
+                </Text>
               </View>
-            )}
-            <View style={styles.userTextContainer}>
-              <Text style={styles.userName}>
-                {item.extra.is_anonymous ? t('reviews.anonymousUser') : user.name}
-              </Text>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
           <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
         </View>
 
         <Text style={styles.reviewTitle}>{item.title}</Text>
-        <MarkdownText 
+        <MarkdownText
           style={styles.reviewContent}
         >
           {item.content}
@@ -270,8 +182,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
           {/* categories */}
           <View style={styles.categoriesContainer}>
             {item.categories.map((category, index) => (
-              <View key={index} style={styles.categoryTag}>
-                <Text style={styles.categoryText}>{t(`categories.${category}`)}</Text>
+              <View key={index} style={[styles.categoryTag, { backgroundColor: Categories.find((c: any) => c.name === category)?.color + '1a' }]}>
+                <Text style={[styles.categoryText, { color: Categories.find((c: any) => c.name === category)?.color }]}>{t(`categories.${category}`)}</Text>
               </View>
             ))}
           </View>
@@ -287,7 +199,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
   const renderFooter = () => {
     if (!isLoadingMore) return null;
-    
+
     return (
       <View style={styles.loadingMoreContainer}>
         <PrettyLoadingIcon width={28} height={28} stroke={Colors.primaryGray} />
@@ -305,7 +217,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
           onPress={() => navigation.goBack()}
         >
           <View style={{ transform: [{ rotate: '90deg' }] }}>
-            <ChevronDownIcon width={20} height={20} stroke={Colors.primary} />
+            <ChevronDownIcon width={20} height={20} />
           </View>
         </PrettyButton>
         {/* Title */}
@@ -318,7 +230,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
         <PrettyButton
           style={styles.headerButton}
           onPress={() => navigation.navigate('New', { locationId: location.id })}
-          children={<PlusIcon width={15} height={15} stroke={Colors.primary} />}
+          children={<PlusIcon width={15} height={15} />}
         />
       </View>
 
@@ -394,7 +306,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.primary,
     textAlign: 'center',
   },
   reviewsList: {
@@ -459,16 +370,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   categoryTag: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: '#f3f3f3',
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
     marginRight: 8,
     marginBottom: 4,
   },
   categoryText: {
     fontSize: 12,
-    color: Colors.primary,
+    color: '#888',
   },
   likesContainer: {
     alignItems: 'center',

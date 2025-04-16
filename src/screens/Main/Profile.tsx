@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,10 +18,21 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrettyButton } from '../../components';
+import { ReviewModel } from '../../utils/Interfaces';
 
 const ProfileScreen = ({ navigation }: { navigation: any }) => {
   const { t } = useTranslation();
   const { user, setUser } = useAppState();
+  const [reviews, setReviews] = useState<ReviewModel[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    (async () => {
+      const reviews = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user?.id}`);
+      setReviews((await reviews.json()).data || []);
+    })();
+  }, [user]);
 
   // Handle sign out
   const handleSignOut = async () => {
@@ -54,7 +65,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             contentStyle={{ gap: 0 }}
           >
             <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-              <PlusIcon width={14} height={14} fill={Colors.primary} />
+              <PlusIcon width={14} height={14} />
             </View>
           </PrettyButton>
         </View>
@@ -67,6 +78,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
               <Text style={styles.userName}>{user?.name || ''}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.userInfo}>{user?.id || ''}</Text>
+                <Text style={styles.scoreText}>{t('profile.score').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
               </View>
             </View>
             {user?.picture ? (
@@ -85,10 +97,10 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
           {/* Bio */}
           {user?.extra?.bio && <View style={styles.section}>
-            <Text style={styles.paragraph}>{user?.extra?.bio}</Text>
+            <Text style={styles.paragraph}>{user?.extra?.bio || 'Some example texts...'}</Text>
           </View>}
 
-          <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
+          <View style={[styles.section, { flexDirection: 'row', gap: 10, marginTop: 20 }]}>
             {/* Reviews */}
             <PrettyButton
               style={styles.card}
@@ -159,7 +171,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.primary,
   },
   closeButton: {
     position: 'absolute',
@@ -213,9 +224,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   userInfo: {
-    fontSize: 14,
+    fontSize: 12,
+    marginVertical: 2,
     color: Colors.primaryGray + '80',
-    marginTop: 4,
   },
   section: {
     paddingHorizontal: 20,
@@ -224,6 +235,11 @@ const styles = StyleSheet.create({
   paragraph: {
     fontSize: 16,
     color: '#333',
+    lineHeight: 20,
+  },
+  scoreText: {
+    fontSize: 14,
+    color: Colors.primaryGray,
     lineHeight: 20,
   },
   card: {

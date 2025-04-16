@@ -13,7 +13,7 @@ export interface SvgProps {
 export const CheckIcon = (props: SvgProps) => {
   const width = props.width || 24;
   const height = props.height || 24;
-  const stroke = props.stroke || Colors.primary;
+  const stroke = props.stroke || '#000';
 
   return (
     <Svg width={width} height={height} viewBox="0 0 72 53" fill="none">
@@ -24,7 +24,7 @@ export const CheckIcon = (props: SvgProps) => {
 export const PlusIcon = (props: SvgProps) => {
   const width = props.width || 24;
   const height = props.height || 24;
-  const fill = props.fill || Colors.primary;
+  const fill = props.fill || '#000';
 
   return (
     <Svg width={width} height={height} viewBox="0 0 64 64" fill="none">

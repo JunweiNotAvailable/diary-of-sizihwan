@@ -39,3 +39,79 @@ export const getTimeFromNow = (date: string): string => {
     return `${diffYears}y`;
   }
 }
+
+export const parseMarkdown = (text: string) => {
+  if (!text) return [];
+
+  // Define regex patterns for different markdown styles
+  const patterns = [
+    { pattern: /\*\*\*(.*?)\*\*\*/g, style: { fontWeight: 'bold', fontStyle: 'italic' } },
+    { pattern: /\*\*(.*?)\*\*/g, style: { fontWeight: 'bold' } },
+    { pattern: /\*(.*?)\*/g, style: { fontStyle: 'italic' } },
+    { pattern: /_(.*?)_/g, style: { textDecorationLine: 'underline' } },
+    { pattern: /-(.*?)-/g, style: { textDecorationLine: 'line-through' } }
+  ];
+
+  // Initialize result with the original text
+  let segments: { text: string; style?: any }[] = [{ text }];
+
+  // Process each pattern
+  patterns.forEach(({ pattern, style }) => {
+    const newSegments: { text: string; style?: any }[] = [];
+
+    // Process each existing segment
+    segments.forEach(segment => {
+      // Skip already styled segments
+      if (segment.style) {
+        newSegments.push(segment);
+        return;
+      }
+
+      let lastIndex = 0;
+      const matches = segment.text.matchAll(pattern);
+      let match = matches.next();
+
+      // No matches in this segment
+      if (match.done) {
+        newSegments.push(segment);
+        return;
+      }
+
+      // Process matches in this segment
+      while (!match.done) {
+        const m = match.value;
+        const [fullMatch, content] = m;
+        const startIndex = m.index!;
+        const endIndex = startIndex + fullMatch.length;
+
+        // Add text before the match
+        if (startIndex > lastIndex) {
+          newSegments.push({
+            text: segment.text.substring(lastIndex, startIndex)
+          });
+        }
+
+        // Add the styled text
+        newSegments.push({
+          text: content,
+          style
+        });
+
+        lastIndex = endIndex;
+        match = matches.next();
+      }
+
+      // Add remaining text after the last match
+      if (lastIndex < segment.text.length) {
+        newSegments.push({
+          text: segment.text.substring(lastIndex)
+        });
+      }
+    });
+
+    segments = newSegments;
+  });
+
+  return segments;
+};
+

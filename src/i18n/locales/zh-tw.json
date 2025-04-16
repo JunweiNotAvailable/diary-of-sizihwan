@@ -34,7 +34,7 @@
   },
   "location": {
     "permissionTitle": "位置權限",
-    "permissionDenied": "我們需要您的位置權限來顯示您在地圖上的位置。請在設定中啟用位置權限。"
+    "permissionDenied": "我們需要您的位置權限來顯示你在地圖上的位置。請在設定中啟用位置權限。"
   },
   "profile": {
     "title": "我ㄉ個人資料",
@@ -43,12 +43,13 @@
     "settings": "設定",
     "preferences": "偏好",
     "account": "帳號",
-    "reviews": "我的回顧",
-    "askHistory": "我的問題"
+    "reviews": "我的分享文",
+    "askHistory": "我的問題",
+    "score": "你的分享文被引用了{{count}}次"
   },
   "new": {
-    "title": "新增回顧",
-    "titlePlaceholder": "用一句話描述今天的回顧",
+    "title": "新增分享文",
+    "titlePlaceholder": "用一句話描述今天的分享文",
     "location": "地點",
     "selectLocation": "選擇地點",
     "categories": "類別",
@@ -56,7 +57,7 @@
     "addCategory": "新增你覺得最適合的類別",
     "content": "內容",
     "contentPlaceholder": "讓你的故事成為校園的一部分，你也可以單純留下資訊幫助其他同學",
-    "allowReference": "允許 AI 引用這篇回顧來回答問題",
+    "allowReference": "允許 AI 引用這篇文章來回答問題",
     "submit": "發布",
     "errors": {
       "titleRequired": "標題不能是空白",
@@ -78,12 +79,19 @@
   },
   "reviews": {
     "loading": "載入中...",
-    "empty": "這裡還沒有任何回顧",
+    "empty": "這裡還沒有任何分享文",
     "anonymousUser": "匿名用戶",
     "showMore": "顯示更多",
     "showLess": "顯示更少",
     "errors": {
       "locationRequired": "請選擇一個地點"
     }
+  },
+  "userProfile": {
+    "title": "用戶資料",
+    "score": "{{name}}的分享文被引用了{{count}}次",
+    "knowThisPerson": "認識{{name}}",
+    "reviews": "{{name}}的分享文",
+    "noReviews": "沒有分享文"
   }
 } 

@@ -141,7 +141,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
               contentStyle={{ gap: 0 }}
             >
               <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-                <PlusIcon width={14} height={14} fill={Colors.primary} />
+                <PlusIcon width={14} height={14} />
               </View>
             </PrettyButton>
           </View>
@@ -188,7 +188,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
             <Select
               label={t('new.categories', 'Categories')}
               placeholder={t('new.selectCategories', 'Select categories')}
-              options={Categories.map((category) => ({ id: category, name: t(`categories.${category}`, category) }))}
+              options={Categories.map((category) => ({ id: category.name, name: t(`categories.${category.name}`) }))}
               selectedIds={selectedCategories}
               onSelect={(ids: string | string[]) => setSelectedCategories(ids as string[])}
               error={categoryError}
@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.primary,
   },
   closeButton: {
     position: 'absolute',

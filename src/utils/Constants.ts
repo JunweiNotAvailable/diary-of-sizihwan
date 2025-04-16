@@ -48,10 +48,10 @@ export const Locations = {
 }
 
 export const Categories = [
-  'general',
-  'food',
-  'academics',
-  'facilities',
-  'events',
-  'casual',
+  { name: 'general', color: '#778899' },
+  { name: 'food', color: '#ee4466' },
+  { name: 'academics', color: '#9944bb' },
+  { name: 'facilities', color: '#772233' },
+  { name: 'events', color: '#ff6644' },
+  { name: 'casual', color: '#55aacc' },
 ]
