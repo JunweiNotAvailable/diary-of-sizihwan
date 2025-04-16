@@ -17,6 +17,38 @@ export const Map = {
   }
 }
 
+/**
+ * Color palette for location markers on the map
+ * Each icon type has two colors:
+ * - fg: Foreground color for the icon itself
+ * - bg: Background color for the marker container
+ * All colors are soft pastels, leaning towards white rather than black
+ */
+export const IconColors = {
+  library: { fg: "#7f93c9", bg: "#e8edf8" },    // soft blue
+  bed: { fg: "#a479b5", bg: "#f2e6f7" },        // soft lavender
+  fork: { fg: "#e18f74", bg: "#fbeee8" },       // soft peach
+  users: { fg: "#75a289", bg: "#e9f3ee" },      // soft mint
+  briefcase: { fg: "#b9a87d", bg: "#f7f4e9" },  // soft tan
+  cpu: { fg: "#77a3af", bg: "#e6f1f4" },        // soft teal
+  leaf: { fg: "#6fb988", bg: "#e7f6ed" },       // soft green
+  layers: { fg: "#a88278", bg: "#f4ece9" },     // soft terracotta
+  flask: { fg: "#7595bd", bg: "#e8eff7" },      // soft sky blue
+  atom: { fg: "#8ba6d2", bg: "#ebf0f9" },       // soft periwinkle
+  fish: { fg: "#599fc7", bg: "#e5f0f7" },       // soft ocean blue
+  waves: { fg: "#69adc4", bg: "#e5f4f9" },      // soft aqua
+  book: { fg: "#bc8e7a", bg: "#f6ede9" },       // soft brown
+  palette: { fg: "#d47e9b", bg: "#f9e9ef" },    // soft rose
+  admin: { fg: "#9f9fc4", bg: "#efeff7" },      // soft violet
+  tree: { fg: "#6fb988", bg: "#e7f6ed" },       // soft green
+  dumbbell: { fg: "#979797", bg: "#efefef" },   // soft gray
+  landmark: { fg: "#c49e6b", bg: "#f7f0e6" },   // soft bronze
+  globe: { fg: "#7595c4", bg: "#e8eff7" },      // soft blue-gray
+  sailboat: { fg: "#7db7c4", bg: "#e8f4f8" },   // soft light blue
+  umbrella: { fg: "#d9a680", bg: "#faf2eb" },   // soft sand
+  flag: { fg: "#c67878", bg: "#f8e9e9" }        // soft coral
+}
+
 export const Locations = {
   nsysu: [
     { id: "il", icon: 'library', name: "圖資大樓(圖IL)", name_en: "Library and Information Building(圖IL)", coordinates: {"latitude": 22.627341580807375, "longitude": 120.26586145162584} },

@@ -11,7 +11,7 @@ import {
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
-import { Colors, Map, Locations } from '../../utils/Constants';
+import { Colors, Map, Locations, IconColors } from '../../utils/Constants';
 import { PlusIcon, LocateIcon, PersonIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -37,51 +37,45 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 	const mapRef = useRef<MapView>(null);
 
 	// Request location permission and get user's location
-	useFocusEffect(
-		React.useCallback(() => {
-			const getLocationPermission = async () => {
-				try {
-					const { status } = await Location.requestForegroundPermissionsAsync();
+	useEffect(() => {
+		const getLocationPermission = async () => {
+			try {
+				const { status } = await Location.requestForegroundPermissionsAsync();
 
-					if (status === 'granted') {
-						setLocationPermission(true);
+				if (status === 'granted') {
+					setLocationPermission(true);
 
-						// Get current location
-						const location = await Location.getCurrentPositionAsync({
-							accuracy: Location.Accuracy.Balanced,
-						});
+					// Get current location
+					const location = await Location.getCurrentPositionAsync({
+						accuracy: Location.Accuracy.Balanced,
+					});
 
-						const locationCoords = {
-							latitude: location.coords.latitude,
-							longitude: location.coords.longitude,
-						};
+					const locationCoords = {
+						latitude: location.coords.latitude,
+						longitude: location.coords.longitude,
+					};
 
-						setCurrentLocation(locationCoords);
+					setCurrentLocation(locationCoords);
 
-						setInitialRegion({
-							...locationCoords,
-							latitudeDelta: 0.0042,
-							longitudeDelta: 0.0042,
-						});
-					} else {
-						// Permission denied
-						Alert.alert(
-							t('location.permissionTitle'),
-							t('location.permissionDenied')
-						);
-					}
-				} catch (error) {
-					console.error('Error getting location permission:', error);
+					setInitialRegion({
+						...locationCoords,
+						latitudeDelta: 0.0042,
+						longitudeDelta: 0.0042,
+					});
+				} else {
+					// Permission denied
+					Alert.alert(
+						t('location.permissionTitle'),
+						t('location.permissionDenied')
+					);
 				}
-			};
+			} catch (error) {
+				console.error('Error getting location permission:', error);
+			}
+		};
 
-			getLocationPermission();
-			
-			return () => {
-				// Cleanup if needed
-			};
-		}, [])
-	);
+		getLocationPermission();
+	}, []);
 
 	// Error boundary for map loading
 	useEffect(() => {
@@ -138,6 +132,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				{/* Location markers */}
 				{Locations.nsysu.map((location) => {
 					const Icon = LocationIcon[location.icon as keyof typeof LocationIcon];
+					const iconColor = IconColors[location.icon as keyof typeof IconColors] || Colors.primary;
 					return (
 						<Marker
 							key={location.id}
@@ -145,10 +140,10 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 							anchor={{ x: 0.5, y: 0.5 }}
 							onPress={() => navigation.navigate('Reviews', { location })}
 						>
-							<View style={styles.marker}>
-							{Icon && <Icon width={16} height={16} stroke={Colors.primary + 'aa'} fill={Colors.primary + 'aa'} />}
-						</View>
-					</Marker>
+							<View style={[styles.marker, { backgroundColor: iconColor.bg, borderColor: iconColor.fg }]}>
+								{Icon && <Icon width={16} height={16} stroke={iconColor.fg} fill={iconColor.fg} />}
+							</View>
+						</Marker>
 					)
 				})}
 
@@ -182,7 +177,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 					{/* Search input button */}
 					<PrettyButton
 						style={styles.searchInputButton}
-            onPress={() => navigation.navigate('Ask')}
+						onPress={() => navigation.navigate('Ask')}
 					>
 						<Text style={styles.searchPlaceholder}>{t('ask.placeholder', 'Ask me about the campus...')}</Text>
 					</PrettyButton>
@@ -202,9 +197,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
 				/>
 				{/* Bottom primary button */}
-				<PrettyButton 
-					style={styles.primaryButton} 
-					onPress={() => navigation.navigate('New', { onDone: () => { }})}
+				<PrettyButton
+					style={styles.primaryButton}
+					onPress={() => navigation.navigate('New', { onDone: () => { } })}
 					contentStyle={{ gap: 0 }}
 					children={<PlusIcon width={20} height={20} fill={'#fff'} />}
 				/>
@@ -343,14 +338,12 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 	},
 	marker: {
-		backgroundColor: Colors.secondary,
 		width: 40,
 		height: 40,
 		alignItems: 'center',
 		justifyContent: 'center',
 		borderRadius: 16,
 		borderWidth: 2,
-		borderColor: Colors.primary + '44',
 	},
 	markerText: {
 		color: Colors.primary,
