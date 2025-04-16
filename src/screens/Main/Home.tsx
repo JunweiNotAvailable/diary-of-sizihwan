@@ -3,21 +3,19 @@ import MapView, { PROVIDER_GOOGLE, MapStyleElement, Marker } from 'react-native-
 import {
 	StyleSheet,
 	View,
-	Platform,
 	Alert,
 	Text,
-	TouchableOpacity,
-	TouchableWithoutFeedback,
 	Image,
 	SafeAreaView,
-	Animated,
-	Pressable
 } from 'react-native';
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
-import { Colors, Map } from '../../utils/Constants';
-import { PlusIcon, SettingsIcon, LocateIcon, PersonIcon } from '../../utils/Svgs';
+import { Colors, Map, Locations } from '../../utils/Constants';
+import { PlusIcon, LocateIcon, PersonIcon } from '../../utils/Svgs';
+import { PrettyButton } from '../../components';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { LocationIcon } from '../../components/LocationIcon';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations
 const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
@@ -25,55 +23,6 @@ const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map
 	elementType: "labels",
 	stylers: [{ visibility: "off" }]
 }));
-
-// Custom AnimatedButton component
-const AnimatedButton = ({ 
-	onPress, 
-	style, 
-	children 
-}: { 
-	onPress?: () => void, 
-	style: any, 
-	children: React.ReactNode 
-}) => {
-	const animatedScale = useRef(new Animated.Value(1)).current;
-	
-	// Create animated version of TouchableOpacity
-	const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-
-	const handlePressIn = () => {
-		Animated.spring(animatedScale, {
-			toValue: 0.92,
-			useNativeDriver: true,
-			speed: 50,
-			bounciness: 1
-		}).start();
-	};
-
-	const handlePressOut = () => {
-		Animated.spring(animatedScale, {
-			toValue: 1,
-			useNativeDriver: true,
-			speed: 20,
-			bounciness: 2
-		}).start();
-	};
-
-	return (
-		<AnimatedTouchable
-			style={[
-				style,
-				{ transform: [{ scale: animatedScale }] }
-			]}
-			onPress={onPress}
-			onPressIn={handlePressIn}
-			onPressOut={handlePressOut}
-			activeOpacity={1} // Disable default opacity effect
-		>
-			{children}
-		</AnimatedTouchable>
-	);
-};
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
 	const { t } = useTranslation();
@@ -109,8 +58,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
 					setInitialRegion({
 						...locationCoords,
-						latitudeDelta: 0.0075,
-						longitudeDelta: 0.0075,
+						latitudeDelta: 0.0042,
+						longitudeDelta: 0.0042,
 					});
 				} else {
 					// Permission denied
@@ -153,8 +102,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 		if (currentLocation && mapRef.current) {
 			mapRef.current.animateToRegion({
 				...currentLocation,
-				latitudeDelta: 0.0075,
-				longitudeDelta: 0.0075,
+				latitudeDelta: 0.0042,
+				longitudeDelta: 0.0042,
 			}, 500);
 		}
 	};
@@ -179,13 +128,29 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				rotateEnabled={false}
 				liteMode={false}
 			>
+				{/* Location markers */}
+				{Locations.nsysu.map((location) => {
+					const Icon = LocationIcon[location.icon as keyof typeof LocationIcon];
+					return (
+						<Marker
+							key={location.id}
+							coordinate={location.coordinates}
+							anchor={{ x: 0.5, y: 0.5 }}
+					>
+						<View style={styles.marker}>
+							{Icon && <Icon width={16} height={16} stroke={Colors.primary + 'aa'} fill={Colors.primary + 'aa'} />}
+						</View>
+					</Marker>
+					)
+				})}
+
 				{/* User marker */}
 				{(currentLocation && showUser) && (
 					<Marker
 						coordinate={currentLocation}
 						anchor={{ x: 0.5, y: 0.5 }}
 					>
-						<AnimatedButton style={styles.profileButton}>
+						<View style={styles.profileButton}>
 							{user?.picture ? (
 								<Image
 									source={{ uri: user.picture }}
@@ -198,26 +163,25 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 									</View>
 								</View>
 							)}
-						</AnimatedButton>
+						</View>
 					</Marker>
 				)}
 			</MapView>
 
-			{/* Top bar with input and profile button using SafeAreaView */}
+			{/* Top Bar */}
 			<SafeAreaView style={styles.safeAreaContainer}>
 				<View style={styles.topBarContainer}>
 					{/* Search input button */}
-					<AnimatedButton
+					<PrettyButton
 						style={styles.searchInputButton}
             onPress={() => navigation.navigate('Ask')}
 					>
 						<Text style={styles.searchPlaceholder}>{t('ask.placeholder', 'Ask me about the campus...')}</Text>
-					</AnimatedButton>
-
+					</PrettyButton>
 					{/* Profile button */}
-					<AnimatedButton style={styles.mapButton} onPress={() => navigation.navigate('Profile')}>
+					<PrettyButton style={styles.mapButton} onPress={() => navigation.navigate('Profile')}>
 						<PersonIcon width={20} height={20} fill={Colors.primary} />
-					</AnimatedButton>
+					</PrettyButton>
 				</View>
 			</SafeAreaView>
 
@@ -225,16 +189,19 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				{/* Space between buttons */}
 				<View style={{ width: 45 }}></View>
 				{/* Bottom primary button */}
-				<AnimatedButton style={styles.primaryButton} onPress={() => navigation.navigate('New')}>
-					<PlusIcon width={24} height={24} fill={Colors.primary} />
-				</AnimatedButton>
+				<PrettyButton 
+					style={styles.primaryButton} 
+					onPress={() => navigation.navigate('New')}
+					contentStyle={{ gap: 0 }}
+					children={<PlusIcon width={20} height={20} fill={'#fff'} />}
+				/>
 				{/* Relocate user button */}
-				<AnimatedButton 
+				<PrettyButton
 					style={styles.mapButton}
 					onPress={centerOnUser}
-				>
-					<LocateIcon width={24} height={24} stroke={Colors.primary} />
-				</AnimatedButton>
+					contentStyle={{ gap: 0 }}
+					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
+				/>
 			</View>
 		</View>
 	);
@@ -301,6 +268,7 @@ const styles = StyleSheet.create({
 	},
 	searchInputButton: {
 		flexDirection: 'row',
+		justifyContent: 'flex-start',
 		alignItems: 'center',
 		flex: 1,
 		paddingHorizontal: 16,
@@ -349,7 +317,7 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: 'white',
+		backgroundColor: Colors.primary,
 		shadowColor: '#0008',
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.2,
@@ -360,7 +328,22 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontWeight: '600',
 		fontSize: 16,
-	}
+	},
+	marker: {
+		backgroundColor: Colors.secondary,
+		width: 40,
+		height: 40,
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: 16,
+		borderWidth: 2,
+		borderColor: Colors.primary + '44',
+	},
+	markerText: {
+		color: Colors.primary,
+		fontWeight: '600',
+		fontSize: 12,
+	},
 });
 
 export default HomeScreen;

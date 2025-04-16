@@ -1,11 +1,13 @@
 {
   "general": {
-    "goBack": "返回"
+    "goBack": "返回",
+    "title": "標題"
   },
   "auth": {
     "signIn": "登入",
     "signUp": "註冊",
     "signOut": "登出",
+    "noAccount": "還沒有帳號嗎？",
     "studentId": "學號",
     "password": "密碼",
     "setupPassword": "設定密碼",
@@ -44,7 +46,33 @@
     "reviews": "我的回顧",
     "askHistory": "我的問題"
   },
+  "new": {
+    "title": "新增回顧",
+    "titlePlaceholder": "用一句話描述今天的回顧",
+    "location": "地點",
+    "selectLocation": "選擇地點",
+    "categories": "類別",
+    "selectCategories": "選擇類別",
+    "addCategory": "新增你覺得最適合的類別",
+    "content": "內容",
+    "contentPlaceholder": "讓你的故事成為校園的一部分，你也可以單純留下資訊幫助其他同學",
+    "allowReference": "允許 AI 引用這篇回顧來回答問題",
+    "submit": "發布",
+    "errors": {
+      "titleRequired": "標題不能是空白",
+      "contentRequired": "內容不能是空白",
+      "locationRequired": "選擇一個地點",
+      "categoryRequired": "選擇至少一個類別"
+    }
+  },
   "ask": {
     "placeholder": "對校園有疑問嗎？"
+  },
+  "categories": {
+    "general": "綜合",
+    "food": "美食",
+    "academics": "學術",
+    "facilities": "設施",
+    "events": "活動"
   }
 } 

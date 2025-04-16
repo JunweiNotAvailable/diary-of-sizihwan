@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle, G, Rect } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { Colors } from './Constants';
 
 export interface SvgProps {
@@ -9,6 +9,17 @@ export interface SvgProps {
   fill?: string;
 }
 
+export const CheckIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const stroke = props.stroke || Colors.primary;
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 72 53" fill="none">
+      <Path d="M8.44858 25.0507C8.44858 25.0507 26.1073 44.5681 27.2013 44.7327C28.2952 44.8973 63.8307 8.6442 63.8307 8.6442" stroke={stroke} strokeWidth="16" strokeLinecap="round" />
+    </Svg>
+  )
+}
 export const PlusIcon = (props: SvgProps) => {
   const width = props.width || 24;
   const height = props.height || 24;
@@ -83,4 +94,22 @@ export const FeatherPenIcon = (props: SvgProps) => {
       <Path d="M57.6 0C9.6 0 3.2 44.8 0 64H6.3936C8.5248 53.3333 13.8603 47.4667 22.4 46.4C35.2 44.8 44.8 33.6 48 24L43.2 20.8L46.4 17.6C49.6 14.4 52.8128 9.6 57.6 0Z" fill={fill} />
     </Svg>
   )
-} 
+}
+
+export const ChevronDownIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const fill = props.fill || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M6 9L12 15L18 9"
+        stroke={fill}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}; 

@@ -17,55 +17,7 @@ import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, SettingsIcon } from '../
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Custom AnimatedButton component
-const AnimatedButton = ({
-  onPress,
-  style,
-  children
-}: {
-  onPress?: () => void,
-  style: any,
-  children: React.ReactNode
-}) => {
-  const animatedScale = useRef(new Animated.Value(1)).current;
-
-  // Create animated version of TouchableOpacity
-  const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
-
-  const handlePressIn = () => {
-    Animated.spring(animatedScale, {
-      toValue: 0.9,
-      useNativeDriver: true,
-      speed: 50,
-      bounciness: 1
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(animatedScale, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 20,
-      bounciness: 2
-    }).start();
-  };
-
-  return (
-    <AnimatedTouchable
-      style={[
-        style,
-        { transform: [{ scale: animatedScale }] }
-      ]}
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      activeOpacity={1} // Disable default opacity effect
-    >
-      {children}
-    </AnimatedTouchable>
-  );
-};
+import { PrettyButton } from '../../components';
 
 const ProfileScreen = ({ navigation }: { navigation: any }) => {
   const { t } = useTranslation();
@@ -96,14 +48,15 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
         {/* Header with close button */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('profile.title', 'Profile')}</Text>
-          <AnimatedButton
+          <PrettyButton
             style={styles.closeButton}
             onPress={handleClose}
+            contentStyle={{ gap: 0 }}
           >
             <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
               <PlusIcon width={14} height={14} fill={Colors.primary} />
             </View>
-          </AnimatedButton>
+          </PrettyButton>
         </View>
 
         {/* Profile content */}
@@ -137,32 +90,39 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
           <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
             {/* Reviews */}
-            <AnimatedButton style={styles.card}>
+            <PrettyButton
+              style={styles.card}
+              onPress={() => { }}
+            >
               <Text style={styles.cardTitle}>{t('profile.reviews', 'My Reviews')}</Text>
               <View style={styles.cardImage}>
                 <FeatherPenIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
-            </AnimatedButton>
-            {/* Ask history */}
-            <AnimatedButton style={styles.card}>
-              <Text style={styles.cardTitle}>{t('profile.askHistory', 'My Questions')}</Text>
-              <View style={[styles.cardImage, { bottom: -2 }]}>
-                <AskIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
-              </View>
-            </AnimatedButton>
+            </PrettyButton>
           </View>
           <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
-            {/*  */}
-            <AnimatedButton style={styles.card}>
-              <View />
-            </AnimatedButton>
+            {/* Ask history */}
+            <PrettyButton
+              style={styles.card}
+              onPress={() => { }}
+            >
+              <Text style={styles.cardTitle}>{t('profile.askHistory', 'My Questions')}</Text>
+              <View style={styles.cardImage}>
+                <AskIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
+              </View>
+            </PrettyButton>
+          </View>
+          <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
             {/* Settings */}
-            <AnimatedButton style={styles.card}>
+            <PrettyButton
+              style={styles.card}
+              onPress={() => { }}
+            >
               <Text style={styles.cardTitle}>{t('profile.settings', 'Settings')}</Text>
-              <View style={[styles.cardImage, { bottom: -6 }]}>
+              <View style={styles.cardImage}>
                 <SettingsIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
-            </AnimatedButton>
+            </PrettyButton>
           </View>
 
         </ScrollView>
@@ -203,8 +163,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    right: 16,
-    top: 12,
+    right: 20,
     width: 28,
     height: 28,
     borderRadius: 16,
@@ -268,8 +227,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   card: {
+    marginVertical: 0,
+    width: '100%',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     flex: 1,
-    aspectRatio: 2/1,
+    aspectRatio: 3 / 1,
     backgroundColor: Colors.secondaryGray,
     borderRadius: 12,
     padding: 10,
@@ -277,8 +240,8 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     position: 'absolute',
-    width: '40%',
-    aspectRatio: 1/1,
+    width: '25%',
+    aspectRatio: 1 / 1,
     right: 10,
     bottom: 0,
   },

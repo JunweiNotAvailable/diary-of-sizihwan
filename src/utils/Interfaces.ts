@@ -9,9 +9,23 @@ export interface UserModel {
     school?: string;
     bio?: string;
   },
-  settings?: UserSettings
+  settings?: {
+    language?: string;
+    theme?: string;
+  }
 }
 
-export interface UserSettings {
-  
+export interface ReviewModel {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  location: string;
+  categories: string[];
+  created_at: string;
+  allow_reference: boolean;
+  extra: {
+    is_anonymous?: boolean;
+    score: number;
+  }
 }

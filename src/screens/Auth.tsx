@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   KeyboardAvoidingView,
@@ -26,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppState } from '../contexts/AppContext';
 import { Config } from '../utils/Config';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { Input, PrettyButton } from '../components';
 
 // Key for storing the current user
 const USER_STORAGE_KEY = Config.storage.user;
@@ -251,7 +251,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         id: studentId,
         name: username,
         password: hpData.data?.hashedPassword,
-        extra: { school: school },
+        extra: { school: school, bio: '' },
         email: '',
         picture: '',
         created_at: new Date().toISOString()
@@ -271,103 +271,33 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         throw new Error('Failed to create user');
       }
 
-      // Set user in app state
+      // Set user in app state (but remove the password)
       setUser({ ...userData, password: '' });
 
       // Save user ID to AsyncStorage
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
+
       setIsLoading(false);
       navigation.replace('Main');
-      console.log('Signing up with:', { studentId, username });
     } catch (error) {
       setIsLoading(false);
       Alert.alert('', t('auth.errors.signUpFailed'));
-      console.error('Sign up error:', (error as any).stack);
+      console.error('Sign up error:', error);
     }
-  };
-
-  // Custom Button Component
-  const PrettyButton = ({
-    onPress,
-    title,
-    type = 'primary',
-    icon = null,
-    disabled = false,
-    style = {}
-  }: {
-    onPress: () => void;
-    title: string | React.ReactNode;
-    type?: 'primary' | 'secondary';
-    icon?: React.ReactNode;
-    disabled?: boolean;
-    style?: StyleProp<ViewStyle>;
-  }) => {
-    const animatedScale = useRef(new Animated.Value(1)).current;
-
-    // Create an animated version of Pressable
-    const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-    const handlePressIn = () => {
-      Animated.spring(animatedScale, {
-        toValue: 0.95,
-        useNativeDriver: true,
-        speed: 20,
-        bounciness: 4
-      }).start();
-    };
-
-    const handlePressOut = () => {
-      Animated.spring(animatedScale, {
-        toValue: 1,
-        useNativeDriver: true,
-        speed: 20,
-        bounciness: 4
-      }).start();
-    };
-
-    return (
-      <AnimatedPressable
-        style={[
-          styles.buttonBase,
-          type === 'primary' ? styles.primaryButton : styles.secondaryButton,
-          disabled && styles.buttonDisabled,
-          { transform: [{ scale: animatedScale }] }
-        ]}
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={disabled || isLoading}
-        android_ripple={{ color: type === 'primary' ? '#2980b9' : '#e1f0fa' }}
-      >
-        <View style={[styles.buttonContent, style]}>
-          {icon}
-          <Text
-            style={[
-              styles.buttonText,
-              type === 'secondary' && styles.secondaryButtonText
-            ]}
-          >
-            {title}
-          </Text>
-        </View>
-      </AnimatedPressable>
-    );
   };
 
   // Render sign in screen
   const renderSignIn = () => (
     <View style={styles.formContainer}>
       <Text style={styles.title}>{t('auth.signIn')}</Text>
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder={t('auth.studentId')}
         value={studentId}
         onChangeText={setStudentId}
         autoCapitalize="none"
       />
-      <TextInput
+      <Input
         ref={passwordInputRef}
-        style={styles.input}
         placeholder={t('auth.password')}
         secureTextEntry
         value={password}
@@ -375,6 +305,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       />
       <View style={styles.buttonRow}>
         <PrettyButton
+          style={{ width: '100%' }}
           title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.signIn')}
           onPress={handleSignIn}
         />
@@ -382,12 +313,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
 
       <View style={styles.separator}>
         <View style={styles.line} />
-        <Text style={styles.separatorText}>OR</Text>
+        <Text style={styles.separatorText}>{t('auth.noAccount')}</Text>
         <View style={styles.line} />
       </View>
 
       <View style={styles.buttonRow}>
         <PrettyButton
+          style={{ width: '100%' }}
           title={t('auth.scanIdCard')}
           type="secondary"
           onPress={handleScan}
@@ -420,12 +352,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
           </View>
           <View style={styles.buttonRow}>
             <PrettyButton
+              style={{ flex: 1 }}
               title={t('general.goBack')}
               type="secondary"
               onPress={() => setAuthStep('SIGN_IN')}
             />
             <PrettyButton
-              style={styles.cameraButton}
+              style={{ flex: 1 }}
               title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.scan')}
               onPress={handleProcessScan}
             />
@@ -448,11 +381,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       <Text style={styles.idDisplay}>{studentId}</Text>
       <View style={styles.buttonRow}>
         <PrettyButton
+          style={{ flex: 1 }}
           title={t('auth.reScan')}
           type="secondary"
           onPress={handleRescan}
         />
         <PrettyButton
+          style={{ flex: 1 }}
           title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.continue')}
           onPress={handleVerifyAndProceed}
         />
@@ -469,14 +404,12 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         <Text style={styles.readonlyLabel}>{t('auth.studentId')}:</Text>
         <Text style={styles.readonlyValue}>{studentId}</Text>
       </View>
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder={t('auth.name')}
         value={username}
         onChangeText={setUsername}
       />
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder={t('auth.setupPassword')}
         secureTextEntry
         value={password}
@@ -484,11 +417,13 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       />
       <View style={styles.buttonRow}>
         <PrettyButton
+          style={{ flex: 1 }}
           type="secondary"
           title={t('auth.signIn')}
           onPress={() => setAuthStep('SIGN_IN')}
         />
         <PrettyButton
+          style={{ flex: 1 }}
           title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.createAccount')}
           onPress={handleSignUp}
         />
@@ -552,56 +487,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10,
     textAlign: 'center',
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    backgroundColor: '#fff',
-    fontSize: 16,
-  },
-  buttonBase: {
-    height: 50,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10,
-    flex: 1,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryButton: {
-    backgroundColor: Colors.primary,
-  },
-  primaryButtonPressed: {
-    backgroundColor: Colors.primary,
-    transform: [{ scale: 0.98 }],
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-  },
-  secondaryButtonPressed: {
-    backgroundColor: Colors.secondary,
-    transform: [{ scale: 0.98 }],
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryButtonText: {
-    color: Colors.primary,
   },
   separator: {
     flexDirection: 'row',
