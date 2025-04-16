@@ -136,8 +136,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 							key={location.id}
 							coordinate={location.coordinates}
 							anchor={{ x: 0.5, y: 0.5 }}
-					>
-						<View style={styles.marker}>
+							onPress={() => navigation.navigate('Reviews', { location })}
+						>
+							<View style={styles.marker}>
 							{Icon && <Icon width={16} height={16} stroke={Colors.primary + 'aa'} fill={Colors.primary + 'aa'} />}
 						</View>
 					</Marker>
@@ -186,8 +187,13 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 			</SafeAreaView>
 
 			<View style={styles.bottomBarContainer}>
-				{/* Space between buttons */}
-				<View style={{ width: 45 }}></View>
+				{/* New reviews */}
+				<PrettyButton
+					style={styles.mapButton}
+					onPress={centerOnUser}
+					contentStyle={{ gap: 0 }}
+					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
+				/>
 				{/* Bottom primary button */}
 				<PrettyButton 
 					style={styles.primaryButton} 

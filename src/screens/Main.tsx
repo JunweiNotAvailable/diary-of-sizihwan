@@ -4,6 +4,7 @@ import HomeScreen from './Main/Home';
 import ProfileScreen from './Main/Profile';
 import NewScreen from './Main/New';
 import AskScreen from './Main/Ask';	
+import ReviewsScreen from './Main/Reviews';	
 
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,10 @@ const MainScreen = () => {
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }}
+      />
+			<Stack.Screen
+        name="Reviews"
+        component={ReviewsScreen}
       />
     </Stack.Navigator>
   );

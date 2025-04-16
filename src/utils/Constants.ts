@@ -4,6 +4,7 @@ export const Colors = {
   primaryGray: '#88808f',
   primaryLightGray: '#e6e4e8',
   secondaryGray: '#f7f6f8',
+  like: '#ff4466',
 }
 
 export const Map = {
@@ -52,4 +53,5 @@ export const Categories = [
   'academics',
   'facilities',
   'events',
+  'casual',
 ]

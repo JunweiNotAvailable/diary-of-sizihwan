@@ -8,14 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Pressable,
   TouchableWithoutFeedback,
   Keyboard,
-  StyleProp,
-  ViewStyle,
-  ActivityIndicator,
-  Image,
-  Animated
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +20,7 @@ import { useAppState } from '../contexts/AppContext';
 import { Config } from '../utils/Config';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Input, PrettyButton } from '../components';
-
+import { PrettyLoadingIcon } from '../utils/Svgs';
 // Key for storing the current user
 const USER_STORAGE_KEY = Config.storage.user;
 
@@ -306,7 +300,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       <View style={styles.buttonRow}>
         <PrettyButton
           style={{ width: '100%' }}
-          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.signIn')}
+          title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.signIn')}
           onPress={handleSignIn}
         />
       </View>
@@ -333,7 +327,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
     <View style={styles.cameraContainer}>
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <PrettyLoadingIcon width={28} height={28} stroke={Colors.primary} />
           <Text style={styles.loadingText}>{t('auth.processingImage')}</Text>
         </View>
       )}
@@ -359,7 +353,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
             />
             <PrettyButton
               style={{ flex: 1 }}
-              title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.scan')}
+              title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.scan')}
               onPress={handleProcessScan}
             />
           </View>
@@ -388,7 +382,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         />
         <PrettyButton
           style={{ flex: 1 }}
-          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.continue')}
+          title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.continue')}
           onPress={handleVerifyAndProceed}
         />
       </View>
@@ -424,7 +418,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         />
         <PrettyButton
           style={{ flex: 1 }}
-          title={isLoading ? <ActivityIndicator size="small" color={'#fff'} /> : t('auth.createAccount')}
+          title={isLoading ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('auth.createAccount')}
           onPress={handleSignUp}
         />
       </View>

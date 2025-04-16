@@ -77,7 +77,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             ) : (
               <View style={styles.profilePlaceholder}>
                 <View style={{ width: 48, height: 48, marginTop: 8 }}>
-                  <PersonIcon width={48} height={48} fill="#ccc" />
+                  <PersonIcon width={48} height={48} fill={Colors.primaryGray + '44'} />
                 </View>
               </View>
             )}
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 24,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.primaryLightGray,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',

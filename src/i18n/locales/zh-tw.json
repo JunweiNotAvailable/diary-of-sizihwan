@@ -73,6 +73,17 @@
     "food": "美食",
     "academics": "學術",
     "facilities": "設施",
-    "events": "活動"
+    "events": "活動",
+    "casual": "日常"
+  },
+  "reviews": {
+    "loading": "載入中...",
+    "empty": "這裡還沒有任何回顧",
+    "anonymousUser": "匿名用戶",
+    "showMore": "顯示更多",
+    "showLess": "顯示更少",
+    "errors": {
+      "locationRequired": "請選擇一個地點"
+    }
   }
 } 

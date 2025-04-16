@@ -8,12 +8,11 @@ import {
   Platform,
   KeyboardAvoidingView,
   Switch,
-  ActivityIndicator
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import { Categories, Colors, Locations } from '../../utils/Constants';
-import { PlusIcon } from '../../utils/Svgs';
+import { PlusIcon, PrettyLoadingIcon } from '../../utils/Svgs';
 import { Input, Textarea, PrettyButton, Select } from '../../components';
 import { ReviewModel } from '../../utils/Interfaces';
 import { Config } from '../../utils/Config';
@@ -105,7 +104,8 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
         allow_reference: allowReference,
         extra: {
           is_anonymous: false,
-          score: 0
+          score: 0,
+          likes: []
         }
       };
 
@@ -166,7 +166,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
               onChangeText={setContent}
               placeholder={t('new.contentPlaceholder', 'Write your review here...')}
               error={contentError}
-              rows={Math.min(10, Math.max(2, content.split('\n').length))}
+              rows={Math.min(10, Math.max(4, content.split('\n').length))}
               containerStyle={{ marginBottom: 30 }}
               labelStyle={{ fontWeight: '600' }}
               textareaStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 10, borderRadius: 0, borderWidth: 0, borderBottomWidth: 1 }}
@@ -215,7 +215,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
           {/* Footer */}
           <View style={styles.footer}>
             <PrettyButton
-              title={isSubmitting ? <ActivityIndicator size="small" color={'#fff'} /> : t('new.submit', 'Submit')}
+              title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('new.submit', 'Submit')}
               disabled={isSubmitting}
               onPress={handlePost}
               style={{ width: '100%' }}

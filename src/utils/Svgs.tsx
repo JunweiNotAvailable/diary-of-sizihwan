@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Colors } from './Constants';
+import { Animated, Easing } from 'react-native';
 
 export interface SvgProps {
   width?: number | string;
@@ -112,4 +113,73 @@ export const ChevronDownIcon = (props: SvgProps) => {
       />
     </Svg>
   );
-}; 
+};
+
+export const ThumbsUpIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const fill = props.fill || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path fillRule="evenodd" clipRule="evenodd" d="M8.993 5.16299C9.162 6.58599 8.931 8.06999 8.417 9.40199C7.848 10.876 7.092 12.472 6.998 14.059C6.919 15.396 7.222 16.978 8.03 18.061C8.915 19.247 10.368 20 11.967 20H13.479C14.7333 20.0001 15.9418 19.5287 16.8648 18.6794C17.7878 17.8301 18.3579 16.665 18.462 15.415L18.823 11.083C18.8345 10.9451 18.8172 10.8064 18.7723 10.6755C18.7274 10.5446 18.6559 10.4245 18.5622 10.3227C18.4685 10.2209 18.3546 10.1397 18.2279 10.0841C18.1012 10.0286 17.9644 9.99993 17.826 9.99999H12.5C11.669 9.99999 11.005 9.32699 10.999 8.50799C10.991 7.53799 11.052 6.34099 10.606 5.44799C10.206 4.64799 9.832 4.49999 9.5 4.49999C9.2 4.49999 8.96 4.89299 8.993 5.16299ZM9.5 2.49999C10.856 2.49999 11.794 3.35199 12.395 4.55299C12.917 5.59699 12.966 6.85299 12.992 7.99999H17.826C18.2411 7.99993 18.6516 8.08601 19.0317 8.25277C19.4118 8.41953 19.7532 8.66336 20.0342 8.96882C20.3153 9.27429 20.5298 9.63475 20.6644 10.0274C20.799 10.4201 20.8506 10.8364 20.816 11.25L20.455 15.581C20.3093 17.3309 19.5112 18.9621 18.219 20.1511C16.9268 21.3401 15.235 22 13.479 22H11.967C11.0183 22.0024 10.0792 21.8103 9.20773 21.4355C8.33622 21.0607 7.55081 20.5112 6.9 19.821C6.443 19.9409 5.97246 20.0014 5.5 20.001C4.392 20.001 3.472 19.379 2.876 18.391C2.296 17.431 2 16.107 2 14.501C2 12.895 2.297 11.569 2.876 10.609C3.472 9.61999 4.392 8.99999 5.5 8.99999C5.781 8.99999 6.079 9.04999 6.377 9.13399C6.835 7.93399 7.161 6.69699 7.007 5.39899C6.835 3.95399 8.016 2.49999 9.5 2.49999ZM5.696 11.024C5.211 10.924 4.831 11.24 4.589 11.642C4.263 12.182 4 13.106 4 14.5C4 15.894 4.263 16.819 4.588 17.359C4.898 17.871 5.228 18 5.5 18C5.564 18 5.62733 17.9983 5.69 17.995C5.154 16.787 4.924 15.255 5.002 13.941C5.049 13.136 5.363 12.023 5.696 11.024Z" fill={fill} />
+    </Svg>
+  )
+}
+
+export const PrettyLoadingIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const stroke = props.stroke || Colors.primary;
+  
+  // Create rotation animation
+  const spinValue = useRef(new Animated.Value(0)).current;
+  
+  // Set up animation on mount
+  useEffect(() => {
+    const startAnimation = () => {
+      spinValue.setValue(0);
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start(() => startAnimation());
+    };
+    
+    startAnimation();
+    
+    // Clean up animation when component unmounts
+    return () => {
+      spinValue.stopAnimation();
+    };
+  }, []);
+  
+  // Calculate rotation based on animation value
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+  
+  return (
+    <Animated.View style={{ transform: [{ rotate: spin }] }}>
+      <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+        <Circle 
+          cx="12" 
+          cy="12" 
+          r="10" 
+          stroke={stroke} 
+          strokeWidth="4" 
+          strokeLinecap="round" 
+          strokeOpacity="0" 
+        />
+        <Path 
+          d="M12 2C13.3132 2 14.6136 2.25866 15.8268 2.76121C17.0401 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12"
+          stroke={stroke} 
+          strokeWidth="4" 
+          strokeLinecap="round" 
+        />
+      </Svg>
+    </Animated.View>
+  );
+}
