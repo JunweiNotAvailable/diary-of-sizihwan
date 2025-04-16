@@ -5,7 +5,7 @@ import { Colors, Categories } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon } from '../../utils/Svgs';
+import { ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText } from '../../components';
@@ -16,6 +16,9 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
+  const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
+  const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
+  const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
   const location = route.params?.location;
   const { user, locale } = useAppState();
   const { t } = useTranslation();
@@ -120,6 +123,68 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     }));
   };
 
+  const translateReview = async (reviewId: string, content: string) => {
+    // If we already have the translation, just toggle visibility
+    if (translatedReviews[reviewId]) {
+      setShowingTranslations(prev => ({
+        ...prev,
+        [reviewId]: !prev[reviewId]
+      }));
+      return;
+    }
+
+    // Set as translating
+    setIsTranslating(prev => ({
+      ...prev,
+      [reviewId]: true
+    }));
+
+    try {
+      // Determine source language based on current locale
+      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
+      const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
+
+      // Make the translation request
+      const response = await fetch(`${Config.api.url}/translate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: content,
+          sourceLang,
+          targetLang,
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Translation failed');
+      }
+
+      const data = (await response.json()).data;
+      
+      // Store the translated text
+      setTranslatedReviews(prev => ({
+        ...prev,
+        [reviewId]: data.translatedText
+      }));
+
+      // Show the translation
+      setShowingTranslations(prev => ({
+        ...prev,
+        [reviewId]: true
+      }));
+    } catch (error) {
+      console.error('Translation error:', error);
+      Alert.alert(t('translation.error'), t('translation.errorMessage'));
+    } finally {
+      setIsTranslating(prev => ({
+        ...prev,
+        [reviewId]: false
+      }));
+    }
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -143,6 +208,13 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const renderReviewItem = ({ item }: { item: ReviewModel }) => {
     const user = users.find((user: UserModel) => user.id === item.user_id);
     if (!user) return null;
+
+    const isShowingTranslation = showingTranslations[item.id] || false;
+    const isCurrentlyTranslating = isTranslating[item.id] || false;
+    const hasTranslation = !!translatedReviews[item.id];
+
+    // Determine which content to show (original or translated)
+    const displayContent = isShowingTranslation ? translatedReviews[item.id] : item.content;
 
     return (
       <View style={styles.reviewItem}>
@@ -172,11 +244,27 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
         </View>
 
         <Text style={styles.reviewTitle}>{item.title}</Text>
-        <MarkdownText
-          style={styles.reviewContent}
-        >
-          {item.content}
-        </MarkdownText>
+
+        <View style={styles.contentContainer}>
+          <MarkdownText
+            style={styles.reviewContent}
+          >
+            {displayContent}
+          </MarkdownText>
+
+          <View style={styles.contentActions}>
+            {/* Translate button */}
+            <PrettyButton 
+              style={styles.translateButton} 
+              onPress={() => translateReview(item.id, item.content)}
+              disabled={isCurrentlyTranslating}
+            >
+              <View style={styles.translateButtonContent}>
+                <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
+              </View>
+            </PrettyButton>
+          </View>
+        </View>
 
         <View style={styles.bottomContainer}>
           {/* categories */}
@@ -352,11 +440,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#333',
   },
+  contentContainer: {
+    marginBottom: 6,
+  },
   reviewContent: {
     fontSize: 15,
     lineHeight: 22,
     color: '#333',
-    marginBottom: 6,
+  },
+  contentActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
   },
   bottomContainer: {
     flexDirection: 'row',
@@ -393,7 +489,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignSelf: 'flex-start',
     marginTop: 0,
-    marginBottom: 8,
   },
   showMoreText: {
     color: Colors.primary,
@@ -410,6 +505,16 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: Colors.primaryGray,
+  },
+  // Translation styles
+  translateButton: {
+    height: 24,
+    backgroundColor: 'transparent',
+    alignSelf: 'flex-start',
+  },
+  translateButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   // Markdown styles
   bold: {
