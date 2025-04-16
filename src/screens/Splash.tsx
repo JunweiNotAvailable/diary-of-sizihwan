@@ -33,7 +33,7 @@ const SplashScreen = ({ navigation }: { navigation: any }) => {
     // Check user after animation
     setTimeout(async () => {
       await checkUser();
-    }, 2500);
+    }, 500);
   }, []);
 
   const checkUser = async () => {

@@ -133,7 +133,7 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('new.title', 'New Review')}</Text>
+            <Text style={styles.headerTitle}>{t('profile.myReviews.editReviewTitle', 'Edit Review')}</Text>
             <PrettyButton
               style={styles.closeButton}
               onPress={handleClose}

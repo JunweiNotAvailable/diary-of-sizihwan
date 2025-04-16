@@ -51,7 +51,8 @@
       "deleteReviewTitle": "刪除分享文",
       "deleteReviewMessage": "確定要刪除{{title}}嗎？",
       "deleteReview": "刪除",
-      "editReview": "編輯"
+      "editReview": "編輯",
+      "editReviewTitle": "編輯分享文"
     },
     "askHistory": {
       "title": "我的問題"
