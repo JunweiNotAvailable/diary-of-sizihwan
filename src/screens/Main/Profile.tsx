@@ -116,7 +116,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             {/* Ask history */}
             <PrettyButton
               style={styles.card}
-              onPress={() => { }}
+              onPress={() => navigation.navigate('AskHistory')}
             >
               <Text style={styles.cardTitle}>{t('profile.askHistory.title', 'My Questions')}</Text>
               <View style={styles.cardImage}>
@@ -128,7 +128,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             {/* Settings */}
             <PrettyButton
               style={styles.card}
-              onPress={() => { }}
+              onPress={() => navigation.navigate('Settings')}
             >
               <Text style={styles.cardTitle}>{t('profile.settings.title', 'Settings')}</Text>
               <View style={styles.cardImage}>

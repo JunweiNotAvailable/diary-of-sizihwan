@@ -5,6 +5,7 @@ export const Colors = {
   primaryLightGray: '#e6e4e8',
   secondaryGray: '#f7f6f8',
   like: '#ff4466',
+  danger: '#FF3B30',
 }
 
 export const Map = {

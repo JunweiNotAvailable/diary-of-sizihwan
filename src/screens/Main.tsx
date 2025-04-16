@@ -8,6 +8,7 @@ import ReviewsScreen from './Main/Reviews';
 import UserProfileScreen from './Main/UserProfile';
 import MyReviewsScreen from './Main/ProfileOptions/MyReviews';
 import EditReviewScreen from './Main/ProfileOptions/EditReview';
+import SettingsScreen from './Main/ProfileOptions/Settings';
 
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
@@ -78,6 +79,15 @@ const MainScreen = () => {
       <Stack.Screen
         name="UserProfile"
         component={UserProfileScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      {/* Settings */}
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
