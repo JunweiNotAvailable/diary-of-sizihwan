@@ -234,6 +234,10 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           </View>
         </View>
 
+        {item.extra.is_anonymous && (
+          <Text style={styles.anonymousText}>{t('new.anonymous', 'Anonymous')}</Text>
+        )}
+
         <Text style={styles.reviewTitle}>{item.title}</Text>
 
         <View style={styles.contentContainer}>
@@ -572,6 +576,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 8,
     color: '#333',
+  },
+  anonymousText: {
+    fontSize: 12,
+    color: '#aaa',
+    marginVertical: 8,
   },
   contentContainer: {
     marginBottom: 6,

@@ -210,7 +210,7 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <TouchableWithoutFeedback onPress={() => navigation.navigate('UserProfile', { userId: user.id })}>
+          <TouchableWithoutFeedback onPress={item.extra.is_anonymous ? undefined : () => navigation.navigate('UserProfile', { userId: user.id })}>
             <View style={styles.userInfo}>
               {(!item.extra.is_anonymous && user.picture) ? (
                 <Image

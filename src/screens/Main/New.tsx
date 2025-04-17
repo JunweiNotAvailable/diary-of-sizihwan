@@ -31,6 +31,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [location, setLocation] = useState(initialLocation);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [allowReference, setAllowReference] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Update location if route params change
@@ -103,7 +104,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
         created_at: new Date().toISOString(),
         allow_reference: allowReference,
         extra: {
-          is_anonymous: false,
+          is_anonymous: isAnonymous,
           score: 0,
           likes: []
         }
@@ -206,6 +207,16 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
               labelStyle={{ fontWeight: '600' }}
               buttonStyle={{ borderRadius: 12 }}
             />
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>{t('new.anonymous', 'Anonymous')}</Text>
+              <Switch
+                value={isAnonymous}
+                onValueChange={setIsAnonymous}
+                trackColor={{ false: '#ddd', true: Colors.secondary }}
+                thumbColor={isAnonymous ? Colors.primary : '#f4f3f4'}
+              />
+            </View>
 
             <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{t('new.allowReference', 'Allow us to reference this post')}</Text>

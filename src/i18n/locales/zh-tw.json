@@ -75,6 +75,7 @@
     "content": "內容",
     "contentPlaceholder": "讓你的故事成為校園的一部分，也可以單純留下資訊幫助其他同學",
     "allowReference": "允許 AI 引用這篇文章來回答問題",
+    "anonymous": "匿名發布",
     "submit": "發布",
     "errors": {
       "titleRequired": "標題不能是空白",

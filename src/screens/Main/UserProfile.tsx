@@ -53,9 +53,11 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
       setUser(userData);
 
       // Load reviews
-      const reviewsRes = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${userId}`);
-      const reviewsData = (await reviewsRes.json()).data;
-      setReviews(reviewsData.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
+      // Get reviews
+      const newReviews = await loadReviews(userId, 0);
+      setReviews(newReviews.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
+      setPage(0);
+      setHasMoreReviews(newReviews.length === limit);
     } catch (error) {
       console.error('Error loading initial data:', error);
     } finally {
@@ -86,9 +88,9 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
   };
 
   const loadReviews = async (userId: string, page: number) => {
-    const res = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${userId}&limit=${limit}&offset=${page * limit}`);
+    const res = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${userId}&limit=${limit}&offset=${page * limit}&sortBy=created_at&order=desc`);
     const data = await res.json();
-    return data.data;
+    return data.data.filter((review: ReviewModel) => !review.extra.is_anonymous);
   }
 
   // Close the modal
