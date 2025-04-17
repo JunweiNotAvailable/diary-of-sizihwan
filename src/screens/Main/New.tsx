@@ -14,14 +14,14 @@ import { useAppState } from '../../contexts/AppContext';
 import { Categories, Colors, Locations } from '../../utils/Constants';
 import { PlusIcon, PrettyLoadingIcon } from '../../utils/Svgs';
 import { Input, Textarea, PrettyButton, Select } from '../../components';
-import { ReviewModel } from '../../utils/Interfaces';
+import { EmbeddingModel, ReviewModel } from '../../utils/Interfaces';
 import { Config } from '../../utils/Config';
 import { generateRandomString } from '../../utils/Functions';
 
 const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { t } = useTranslation();
   const { user, locale } = useAppState();
-  
+
   // Get initial location from route params if available
   const initialLocation = route.params?.locationId || '';
 
@@ -110,6 +110,45 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
         }
       };
 
+      // Create embedding
+      const translateResponse = await fetch(`${Config.api.url}/translate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: `
+            Title: ${review.title}
+            Location: ${Locations.nsysu.find(location => location.id === review.location)?.name_en}
+            Categories: ${review.categories.join(', ')}
+            Content:\n${review.content}
+          `,
+          targetLang: 'en',
+        })
+      });
+      const translateData = (await translateResponse.json()).data;
+      const enContent = translateData.translatedText;
+
+      const response = await fetch(`${Config.api.url}/embedding`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ input: enContent })
+      });
+      const data = await response.json();
+      const vector = data.data.vector;
+
+      const embedding: EmbeddingModel = {
+        id: review.id,
+        vector,
+        payload: {
+          allow_reference: review.allow_reference,
+          location: review.location,
+          categories: review.categories
+        }
+      }
+
       // Post review to server
       await fetch(`${Config.api.url}/data?table=reviews`, {
         method: 'POST',
@@ -117,6 +156,15 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(review)
+      });
+
+      // Store vector
+      await fetch(`${Config.api.url}/qdrant/store`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(embedding)
       });
 
       // Check if there's an onDone callback and use it to return the new review

@@ -30,3 +30,13 @@ export interface ReviewModel {
     likes: string[];
   }
 }
+
+export interface EmbeddingModel {
+  id: string;
+  vector: number[];
+  payload: {
+    allow_reference: boolean;
+    location: string;
+    categories: string[];
+  }
+}

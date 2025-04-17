@@ -154,7 +154,6 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
 
     try {
       // Determine source language based on current locale
-      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
       const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
 
       // Make the translation request
@@ -166,7 +165,6 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
         body: JSON.stringify({
           text: content,
           targetLang,
-          sourceLang
         })
       });
 
