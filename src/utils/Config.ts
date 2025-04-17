@@ -4,5 +4,9 @@ export const Config = {
   },
   storage: {
     user: 'current_user',
+  },
+  s3: {
+    bucketName: 'review-my-campas-assets',
+    region: 'us-east-1',
   }
 }

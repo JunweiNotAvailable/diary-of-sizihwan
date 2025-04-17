@@ -8,7 +8,9 @@ import {
   Image,
   ScrollView,
   Animated,
-  Platform
+  Platform,
+  TouchableWithoutFeedback,
+  Alert
 } from 'react-native';
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
@@ -18,39 +20,149 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrettyButton } from '../../components';
-import { ReviewModel } from '../../utils/Interfaces';
+import { ReviewModel, UserModel } from '../../utils/Interfaces';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const ProfileScreen = ({ navigation }: { navigation: any }) => {
   const { t } = useTranslation();
   const { user, setUser } = useAppState();
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-
     (async () => {
       const reviews = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user?.id}`);
       setReviews((await reviews.json()).data || []);
     })();
   }, [user]);
 
-  // Handle sign out
-  const handleSignOut = async () => {
-    try {
-      setUser(null);
-      await AsyncStorage.removeItem(Config.storage.user);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Auth' }],
-      });
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
   // Close the modal
   const handleClose = () => {
     navigation.goBack();
+  };
+
+  // Handle picking and uploading a profile picture
+  const handleProfilePicture = async () => {
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          t('profile.permissions.title', 'Permission Required'),
+          t('profile.permissions.photoLibrary', 'We need access to your photo library to set a profile picture.')
+        );
+        return;
+      }
+
+      // Launch image picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      // Resize image
+      let resized: any;
+      if (!result.canceled) {
+        resized = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 512, height: 512 } }], // adjust width as needed
+          { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+        );
+      }
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      await uploadProfilePicture(resized.uri);
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert(
+        t('profile.error.title', 'Error'),
+        t('profile.error.imagePicker', 'There was an error selecting the image.')
+      );
+    }
+  };
+
+  // Upload profile picture to server
+  const uploadProfilePicture = async (imageUri: string) => {
+    if (!user) return;
+
+    try {
+      setUploading(true);
+
+      // Create form data
+      const formData = new FormData();
+      
+      // Get file name from URI
+      const uriParts = imageUri.split('/');
+      const fileName = uriParts[uriParts.length - 1];
+      
+      // Add file to form data
+      formData.append('file', {
+        uri: imageUri,
+        name: fileName,
+        type: `image/${fileName.split('.').pop()}`
+      } as any);
+
+      // Delete existing profile picture if any
+      if (user.picture) {
+        await fetch(`${Config.api.url}/storage?key=${user.picture}`, { 
+          method: 'DELETE'
+        });
+      }
+
+      // Upload new image
+      const response = await fetch(`${Config.api.url}/storage/upload`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error('Failed to upload image');
+      }
+
+      // Update user data with new picture URL
+      const updatedUser: UserModel = {
+        ...user,
+        picture: result.data.key
+      };
+
+      // Save updated user to backend
+      const updateResponse = await fetch(`${Config.api.url}/data?table=users&id=${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ picture: result.data.key })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update user data');
+      }
+
+      // Update local user state
+      setUser(updatedUser);
+      
+      setUploading(false);
+    } catch (error) {
+      setUploading(false);
+      console.error('Error uploading profile picture:', error);
+      Alert.alert(
+        t('profile.error.title', 'Error'),
+        t('profile.error.upload', 'There was an error uploading the image.')
+      );
+    }
   };
 
   return (
@@ -81,18 +193,20 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.scoreText}>{t('profile.score').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
               </View>
             </View>
-            {user?.picture ? (
-              <Image
-                source={{ uri: user.picture }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <View style={styles.profilePlaceholder}>
-                <View style={{ width: 48, height: 48, marginTop: 8 }}>
-                  <PersonIcon width={48} height={48} fill={Colors.primaryGray + '44'} />
+            <TouchableWithoutFeedback onPress={handleProfilePicture}>
+              {user?.picture ? (
+                <Image
+                  source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${user.picture}` }}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <View style={styles.profilePlaceholder}>
+                  <View style={{ width: 48, height: 48, marginTop: 8 }}>
+                    <PersonIcon width={48} height={48} fill={Colors.primaryGray + '44'} />
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
+            </TouchableWithoutFeedback>
           </View>
 
           {/* Bio */}
@@ -202,8 +316,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 72,
     height: 72,
-    borderRadius: 50,
-    marginBottom: 12,
+    borderRadius: 24,
   },
   profilePlaceholder: {
     width: 72,

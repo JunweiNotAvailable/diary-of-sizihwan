@@ -55,10 +55,13 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 						longitude: location.coords.longitude,
 					};
 
-					setCurrentLocation(locationCoords);
+					const libraryLocation = Locations.nsysu[0].coordinates;
+					// setCurrentLocation(locationCoords); // User's current location
+					setCurrentLocation(libraryLocation); // Library's location
 
 					setInitialRegion({
-						...locationCoords,
+						// ...locationCoords,
+						...libraryLocation,
 						latitudeDelta: 0.0042,
 						longitudeDelta: 0.0042,
 					});
@@ -132,7 +135,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				{/* Location markers */}
 				{Locations.nsysu.map((location) => {
 					const Icon = LocationIcon[location.icon as keyof typeof LocationIcon];
-					const iconColor = IconColors[location.icon as keyof typeof IconColors] || Colors.primary;
+					const iconColors = IconColors[location.icon as keyof typeof IconColors] || { fg: Colors.primary, bg: Colors.secondary };
 					return (
 						<Marker
 							key={location.id}
@@ -140,8 +143,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 							anchor={{ x: 0.5, y: 0.5 }}
 							onPress={() => navigation.navigate('Reviews', { location })}
 						>
-							<View style={[styles.marker, { backgroundColor: iconColor.bg, borderColor: iconColor.fg }]}>
-								{Icon && <Icon width={16} height={16} stroke={iconColor.fg} fill={iconColor.fg} />}
+							<View style={[styles.marker, { backgroundColor: iconColors.bg, borderColor: iconColors.fg + '66' }]}>
+								{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
 							</View>
 						</Marker>
 					)

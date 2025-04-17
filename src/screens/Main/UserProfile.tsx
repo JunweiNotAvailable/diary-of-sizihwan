@@ -260,7 +260,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
           </View>
           {user?.picture ? (
             <Image
-              source={{ uri: user.picture }}
+              source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${user.picture}` }}
               style={styles.profileImage}
             />
           ) : (
@@ -408,8 +408,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 72,
     height: 72,
-    borderRadius: 50,
-    marginBottom: 12,
+    borderRadius: 24,
   },
   profilePlaceholder: {
     width: 72,

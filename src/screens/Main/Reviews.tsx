@@ -223,7 +223,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
             <View style={styles.userInfo}>
               {(!item.extra.is_anonymous && user.picture) ? (
                 <Image
-                  source={{ uri: user.picture }}
+                  source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${user.picture}` }}
                   style={styles.userImage}
                 />
               ) : (
