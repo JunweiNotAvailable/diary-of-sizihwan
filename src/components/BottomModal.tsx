@@ -63,7 +63,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
                         contentStyle={{ gap: 0 }}
                       >
                         <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-                          <PlusIcon width={14} height={14} fill={Colors.primary} />
+                          <PlusIcon width={14} height={14} />
                         </View>
                       </PrettyButton>
                     )}
@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.primary,
   },
   modalClose: {
     width: 28,

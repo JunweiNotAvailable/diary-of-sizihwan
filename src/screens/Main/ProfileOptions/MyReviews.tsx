@@ -6,14 +6,16 @@ import {
   SafeAreaView,
   Platform,
   FlatList,
-  Alert
+  Alert,
+  Image,
+  TouchableOpacity
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Categories, Colors, Locations } from '../../../utils/Constants';
-import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon } from '../../../utils/Svgs';
+import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon } from '../../../utils/Svgs';
 import { Config } from '../../../utils/Config';
 import { PrettyButton, BottomModal, OptionItem } from '../../../components';
-import { ReviewModel } from '../../../utils/Interfaces';
+import { ReviewModel, UserModel } from '../../../utils/Interfaces';
 import { getTimeFromNow } from '../../../utils/Functions';
 import { MarkdownText } from '../../../components';
 import { useAppState } from '../../../contexts/AppContext';
@@ -33,6 +35,9 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<ReviewModel | null>(null);
+  const [likesModalVisible, setLikesModalVisible] = useState(false);
+  const [likeUsers, setLikeUsers] = useState<UserModel[]>([]);
+  const [loadingLikes, setLoadingLikes] = useState(false);
 
   // Load user and their reviews
   useEffect(() => {
@@ -100,6 +105,36 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
       body: JSON.stringify({ extra: newReview.extra })
     });
   }
+
+  const handleShowLikes = async (review: ReviewModel) => {
+    setSelectedReview(review);
+    setLikesModalVisible(true);
+    setLoadingLikes(true);
+    
+    try {
+      // If no likes, don't fetch
+      if (!review.extra.likes || review.extra.likes.length === 0) {
+        setLikeUsers([]);
+        setLoadingLikes(false);
+        return;
+      }
+      
+      // Fetch user data for each like
+      const userPromises = review.extra.likes.map(async (userId: string) => {
+        const response = await fetch(`${Config.api.url}/data?table=users&id=${userId}`);
+        const data = await response.json();
+        return data.data;
+      });
+      
+      const userData = await Promise.all(userPromises);
+      setLikeUsers(userData.filter(Boolean)); // Filter out any null results
+    } catch (error) {
+      console.error('Error fetching like users:', error);
+      Alert.alert(t('error.title', 'Error'), t('error.fetchingUsers', 'There was an error fetching user data.'));
+    } finally {
+      setLoadingLikes(false);
+    }
+  };
 
   const translateReview = async (reviewId: string, content: string) => {
     // If we already have the translation, just toggle visibility
@@ -271,12 +306,54 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
             ))}
           </View>
           {/* likes */}
-          <PrettyButton style={styles.likesContainer} onPress={async () => await toggleLike(item)}>
-            <ThumbsUpIcon width={24} height={24} fill={item.extra.likes.includes(user?.id) ? Colors.like : Colors.primaryGray + '88'} />
-            <Text style={[styles.likesText, { color: item.extra.likes.includes(user?.id) ? Colors.like : Colors.primaryGray + '88' }]}>{item.extra.likes.length}</Text>
+          <PrettyButton 
+            style={[
+              styles.likesContainer, 
+              { backgroundColor: Colors.secondaryGray }
+            ]} 
+            onPress={() => handleShowLikes(item)}
+            contentStyle={{ gap: 6 }}
+          >
+            <ThumbsUpIcon 
+              width={16} 
+              height={16} 
+              fill={Colors.primaryGray} 
+            />
+            <Text style={[
+              styles.likesText, 
+              { color: Colors.primaryGray }
+            ]}>
+              {item.extra.likes.length}
+            </Text>
           </PrettyButton>
         </View>
       </View>
+    );
+  };
+
+  const renderLikeUserItem = ({ item }: { item: UserModel }) => {
+    return (
+      <TouchableOpacity 
+        style={styles.likeUserItem}
+        onPress={() => {
+          setLikesModalVisible(false);
+          navigation.navigate('UserProfile', { userId: item.id });
+        }}
+      >
+        {item?.picture ? (
+          <Image
+            source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${item.picture}` }}
+            style={styles.likeUserImage}
+          />
+        ) : (
+          <View style={styles.likeUserPlaceholder}>
+            <View style={{ paddingTop: 4 }}>
+              <PersonIcon width={24} height={24} fill={Colors.primaryGray + '44'} />
+            </View>
+          </View>
+        )}
+        <Text style={styles.likeUserName}>{item.name}</Text>
+      </TouchableOpacity>
     );
   };
 
@@ -350,6 +427,28 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
             icon={<TrashIcon width={20} height={20} fill="#FF3B30" />}
             destructive
           />
+        </BottomModal>
+
+        {/* Likes Modal */}
+        <BottomModal
+          visible={likesModalVisible}
+          onClose={() => setLikesModalVisible(false)}
+          title={t('profile.myReviews.likes', 'Likes')}
+        >
+          {loadingLikes ? (
+            <View style={styles.likesLoadingContainer}>
+              <PrettyLoadingIcon width={28} height={28} stroke={Colors.primaryGray} />
+            </View>
+          ) : likeUsers.length > 0 ? (
+            <FlatList
+              data={likeUsers}
+              keyExtractor={(item) => item.id}
+              renderItem={renderLikeUserItem}
+              style={styles.likeUsersList}
+            />
+          ) : (
+            <Text style={styles.noLikesText}>{t('profile.myReviews.noLikes', 'No likes yet.')}</Text>
+          )}
         </BottomModal>
       </View>
     </SafeAreaView>
@@ -621,10 +720,16 @@ const styles = StyleSheet.create({
   },
   likesContainer: {
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.secondaryGray,
+    height: 24,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    gap: 2,
   },
   likesText: {
-    fontSize: 10,
+    fontSize: 12,
+    color: Colors.primaryGray,
   },
   locationText: {
     fontSize: 14,
@@ -656,6 +761,48 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     padding: 0,
   },
+  // Likes modal styles
+  likesLoadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  likeUsersList: {
+    maxHeight: 300,
+    paddingBottom: 20,
+  },
+  likeUserItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primaryLightGray,
+  },
+  likeUserImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    marginRight: 16,
+  },
+  likeUserPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.primaryLightGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  likeUserName: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '600',
+  },
+  noLikesText: {
+    padding: 40,
+    textAlign: 'center',
+    color: '#aaa',
+  }
 });
 
 export default MyReviewsScreen; 

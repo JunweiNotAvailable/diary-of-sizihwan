@@ -14,9 +14,8 @@ import * as Location from 'expo-location';
 import { Colors, Map, Locations, IconColors } from '../../utils/Constants';
 import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { LocationIcon } from '../../components/LocationIcon';
-import { useFocusEffect } from '@react-navigation/native';
+import { Config } from '../../utils/Config';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations
 const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
@@ -159,7 +158,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 						<View style={styles.profileButton}>
 							{user?.picture ? (
 								<Image
-									source={{ uri: user.picture }}
+									source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${user.picture}` }}
 									style={styles.profileImage}
 								/>
 							) : (
