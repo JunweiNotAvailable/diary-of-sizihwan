@@ -1,14 +1,14 @@
-import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Colors, Categories } from '../../utils/Constants';
+import { Colors, Categories, Locations } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
+import { CheckIcon, ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
-import { MarkdownText } from '../../components';
+import { MarkdownText, BottomModal } from '../../components';
 
 const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
@@ -19,7 +19,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
-  const location = route.params?.location;
+  const [location, setLocation] = useState(route.params?.location);
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
   const { user, locale } = useAppState();
   const { t } = useTranslation();
   // pagination
@@ -44,6 +45,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
   const loadInitialData = async () => {
     try {
+      setIsLoading(true);
       // Get reviews
       const newReviews = await loadReviews(location.id, 0);
       setReviews(newReviews.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
@@ -116,6 +118,11 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     });
   }
 
+  const handleChangeLocation = (newLocation: any) => {
+    setLocation(newLocation);
+    setLocationModalVisible(false);
+  };
+
   const toggleExpandReview = (reviewId: string) => {
     setExpandedReviews(prev => ({
       ...prev,
@@ -162,7 +169,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
       }
 
       const data = (await response.json()).data;
-      
+
       // Store the translated text
       setTranslatedReviews(prev => ({
         ...prev,
@@ -254,8 +261,8 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
 
           <View style={styles.contentActions}>
             {/* Translate button */}
-            <PrettyButton 
-              style={styles.translateButton} 
+            <PrettyButton
+              style={styles.translateButton}
               onPress={() => translateReview(item.id, item.content)}
               disabled={isCurrentlyTranslating}
             >
@@ -295,6 +302,32 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     );
   };
 
+  const renderLocationItem = ({ item }: { item: any }) => {
+    const isSelected = item.id === location?.id;
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.locationItem,
+          isSelected && styles.selectedLocationItem
+        ]}
+        onPress={() => handleChangeLocation(item)}
+      >
+        <Text style={[
+          styles.locationItemText,
+          isSelected && styles.selectedLocationItemText
+        ]}>
+          {locale === 'zh' ? item.name : item.name_en}
+        </Text>
+        {isSelected && (
+          <View style={styles.selectedLocationIndicator}>
+            <CheckIcon width={10} height={10} stroke={'#fff'} />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* header */}
@@ -309,18 +342,26 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
           </View>
         </PrettyButton>
         {/* Title */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.title} ellipsizeMode="middle" numberOfLines={1}>
-            {locale === 'zh' ? location.name : location.name_en}
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.titleContainer}
+          onPress={() => setLocationModalVisible(true)}
+        >
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title} ellipsizeMode="middle" numberOfLines={1}>
+              {locale === 'zh' ? location.name : location.name_en}
+            </Text>
+            <ChevronDownIcon width={12} height={12} fill={Colors.primaryGray} />
+          </View>
+        </TouchableOpacity>
         {/* Add new review button */}
         <PrettyButton
           style={styles.headerButton}
-          onPress={() => navigation.navigate('New', { locationId: location.id, onDone: (review: ReviewModel | undefined) => {
-            if (!review || location.id !== review.location) return;
-            setReviews(prev => [review, ...prev]);
-          } })}
+          onPress={() => navigation.navigate('New', {
+            locationId: location.id, onDone: (review: ReviewModel | undefined) => {
+              if (!review || location.id !== review.location) return;
+              setReviews(prev => [review, ...prev]);
+            }
+          })}
           children={<PlusIcon width={15} height={15} />}
         />
       </View>
@@ -337,6 +378,21 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
         onEndReached={loadMoreReviews}
         onEndReachedThreshold={0.3}
       />
+
+      {/* Location Selection Modal */}
+      <BottomModal
+        visible={locationModalVisible}
+        onClose={() => setLocationModalVisible(false)}
+        title={t('new.location', 'Location')}
+      >
+        <FlatList
+          data={Locations.nsysu}
+          renderItem={renderLocationItem}
+          keyExtractor={(item) => item.id}
+          style={styles.locationsList}
+          contentContainerStyle={styles.locationsListContent}
+        />
+      </BottomModal>
     </SafeAreaView>
   );
 };
@@ -393,6 +449,12 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     paddingHorizontal: 10,
+  },
+  titleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
   },
   title: {
     fontSize: 18,
@@ -518,6 +580,40 @@ const styles = StyleSheet.create({
   translateButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  // Location modal styles
+  locationsList: {
+    maxHeight: 400,
+  },
+  locationsListContent: {
+    paddingBottom: 20,
+  },
+  locationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primaryLightGray,
+  },
+  selectedLocationItem: {
+    backgroundColor: Colors.secondaryGray,
+  },
+  locationItemText: {
+    fontSize: 16,
+    fontWeight: '300',
+  },
+  selectedLocationItemText: {
+    fontWeight: '600',
+  },
+  selectedLocationIndicator: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.primaryGray,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   // Markdown styles
   bold: {

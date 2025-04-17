@@ -131,10 +131,10 @@ const Select: React.FC<SelectProps> = ({
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.modalItem}
+            style={[styles.modalItem, (item.id === selectedIds || (multiSelect && (selectedIds as string[]).includes(item.id))) && styles.selectedModalItem]}
             onPress={() => handleSelect(item.id)}
           >
-            <Text style={styles.modalItemText}>{item.name}</Text>
+            <Text style={[styles.modalItemText, (item.id === selectedIds || (multiSelect && (selectedIds as string[]).includes(item.id))) && styles.selectedModalItemText]}>{item.name}</Text>
             {multiSelect
               ? ((selectedIds as string[]).includes(item.id) && (
                 <View style={styles.selectedIndicator}>
@@ -229,9 +229,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  selectedModalItem: {
+    backgroundColor: Colors.secondaryGray,
+  },
   modalItemText: {
     fontSize: 16,
-    color: '#333',
+    fontWeight: '300',
+  },
+  selectedModalItemText: {
+    fontWeight: '600',
   },
   selectedIndicator: {
     width: 20,
