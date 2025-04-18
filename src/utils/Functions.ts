@@ -1,4 +1,4 @@
-import { ReviewModel } from "./Interfaces";
+import { ReviewModel, UserModel } from "./Interfaces";
 import { useEffect, useRef, useState } from 'react';
 
 export const generateRandomString = (length: number, prefix?: string) => {
@@ -8,6 +8,13 @@ export const generateRandomString = (length: number, prefix?: string) => {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return prefix ? `${prefix}_${result}` : result;
+}
+
+export const getDateString = (date: Date | string): string => {
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 export const getTimeFromNow = (date: string): string => {
@@ -146,21 +153,23 @@ export const useChatSocket = (url: string, systemPrompt: string, userMessage: st
 };
 
 // Get the system prompt
-export const getSystemPrompt = (reviews: { review: ReviewModel, score: number }[]): string => `
+export const getSystemPrompt = (reviews: { review: ReviewModel, score: number, user: UserModel }[], language?: 'English' | 'zh-TW'): string => `
 You are a helpful and honest campus assistant AI. A student has asked a question about campus life. Your job is to answer them using the experiences and reviews written by other students.
 
 Here are relevant student posts tagged as helpful:
+-----
+
 ${reviews
-    .map((r, i) => `${i + 1}. ${r.review.title}:\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${Math.round(r.score * 100)}%)`)
+    .map((r, i) => `${i + 1}. ${r.review.title}:\nStudent: ${r.review.extra.is_anonymous ? 'Anonymous student' : r.user.name}\nPosted date: ${getDateString(r.review.created_at)}\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${Math.round(r.score * 100)}%)`)
     .join('\n\n')}
 
-Use only the information from the reviews above. Summarize trends, highlight common insights, and avoid making up information not reflected in the posts. 
-Be clear, concise, and speak like a student giving honest information.
-Use a casual and friendly tone, using emojis occassionally is allowed.
+-----
 
+Use only the information from the reviews above. Summarize trends, highlight common insights, and avoid making up information not reflected in the posts. 
+Be clear, concise, and use a casual and friendly tone, using emojis occassionally is allowed.
 If there's conflicting info, reflect that honestly in your answer.
 
 Rules:
 - Use plain text, no markdown.
-- Respond in user's language.
+- Respond in user's language: ${language || 'English'}.
 `.trim();

@@ -12,7 +12,7 @@ import { useAppState } from '../../contexts/AppContext'
 const AskScreen = ({ navigation }: { navigation: any }) => {
   const scrollViewRef = useRef<ScrollView>(null)
   const inputRef = useRef<TextInput>(null)
-  const { user } = useAppState();
+  const { user, locale } = useAppState();
   const [query, setQuery] = useState('');
   const [question, setQuestion] = useState('');
   // Response
@@ -21,7 +21,7 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [isAnimatingText, setIsAnimatingText] = useState(false);
   const typingAnimationRef = useRef<NodeJS.Timeout | null>(null);
-  const [responseReviews, setResponseReviews] = useState<{ review: ReviewModel, score: number }[]>([]);
+  const [responseReviews, setResponseReviews] = useState<{ review: ReviewModel, score: number, user: UserModel }[]>([]);
 
   useEffect(() => {
     if (responseState === 'done') {
@@ -119,14 +119,16 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify({ vector })
       })
       const searchResults = (await searchResponse.json()).data.results;
-      const newResponseReviews: { review: ReviewModel, score: number }[] = [];
+      const newResponseReviews: { review: ReviewModel, score: number, user: UserModel }[] = [];
       for (const result of searchResults) {
         const reviewResponse = await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`);
         let reviewData = (await reviewResponse.json()).data;
         if (!reviewData?.id) continue;
+        const userResponse = await fetch(`${Config.api.url}/data?table=users&id=${reviewData.user_id}`);
+        const userData = (await userResponse.json()).data;
 
         // Update scoring review if it's not the user's review and the score is above 0.4
-        if (result.score >= 0.4 && reviewData.user_id !== user.id) {
+        if (result.score >= 0.35 && reviewData.user_id !== user.id) {
           reviewData = { ...reviewData, extra: { ...reviewData.extra, score: reviewData.extra.score + 1 } };
           await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`, {
             method: 'PUT',
@@ -134,19 +136,18 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
             body: JSON.stringify({ extra: { ...reviewData.extra } })
           });
         }
-        newResponseReviews.push({ review: reviewData, score: result.score });
+        newResponseReviews.push({ review: reviewData, score: result.score, user: userData });
       }
       setResponseReviews(newResponseReviews);
 
       // Start generating response
       setResponseState('generating');
-
       // Generate response based on search results
       const askResponse = await fetch(`${Config.api.url}/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemPrompt: getSystemPrompt(newResponseReviews),
+          systemPrompt: getSystemPrompt(newResponseReviews, locale === 'en' ? 'English' : 'zh-TW'),
           message,
         })
       });
