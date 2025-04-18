@@ -1,12 +1,17 @@
 {
   "general": {
-    "goBack": "Go Back"
+    "goBack": "Go Back",
+    "title": "Title",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save"
   },
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "studentId": "Student ID",
+    "signOut": "Sign Out",
     "noAccount": "Don't have an account yet?",
+    "studentId": "Student ID",
     "password": "Password",
     "setupPassword": "Setup Password",
     "name": "Name",
@@ -24,8 +29,8 @@
       "enterStudentId": "Please enter your student ID",
       "enterPassword": "Please enter your password",
       "enterName": "Please enter your name",
-      "signInFailed": "Oops! Failed to sign in. Please try again.",
-      "signUpFailed": "Oops! Failed to create account. Please try again.",
+      "signInFailed": "Sign in failed. Please try again.",
+      "signUpFailed": "Account creation failed. Please try again.",
       "cameraPermission": "Camera permission is required to scan ID",
       "idCardScanFailed": "Failed to process ID card. Please try again."
     }
@@ -35,8 +40,88 @@
     "permissionDenied": "We need your location to show where you are on the map. Please enable location permissions in your device settings."
   },
   "profile": {
-    "title": "Profile",
+    "title": "My Profile",
     "signOut": "Sign Out",
-    "signingOut": "Signing out..."
+    "signingOut": "Signing out...",
+    "score": "Your reviews have been referenced {{count}} times",
+    "myReviews": {
+      "title": "My Reviews",
+      "noReviews": "You haven't shared any reviews yet",
+      "options": "Options",
+      "deleteReviewTitle": "Delete Review",
+      "deleteReviewMessage": "Are you sure you want to delete \"{{title}}\"?",
+      "deleteReview": "Delete",
+      "editReview": "Edit",
+      "editReviewTitle": "Edit Review",
+      "likes": "People who liked this",
+      "noLikes": "No likes yet"
+    },
+    "askHistory": {
+      "title": "My Questions",
+      "noAsks": "You haven't asked any questions yet",
+      "viewTitle": "Question History"
+    },
+    "settings": {
+      "title": "Settings",
+      "preferences": "Preferences",
+      "account": "Account",
+      "username": "Username"
+    }
+  },
+  "new": {
+    "title": "New Review",
+    "titlePlaceholder": "Describe your review in one sentence",
+    "location": "Location",
+    "selectLocation": "Select Location",
+    "categories": "Categories",
+    "selectCategories": "Select Categories",
+    "addCategory": "Add categories that best fit your review",
+    "content": "Content",
+    "contentPlaceholder": "Make your story part of the campus, or simply leave information to help other students",
+    "allowReference": "Allow AI to reference this review when answering questions",
+    "anonymous": "Post anonymously",
+    "submit": "Post",
+    "errors": {
+      "titleRequired": "Title cannot be empty",
+      "contentRequired": "Content cannot be empty",
+      "locationRequired": "Please select a location",
+      "categoryRequired": "Please select at least one category"
+    }
+  },
+  "ask": {
+    "title": "Campus Question",
+    "placeholder": "Have a question about campus?",
+    "inputPlaceholder": "Type your campus question...",
+    "emptyChat": "AI will answer your questions based on reviews from other students",
+    "isReferencing": "Finding relevant information",
+    "isGenerating": "Generating response",
+    "relevantReviews": "Relevant Reviews",
+    "relevanceScore": "Relevance Score"
+  },
+  "categories": {
+    "general": "General",
+    "food": "Food",
+    "academics": "Academics",
+    "facilities": "Facilities",
+    "events": "Events",
+    "casual": "Daily Life"
+  },
+  "reviews": {
+    "loading": "Loading...",
+    "empty": "No reviews here yet",
+    "anonymousUser": "Anonymous User",
+    "showMore": "Show More",
+    "showLess": "Show Less",
+    "latest": "Latest Reviews",
+    "errors": {
+      "locationRequired": "Please select a location"
+    }
+  },
+  "userProfile": {
+    "title": "User Profile",
+    "score": "{{name}}'s reviews have been referenced {{count}} times",
+    "knowThisPerson": "Know {{name}}",
+    "reviews": "{{name}}'s Reviews",
+    "noReviews": "No reviews"
   }
 } 

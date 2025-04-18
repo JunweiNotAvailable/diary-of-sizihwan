@@ -10,13 +10,14 @@ import MyReviewsScreen from './Main/ProfileOptions/MyReviews';
 import EditReviewScreen from './Main/ProfileOptions/EditReview';
 import SettingsScreen from './Main/ProfileOptions/Settings';
 import LatestScreen from './Main/Latest';
-
+import RelevantReviewsScreen from './Main/RelevantReviews';
+import AskHistory from './Main/ProfileOptions/AskHistory';
+import AskHistoryView from './Main/ProfileOptions/AskHistoryView';
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
 const backgroundColor = '#fff';
 
 const MainScreen = () => {
-
 
   return (
     <Stack.Navigator
@@ -27,6 +28,19 @@ const MainScreen = () => {
     >
       {/* Home */}
       <Stack.Screen name="Home" component={HomeScreen} />
+      {/* New review */}
+			<Stack.Screen
+        name="New"
+        component={NewScreen}
+        options={{
+          presentation: 'fullScreenModal',
+        }}
+      />
+      {/* Reviews */}
+			<Stack.Screen
+        name="Reviews"
+        component={ReviewsScreen}
+      />
       {/* Latest */}
       <Stack.Screen name="Latest" component={LatestScreen}
         options={{
@@ -35,6 +49,27 @@ const MainScreen = () => {
           contentStyle: { backgroundColor },
         }}
       />
+      {/* Ask */}
+			<Stack.Screen
+        name="Ask"
+        component={AskScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
+        }}
+      />
+      {/* Relevant reviews */}
+      <Stack.Screen
+        name="RelevantReviews"
+        component={RelevantReviewsScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
+        }}
+      />
+
       {/* Profile */}
       <Stack.Screen 
         name="Profile" 
@@ -60,51 +95,43 @@ const MainScreen = () => {
         name="EditReview"
         component={EditReviewScreen}
         options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
+          presentation: 'fullScreenModal',
         }}
       />
-      
-      {/* New review */}
-			<Stack.Screen
-        name="New"
-        component={NewScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
-      />
-      {/* Ask */}
-			<Stack.Screen
-        name="Ask"
-        component={AskScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
-      />
-      {/* Reviews */}
-			<Stack.Screen
-        name="Reviews"
-        component={ReviewsScreen}
-      />
-      {/* User profile */}
+      {/* Ask history */}
       <Stack.Screen
-        name="UserProfile"
-        component={UserProfileScreen}
+        name="AskHistory"
+        component={AskHistory}
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
           contentStyle: { backgroundColor },
+        }}
+      />
+      {/* Ask history view */}
+      <Stack.Screen
+        name="AskHistoryView"
+        component={AskHistoryView}
+        options={{
+          presentation: 'modal',
+          animation: 'flip',
         }}
       />
       {/* Settings */}
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
+        }}
+      />
+      
+      {/* User profile */}
+      <Stack.Screen
+        name="UserProfile"
+        component={UserProfileScreen}
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',

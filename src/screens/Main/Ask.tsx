@@ -249,6 +249,7 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
             value={query}
             onChangeText={setQuery}
             multiline
+            autoFocus
             numberOfLines={1}
             onFocus={() => {
               // Scroll to bottom when input is focused

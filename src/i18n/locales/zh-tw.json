@@ -57,7 +57,9 @@
       "noLikes": "還沒有人說讚"
     },
     "askHistory": {
-      "title": "我的問題"
+      "title": "我的問答",
+      "noAsks": "你還沒有問過任何問題",
+      "viewTitle": "問答紀錄"
     },
     "settings": {
       "title": "設定",
@@ -93,7 +95,8 @@
     "emptyChat": "AI 會根據同學們的分享文來回答你的問題",
     "isReferencing": "正在讀取資料",
     "isGenerating": "正在生成",
-    "relevantReviews": "相關資料"
+    "relevantReviews": "相關文章",
+    "relevanceScore": "相關程度"
   },
   "categories": {
     "general": "綜合",

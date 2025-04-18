@@ -12,7 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../../contexts/AppContext';
 import { Categories, Colors, Locations } from '../../../utils/Constants';
-import { PlusIcon, PrettyLoadingIcon } from '../../../utils/Svgs';
+import { ChevronDownIcon, PlusIcon, PrettyLoadingIcon } from '../../../utils/Svgs';
 import { Input, Textarea, PrettyButton, Select } from '../../../components';
 import { EmbeddingModel, ReviewModel } from '../../../utils/Interfaces';
 import { Config } from '../../../utils/Config';
@@ -149,12 +149,12 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
         },
         body: JSON.stringify(embedding)
       });
-      
+
       // Check if there's an onDone callback and use it to return the updated review
       if (route.params?.onDone) {
         route.params.onDone(review);
       }
-      
+
       navigation.goBack();
     } catch (error) {
       console.error('Error posting review:', error);
@@ -180,16 +180,16 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('profile.myReviews.editReviewTitle', 'Edit Review')}</Text>
             <PrettyButton
-              style={styles.closeButton}
-              onPress={handleClose}
-              contentStyle={{ gap: 0 }}
+              style={[styles.headerButton, { alignItems: 'flex-start' }]}
+              onPress={() => navigation.goBack()}
             >
-              <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-                <PlusIcon width={14} height={14} />
+              <View style={{ transform: [{ rotate: '90deg' }] }}>
+                <ChevronDownIcon width={20} height={20} />
               </View>
             </PrettyButton>
+            <Text style={styles.headerTitle}>{t('profile.myReviews.editReviewTitle', 'Edit Review')}</Text>
+            <View style={styles.headerButton} />
           </View>
 
           {/* Content */}
@@ -246,7 +246,7 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
               buttonStyle={{ borderRadius: 12 }}
             />
 
-            <View style={styles.switchContainer}> 
+            <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{t('new.anonymous', 'Anonymous')}</Text>
               <Switch
                 value={review?.extra?.is_anonymous}
@@ -255,7 +255,7 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
                 thumbColor={review?.extra?.is_anonymous ? Colors.primary : '#f4f3f4'}
               />
             </View>
-            
+
             <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{t('new.allowReference', 'Allow us to reference this post')}</Text>
               <Switch
@@ -298,27 +298,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    height: 50,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    paddingHorizontal: 10,
+    borderBottomColor: Colors.primaryLightGray,
+    width: '100%',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    position: 'relative',
+  },
+  headerButton: {
+    padding: 0,
+    margin: 0,
+    backgroundColor: '#0000',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-  },
-  closeButton: {
-    position: 'absolute',
-    right: 20,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f3f3f3',
   },
   content: {
     flex: 1,

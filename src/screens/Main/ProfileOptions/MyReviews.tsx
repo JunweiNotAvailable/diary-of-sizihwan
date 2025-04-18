@@ -398,7 +398,9 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           keyExtractor={(item) => item.id}
           renderItem={renderReviewItem}
           ListEmptyComponent={
-            <Text style={[styles.emptyText, styles.section]}>{t('profile.myReviews.noReviews')}</Text>
+            <View style={styles.loadingContainer}>
+              <Text style={[styles.emptyText, styles.section]}>{t('profile.myReviews.noReviews')}</Text>
+            </View>
           }
           ListFooterComponent={renderFooter}
           onEndReached={loadMoreReviews}
