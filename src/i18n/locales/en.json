@@ -43,7 +43,11 @@
     "title": "My Profile",
     "signOut": "Sign Out",
     "signingOut": "Signing out...",
-    "score": "Your reviews have been referenced {{count}} times",
+    "score": "Your campus score: {{count}}",
+    "scoreInfo": {
+      "title": "How Campus Scores Work",
+      "content": "When your review is referenced by AI to answer other students' questions, and the relevance score is greater than 40, you will get 1 point."
+    },
     "myReviews": {
       "title": "My Reviews",
       "noReviews": "You haven't shared any reviews yet",
@@ -119,8 +123,7 @@
   },
   "userProfile": {
     "title": "User Profile",
-    "score": "{{name}}'s reviews have been referenced {{count}} times",
-    "knowThisPerson": "Know {{name}}",
+    "score": "{{name}}'s campus score: {{count}}",
     "reviews": "{{name}}'s Reviews",
     "noReviews": "No reviews"
   }

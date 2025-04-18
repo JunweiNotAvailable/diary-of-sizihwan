@@ -19,7 +19,7 @@ import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, SettingsIcon } from '../
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PrettyButton } from '../../components';
+import { PrettyButton, Popup } from '../../components';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -29,6 +29,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
   const { user, setUser } = useAppState();
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -48,7 +49,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
     try {
       // Request permissions
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
+
       if (status !== 'granted') {
         Alert.alert(
           t('profile.permissions.title', 'Permission Required'),
@@ -98,11 +99,11 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
       // Create form data
       const formData = new FormData();
-      
+
       // Get file name from URI
       const uriParts = imageUri.split('/');
       const fileName = uriParts[uriParts.length - 1];
-      
+
       // Add file to form data
       formData.append('file', {
         uri: imageUri,
@@ -112,7 +113,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
       // Delete existing profile picture if any
       if (user.picture) {
-        await fetch(`${Config.api.url}/storage?key=${user.picture}`, { 
+        await fetch(`${Config.api.url}/storage?key=${user.picture}`, {
           method: 'DELETE'
         });
       }
@@ -127,7 +128,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
       });
 
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error('Failed to upload image');
       }
@@ -153,7 +154,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
       // Update local user state
       setUser(updatedUser);
-      
+
       setUploading(false);
     } catch (error) {
       setUploading(false);
@@ -188,9 +189,19 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
           <View style={styles.profileImageContainer}>
             <View style={styles.userInfoContainer}>
               <Text style={styles.userName}>{user?.name || ''}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.userInfo}>{user?.id || ''}</Text>
-                <Text style={styles.scoreText}>{t('profile.score').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
+              {/* Score */}
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                <View style={styles.scoreContainer}>
+                  <Text style={styles.scoreText}>
+                    {t('profile.score', '{{name}} 的回顧被引用了 {{count}} 次').replace('{{name}}', user?.name || '').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.questionMarkButton}
+                    onPress={() => setShowScoreInfo(true)}
+                  >
+                    <Text style={styles.questionMarkText}>!</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
             <TouchableWithoutFeedback onPress={handleProfilePicture}>
@@ -253,6 +264,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
         </ScrollView>
       </View>
+
+      {/* Score Info Popup */}
+      <Popup
+        visible={showScoreInfo}
+        onClose={() => setShowScoreInfo(false)}
+        title={t('profile.scoreInfo.title', 'How Scores Work')}
+        content={t('profile.scoreInfo.content')}
+      />
     </SafeAreaView>
   );
 };
@@ -329,6 +348,7 @@ const styles = StyleSheet.create({
   },
   userInfoContainer: {
     justifyContent: 'space-between',
+    alignItems: 'stretch',
   },
   userName: {
     fontSize: 20,
@@ -350,10 +370,29 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 20,
   },
+  scoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   scoreText: {
     fontSize: 14,
     color: Colors.primaryGray,
     lineHeight: 20,
+  },
+  questionMarkButton: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.primaryGray + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  questionMarkText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primaryGray,
   },
   card: {
     marginVertical: 0,

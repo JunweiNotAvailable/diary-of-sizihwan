@@ -43,16 +43,20 @@
     "title": "我ㄉ個人資料",
     "signOut": "登出",
     "signingOut": "登出中...",
-    "score": "你的分享文被引用了{{count}}次",
+    "score": "你的校園分數: {{count}}",
+    "scoreInfo": {
+      "title": "校園分數怎麼計算？",
+      "content": "當你的文章被AI引用來回答其他同學的問題時，若是文章與問題的相關程度大於40，你會獲得1分。"
+    },
     "myReviews": {
-      "title": "我的分享文",
-      "noReviews": "還沒有分享文",
+      "title": "我的文章",
+      "noReviews": "還沒有文章",
       "options": "選項",
-      "deleteReviewTitle": "刪除分享文",
+      "deleteReviewTitle": "刪除文章",
       "deleteReviewMessage": "確定要刪除{{title}}嗎？",
       "deleteReview": "刪除",
       "editReview": "編輯",
-      "editReviewTitle": "編輯分享文",
+      "editReviewTitle": "編輯文章",
       "likes": "說讚的同學",
       "noLikes": "還沒有人說讚"
     },
@@ -69,8 +73,8 @@
     }
   },
   "new": {
-    "title": "新增分享文",
-    "titlePlaceholder": "用一句話描述今天的分享文",
+    "title": "新增文章",
+    "titlePlaceholder": "用一句話描述今天的文章",
     "location": "地點",
     "selectLocation": "選擇地點",
     "categories": "類別",
@@ -92,7 +96,7 @@
     "title": "校園問答",
     "placeholder": "對校園有疑問嗎？",
     "inputPlaceholder": "輸入你對校園的疑問...",
-    "emptyChat": "AI 會根據同學們的分享文來回答你的問題",
+    "emptyChat": "AI 會根據同學們的文章來回答你的問題",
     "isReferencing": "正在讀取資料",
     "isGenerating": "正在生成",
     "relevantReviews": "相關文章",
@@ -108,20 +112,19 @@
   },
   "reviews": {
     "loading": "載入中...",
-    "empty": "這裡還沒有任何分享文",
+    "empty": "這裡還沒有任何文章",
     "anonymousUser": "匿名用戶",
     "showMore": "顯示更多",
     "showLess": "顯示更少",
-    "latest": "最新分享文",
+    "latest": "最新文章",
     "errors": {
       "locationRequired": "請選擇一個地點"
     }
   },
   "userProfile": {
     "title": "用戶資料",
-    "score": "{{name}}的分享文被引用了{{count}}次",
-    "knowThisPerson": "認識{{name}}",
-    "reviews": "{{name}}的分享文",
-    "noReviews": "沒有分享文"
+    "score": "{{name}}的校園分數: {{count}}",
+    "reviews": "{{name}}的文章",
+    "noReviews": "沒有文章"
   }
 }

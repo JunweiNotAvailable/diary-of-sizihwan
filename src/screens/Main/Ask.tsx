@@ -5,7 +5,7 @@ import { Config } from '../../utils/Config'
 import { Input, PrettyButton } from '../../components'
 import { t } from 'i18next'
 import { PlusIcon, PrettyLoadingIcon, SendIcon } from '../../utils/Svgs'
-import { AskModel, ReviewModel } from '../../utils/Interfaces'
+import { AskModel, ReviewModel, UserModel } from '../../utils/Interfaces'
 import { generateRandomString, getSystemPrompt } from '../../utils/Functions'
 import { useAppState } from '../../contexts/AppContext'
 
@@ -119,14 +119,26 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
         body: JSON.stringify({ vector })
       })
       const searchResults = (await searchResponse.json()).data.results;
-      const newResponseReviews = [];
+      const newResponseReviews: { review: ReviewModel, score: number }[] = [];
       for (const result of searchResults) {
         const reviewResponse = await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`);
-        const reviewData = (await reviewResponse.json()).data;
+        let reviewData = (await reviewResponse.json()).data;
+        if (!reviewData?.id) continue;
+
+        // Update scoring review
+        if (result.score >= 0.4) {
+          reviewData = { ...reviewData, extra: { ...reviewData.extra, score: reviewData.extra.score + 1 } };
+          await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ extra: { ...reviewData.extra } })
+          });
+        }
         newResponseReviews.push({ review: reviewData, score: result.score });
       }
       setResponseReviews(newResponseReviews);
 
+      // Start generating response
       setResponseState('generating');
 
       // Generate response based on search results
@@ -141,6 +153,7 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
       const responseText = (await askResponse.json()).data.response;
       setResponse(responseText);
     
+      // Storing data
       const ask: AskModel = {
         id: generateRandomString(30, 'ask'),
         user_id: user.id,

@@ -8,6 +8,7 @@ export interface UserModel {
   extra?: {
     school?: string;
     bio?: string;
+    badges?: ('pioneer' | 'explorer' | 'connector' | 'hero' | 'legend')[];
   },
   settings?: {
     language?: string;

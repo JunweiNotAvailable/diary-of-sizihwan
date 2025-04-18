@@ -8,13 +8,14 @@ import {
   Platform,
   FlatList,
   TouchableWithoutFeedback,
-  Alert
+  Alert,
+  TouchableOpacity
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Categories, Colors, Locations } from '../../utils/Constants';
 import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, SettingsIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
 import { Config } from '../../utils/Config';
-import { PrettyButton } from '../../components';
+import { Popup, PrettyButton } from '../../components';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import { getTimeFromNow } from '../../utils/Functions';
 import { MarkdownText } from '../../components';
@@ -35,6 +36,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   // Load user and their reviews
   useEffect(() => {
@@ -249,13 +251,17 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
         <View style={styles.profileImageContainer}>
           <View style={styles.userInfoContainer}>
             <Text style={styles.userName}>{user?.name || ''}</Text>
+            {/* Score */}
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              {/* <PrettyButton
-                style={styles.userInfoButton}
-                onPress={() => { }}
-              >
-                <Text style={styles.userInfoButtonText}>{t('userProfile.knowThisPerson').replace('{{name}}', user?.name || '')}</Text>
-              </PrettyButton> */}
+              <View style={styles.scoreContainer}>
+                <Text style={styles.scoreText}>{t('userProfile.score', '{{name}} 的回顧被引用了 {{count}} 次').replace('{{name}}', user?.name || '').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
+                <TouchableOpacity
+                  style={styles.questionMarkButton}
+                  onPress={() => setShowScoreInfo(true)}
+                >
+                  <Text style={styles.questionMarkText}>!</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           {user?.picture ? (
@@ -270,11 +276,6 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
               </View>
             </View>
           )}
-        </View>
-
-        {/* Score */}
-        <View style={styles.section}>
-          <Text style={styles.scoreText}>{t('userProfile.score', '{{name}} 的回顧被引用了 {{count}} 次').replace('{{name}}', user?.name || '').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
         </View>
 
         {/* Bio */}
@@ -335,6 +336,14 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
           contentContainerStyle={styles.listContainer}
         />
       </View>
+
+      {/* Score Info Popup */}
+      <Popup
+        visible={showScoreInfo}
+        onClose={() => setShowScoreInfo(false)}
+        title={t('profile.scoreInfo.title', 'How Scores Work')}
+        content={t('profile.scoreInfo.content')}
+      />
     </SafeAreaView>
   );
 };
@@ -425,6 +434,7 @@ const styles = StyleSheet.create({
   },
   userInfoContainer: {
     justifyContent: 'space-between',
+    alignItems: 'stretch',
   },
   userName: {
     fontSize: 20,
@@ -630,6 +640,24 @@ const styles = StyleSheet.create({
   translateButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  questionMarkButton: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.primaryGray + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  questionMarkText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primaryGray,
   },
 });
 
