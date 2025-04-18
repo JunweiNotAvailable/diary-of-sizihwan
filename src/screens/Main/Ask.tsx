@@ -125,8 +125,8 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
         let reviewData = (await reviewResponse.json()).data;
         if (!reviewData?.id) continue;
 
-        // Update scoring review
-        if (result.score >= 0.4) {
+        // Update scoring review if it's not the user's review and the score is above 0.4
+        if (result.score >= 0.4 && reviewData.user_id !== user.id) {
           reviewData = { ...reviewData, extra: { ...reviewData.extra, score: reviewData.extra.score + 1 } };
           await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`, {
             method: 'PUT',
