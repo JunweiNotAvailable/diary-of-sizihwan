@@ -109,24 +109,16 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: '#fff',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     height: '100%',
   },
   modalContent: {
     flex: 1,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     backgroundColor: '#fff',
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },

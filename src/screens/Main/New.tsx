@@ -185,7 +185,7 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
       <View style={styles.modalContent}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1, backgroundColor: '#fff' }}
+          style={{ flex: 1, backgroundColor: '#fff0' }}
         >
           {/* Header */}
           <View style={styles.header}>
@@ -293,11 +293,6 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-  },
   modalContainer: {
     backgroundColor: 'white',
     borderTopLeftRadius: 24,

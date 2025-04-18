@@ -1,3 +1,6 @@
+import { ReviewModel } from "./Interfaces";
+import { useEffect, useRef, useState } from 'react';
+
 export const generateRandomString = (length: number, prefix?: string) => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -12,7 +15,7 @@ export const getTimeFromNow = (date: string): string => {
   const then = new Date(date);
   const diffTime = Math.abs(now.getTime() - then.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 0) {
     // Today - show hours
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
@@ -115,3 +118,48 @@ export const parseMarkdown = (text: string) => {
   return segments;
 };
 
+// Chat socket
+export const useChatSocket = (url: string, systemPrompt: string, userMessage: string) => {
+  const [response, setResponse] = useState('');
+  const socketRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    const socket = new WebSocket(url);
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      socket.send(JSON.stringify({ systemPrompt, message: userMessage }));
+    };
+
+    socket.onmessage = (event) => {
+      if (event.data === '[DONE]') {
+        socket.close();
+        return;
+      }
+      setResponse(prev => prev + event.data);
+    };
+
+    return () => socket.close();
+  }, [url, systemPrompt, userMessage]);
+
+  return response;
+};
+
+// Get the system prompt
+export const getSystemPrompt = (reviews: { review: ReviewModel, score: number }[]): string => `
+You are a helpful and honest campus assistant AI. A student has asked a question about campus life. Your job is to answer them using only the experiences and reviews written by other students.
+
+Here are relevant student posts tagged as helpful:
+
+${reviews
+    .map((r, i) => `${i + 1}. ${r.review.title}:\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${r.score})`)
+    .join('\n\n')}
+
+Use only the information from the reviews above. Summarize trends, highlight common insights, and avoid making up information not reflected in the posts. Be clear, concise, and speak like a student giving honest advice.
+
+If there's conflicting info, reflect that honestly in your answer.
+
+Rules:
+- Use plain text, no markdown.
+- Respond in user's language.
+`.trim();

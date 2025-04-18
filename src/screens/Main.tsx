@@ -13,8 +13,11 @@ import LatestScreen from './Main/Latest';
 
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
+const backgroundColor = '#fff';
 
 const MainScreen = () => {
+
+
   return (
     <Stack.Navigator
       initialRouteName="Home"
@@ -29,6 +32,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       {/* Profile */}
@@ -38,7 +42,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor: 'transparent' },
+          contentStyle: { backgroundColor },
         }}
       />
       {/* My reviews */}
@@ -48,6 +52,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       {/* Edit review */}
@@ -57,6 +62,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       
@@ -67,6 +73,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       {/* Ask */}
@@ -76,6 +83,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       {/* Reviews */}
@@ -90,6 +98,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
       {/* Settings */}
@@ -99,6 +108,7 @@ const MainScreen = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor },
         }}
       />
     </Stack.Navigator>

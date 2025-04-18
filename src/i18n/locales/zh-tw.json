@@ -87,7 +87,13 @@
     }
   },
   "ask": {
-    "placeholder": "對校園有疑問嗎？"
+    "title": "校園問答",
+    "placeholder": "對校園有疑問嗎？",
+    "inputPlaceholder": "輸入你對校園的疑問...",
+    "emptyChat": "AI 會根據同學們的分享文來回答你的問題",
+    "isReferencing": "正在讀取資料",
+    "isGenerating": "正在生成",
+    "relevantReviews": "相關資料"
   },
   "categories": {
     "general": "綜合",

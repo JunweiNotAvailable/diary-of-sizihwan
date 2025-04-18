@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import { Colors } from './Constants';
 import { Animated, Easing } from 'react-native';
 
@@ -236,3 +236,22 @@ export const BubbleIcon = (props: SvgProps) => {
     </Svg>
   );
 };
+
+export const SendIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const stroke = props.stroke || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 60 60" fill="none">
+      <G clipPath="url(#clip0_11_2)">
+        <Path d="M24.78 30H9.99999L5.05749 10.3375C5.02652 10.2231 5.00725 10.1058 4.99999 9.9875C4.94499 8.185 6.92999 6.935 8.64999 7.76L55 30L8.64999 52.24C6.94999 53.0575 4.98999 51.8425 4.99999 50.0725C5.00635 49.9145 5.0341 49.7581 5.08249 49.6075L7.5 42.5" stroke={stroke} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+      </G>
+      <Defs>
+        <ClipPath id="clip0_11_2">
+          <Rect width="60" height="60" fill="white" />
+        </ClipPath>
+      </Defs>
+    </Svg>
+  );
+}

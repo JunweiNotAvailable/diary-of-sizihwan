@@ -40,3 +40,15 @@ export interface EmbeddingModel {
     categories: string[];
   }
 }
+
+export interface AskModel {
+  id: string;
+  user_id: string;
+  question: string;
+  response: string;
+  referenced_reviews: { id: string, score: number }[];
+  created_at: string;
+  extra?: {
+
+  }
+}

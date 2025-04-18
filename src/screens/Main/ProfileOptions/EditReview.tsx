@@ -176,7 +176,7 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
       <View style={styles.modalContent}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1, backgroundColor: '#fff' }}
+          style={{ flex: 1, backgroundColor: '#fff0' }}
         >
           {/* Header */}
           <View style={styles.header}>

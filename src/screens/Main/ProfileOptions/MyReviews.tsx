@@ -458,6 +458,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   loadingContainer: {
     flex: 1,
@@ -465,13 +467,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     height: '100%',
   },
   modalContent: {
     flex: 1,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     backgroundColor: '#fff',
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },

@@ -330,6 +330,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   loadingContainer: {
     flex: 1,
