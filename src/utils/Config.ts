@@ -2,7 +2,7 @@ const env = process.env as any;
 
 export const Config = {
   api: {
-    url: env.EXPO_PUBLIC_ENV === 'development' ? 'http://172.20.10.3:3000' : env.EXPO_PUBLIC_API_URL,
+    url: env.EXPO_PUBLIC_ENV === 'production' ? env.EXPO_PUBLIC_API_URL : 'http://172.20.10.3:3000',
   },
   storage: {
     user: 'current_user',
