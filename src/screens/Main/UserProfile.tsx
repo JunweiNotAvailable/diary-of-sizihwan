@@ -250,12 +250,12 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
           <View style={styles.userInfoContainer}>
             <Text style={styles.userName}>{user?.name || ''}</Text>
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <PrettyButton
+              {/* <PrettyButton
                 style={styles.userInfoButton}
                 onPress={() => { }}
               >
                 <Text style={styles.userInfoButtonText}>{t('userProfile.knowThisPerson').replace('{{name}}', user?.name || '')}</Text>
-              </PrettyButton>
+              </PrettyButton> */}
             </View>
           </View>
           {user?.picture ? (
