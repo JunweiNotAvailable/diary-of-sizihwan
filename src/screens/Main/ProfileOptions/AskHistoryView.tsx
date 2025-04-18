@@ -20,6 +20,8 @@ const AskHistoryView = ({ navigation, route }: { navigation: any, route: any }) 
       for (const review of ask.referenced_reviews) {
         const res = await fetch(`${Config.api.url}/data?table=reviews&id=${review.id}`);
         const reviewData = (await res.json()).data;
+        if (!reviewData?.id) continue;
+
         newReferencedReviews.push({ review: reviewData, score: review.score });
       }
       setReferencedReviews(newReferencedReviews);
