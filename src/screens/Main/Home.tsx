@@ -14,7 +14,7 @@ import * as Location from 'expo-location';
 import { Colors, Map, Locations, IconColors } from '../../utils/Constants';
 import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
-import { LocationIcon } from '../../components/LocationIcon';
+import { LocationIcon } from '../../components/icons/LocationIcon';
 import { Config } from '../../utils/Config';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations

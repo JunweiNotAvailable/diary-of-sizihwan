@@ -12,7 +12,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Categories, Colors, Locations } from '../../utils/Constants';
+import { Badges, Categories, Colors, Locations } from '../../utils/Constants';
 import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, SettingsIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
 import { Config } from '../../utils/Config';
 import { Popup, PrettyButton } from '../../components';
@@ -20,6 +20,7 @@ import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import { getTimeFromNow } from '../../utils/Functions';
 import { MarkdownText } from '../../components';
 import { useAppState } from '../../contexts/AppContext';
+import { BadgeIcon } from '../../components/icons/BadgeIcon';
 
 const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { userId } = route.params;
@@ -37,6 +38,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
   const [showScoreInfo, setShowScoreInfo] = useState(false);
+  const [showBadgeInfo, setShowBadgeInfo] = useState(false);
 
   // Load user and their reviews
   useEffect(() => {
@@ -243,6 +245,43 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
     );
   };
 
+  // Render badge details
+  const renderBadgeDetails = () => {
+    const availableBadges = Object.keys(Badges).filter((badge: string) => user?.extra?.badges?.includes(badge as keyof typeof Badges)).reverse();
+
+    return (
+      <View style={badgeStyles.container}>
+        <View style={{ height: 10 }}></View>
+
+        {availableBadges.map((badgeKey: string) => {
+          const badgeId = badgeKey as keyof typeof Badges;
+          const Icon = BadgeIcon[badgeId];
+
+          return (
+            <View key={badgeKey} style={badgeStyles.badgeRow}>
+              <View style={[
+                badgeStyles.badgeIconContainer,
+              ]}>
+                <Icon size={32} />
+              </View>
+              <View style={[badgeStyles.badgeInfo]}>
+                <Text style={badgeStyles.badgeName}>
+                  {t(`profile.badge.${badgeId}.name`)}
+                </Text>
+                <Text style={badgeStyles.badgeDescription}>
+                  {t(`profile.badge.${badgeId}.description`)}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+        {availableBadges.length === 0 && (
+          <Text style={badgeStyles.noBadgesText}>{t('userProfile.noBadges').replace('{{name}}', user?.name || '')}</Text>
+        )}
+      </View>
+    );
+  };
+
   // Profile header component that will be rendered at the top of the FlatList
   const renderProfileHeader = () => {
     return (
@@ -251,17 +290,25 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
         <View style={styles.profileImageContainer}>
           <View style={styles.userInfoContainer}>
             <Text style={styles.userName}>{user?.name || ''}</Text>
-            {/* Score */}
+            {/* Badges */}
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <View style={styles.scoreContainer}>
-                <Text style={styles.scoreText}>{t('userProfile.score', '{{name}} 的回顧被引用了 {{count}} 次').replace('{{name}}', user?.name || '').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
-                <TouchableOpacity
-                  style={styles.questionMarkButton}
-                  onPress={() => setShowScoreInfo(true)}
-                >
-                  <Text style={styles.questionMarkText}>!</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableWithoutFeedback onPress={() => setShowBadgeInfo(true)}>
+                <View style={styles.badgeContainer}>
+                  {Object.keys(Badges).filter((badge: string) => user?.extra?.badges?.includes(badge as keyof typeof Badges)).map((badge: string, index: number) => {
+                    const Icon = BadgeIcon[badge as keyof typeof BadgeIcon];
+                    return (
+                      <View style={[styles.badge, { zIndex: Object.keys(Badges).length - index, transform: [{ translateX: -index * 12 }] }]} key={badge}>
+                        <Icon size={24} />
+                      </View>
+                    )
+                  })}
+                </View>
+              </TouchableWithoutFeedback>
+              {!user?.extra?.badges?.length && (
+                <PrettyButton onPress={() => setShowBadgeInfo(true)} style={{ height: 24, backgroundColor: '#f3f3f3', borderRadius: 12, paddingHorizontal: 10 }}>
+                  <Text style={{ fontSize: 12, color: Colors.primaryGray }}>{t('userProfile.badges').replace('{{name}}', user?.name || '')}</Text>
+                </PrettyButton>
+              )}
             </View>
           </View>
           {user?.picture ? (
@@ -276,6 +323,19 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
               </View>
             </View>
           )}
+        </View>
+
+        {/* Score */}
+        <View style={styles.section}>
+          <View style={styles.scoreContainer}>
+            <Text style={styles.scoreText}>{t('userProfile.score', '{{name}} 的回顧被引用了 {{count}} 次').replace('{{name}}', user?.name || '').replace('{{count}}', String(reviews.reduce((acc, review) => acc + (review.extra?.score || 0), 0) || 0))}</Text>
+            <TouchableOpacity
+              style={styles.questionMarkButton}
+              onPress={() => setShowScoreInfo(true)}
+            >
+              <Text style={styles.questionMarkText}>!</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Bio */}
@@ -344,6 +404,15 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
         title={t('profile.scoreInfo.title', 'How Scores Work')}
         content={t('profile.scoreInfo.content')}
       />
+
+      {/* Badge Info Popup with custom content */}
+      <Popup
+        visible={showBadgeInfo}
+        onClose={() => setShowBadgeInfo(false)}
+        title={t('userProfile.badges').replace('{{name}}', user?.name || '')}
+      >
+        {renderBadgeDetails()}
+      </Popup>
     </SafeAreaView>
   );
 };
@@ -396,6 +465,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f3f3',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  badgeContainer: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  badge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.primaryLightGray,
   },
   closeButtonText: {
     fontSize: 24,
@@ -658,6 +737,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: Colors.primaryGray,
+  },
+});
+
+// Badge-specific styles
+const badgeStyles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.secondaryGray,
+  },
+  badgeIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  badgeInfo: {
+    flex: 1,
+  },
+  badgeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  badgeDescription: {
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '300',
+  },
+  unearnedBadge: {
+    opacity: 0.4,
+  },
+  noBadgesText: {
+    fontSize: 14,
+    fontWeight: '300',
+    paddingVertical: 20,
+    textAlign: 'center',
   },
 });
 

@@ -46,7 +46,7 @@
     "score": "Your campus score: {{count}}",
     "scoreInfo": {
       "title": "How Campus Scores Work",
-      "content": "When your review is referenced by AI to answer other students' questions, and the relevance score is greater than 35, you will get 1 point."
+      "content": "When your post is referenced by AI to answer other students' questions, and the relevance score is greater than 35, you will get 1 point."
     },
     "myReviews": {
       "title": "My Reviews",
@@ -70,6 +70,31 @@
       "preferences": "Preferences",
       "account": "Account",
       "username": "Username"
+    },
+    "badge": {
+      "title": "Badges",
+      "myBadges": "My Badges",
+      "locked": "Locked",
+      "pioneer": {
+        "name": "Pioneer",
+        "description": "You are one of the first 100 users who shared content, walking on a path that hasn't been walked. Your sharing opens up the possibilities of this space."
+      },
+      "explorer": {
+        "name": "Explorer",
+        "description": "You have left reviews in more than 10 locations, turning the campus into a story map."
+      },
+      "connector": {
+        "name": "Connector",
+        "description": "Your posts have received more than 100 likes, your voice connects people."
+      },
+      "hero": {
+        "name": "Hero",
+        "description": "Your campus score is over 10, your sharing has answered the questions of others, you are the savior of the campus."
+      },
+      "legend": {
+        "name": "Legend",
+        "description": "Your campus score is over 200, you have left your footprints, and you have become the legend of the campus."
+      }
     }
   },
   "new": {
@@ -125,6 +150,8 @@
     "title": "User Profile",
     "score": "{{name}}'s campus score: {{count}}",
     "reviews": "{{name}}'s Reviews",
-    "noReviews": "No reviews"
+    "noReviews": "No reviews",
+    "noBadges": "{{name}} has no badges yet",
+    "badges": "{{name}}'s Badges"
   }
 } 

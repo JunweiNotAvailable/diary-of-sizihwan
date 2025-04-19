@@ -46,17 +46,17 @@
     "score": "你的校園分數: {{count}}",
     "scoreInfo": {
       "title": "校園分數怎麼計算？",
-      "content": "當你的文章被AI引用來回答其他同學的問題時，若是文章與問題的相關程度大於35，你會獲得1分。"
+      "content": "當你的貼文被 AI 用來回答其他同學的提問時，只要該貼文與問題的相關程度超過 35，你就能獲得 1 分的校園分數。"
     },
     "myReviews": {
-      "title": "我的文章",
-      "noReviews": "還沒有文章",
+      "title": "我的貼文",
+      "noReviews": "還沒有貼文",
       "options": "選項",
-      "deleteReviewTitle": "刪除文章",
+      "deleteReviewTitle": "刪除貼文",
       "deleteReviewMessage": "確定要刪除{{title}}嗎？",
       "deleteReview": "刪除",
       "editReview": "編輯",
-      "editReviewTitle": "編輯文章",
+      "editReviewTitle": "編輯貼文",
       "likes": "說讚的同學",
       "noLikes": "還沒有人說讚"
     },
@@ -70,11 +70,36 @@
       "preferences": "偏好",
       "account": "帳號",
       "username": "用戶名稱"
+    },
+    "badge": {
+      "title": "徽章",
+      "myBadges": "我的徽章",
+      "locked": "未獲得",
+      "pioneer": {
+        "name": "開拓者",
+        "description": "你是前 100 位分享內容的貢獻者，走在還沒有腳印的路上，你的分享開啟了這個空間的可能"
+      },
+      "explorer": {
+        "name": "探險家",
+        "description": "你在 10 個以上的地點留下分享，你把校園的每個角落，都變成了故事地圖"
+      },
+      "connector": {
+        "name": "連結者",
+        "description": "你的貼文總共獲得超過 100 個讚，你的文字連結了人們"
+      },
+      "hero": {
+        "name": "英雄",
+        "description": "你的校園分數超過 10 分，你的分享曾解答過別人的疑問，是校園裡的救星"
+      },
+      "legend": {
+        "name": "傳奇",
+        "description": "你的校園分數超過 200 分，你不只留下足跡，你已成為了校園裡的傳說"
+      }
     }
   },
   "new": {
-    "title": "新增文章",
-    "titlePlaceholder": "用一句話描述今天的文章",
+    "title": "新增貼文",
+    "titlePlaceholder": "用一句話描述今天的貼文",
     "location": "地點",
     "selectLocation": "選擇地點",
     "categories": "類別",
@@ -82,7 +107,7 @@
     "addCategory": "新增你覺得最適合的類別",
     "content": "內容",
     "contentPlaceholder": "讓你的故事成為校園的一部分，也可以單純留下資訊幫助其他同學",
-    "allowReference": "允許 AI 引用這篇文章來回答問題",
+    "allowReference": "允許 AI 引用這篇貼文來回答問題",
     "anonymous": "匿名發布",
     "submit": "發布",
     "errors": {
@@ -96,10 +121,10 @@
     "title": "校園問答",
     "placeholder": "對校園有疑問嗎？",
     "inputPlaceholder": "輸入你對校園的疑問...",
-    "emptyChat": "AI 會根據同學們的文章來回答你的問題",
+    "emptyChat": "AI 會根據同學們的貼文來回答你的問題",
     "isReferencing": "正在讀取資料",
     "isGenerating": "正在生成",
-    "relevantReviews": "相關文章",
+    "relevantReviews": "相關貼文",
     "relevanceScore": "相關程度"
   },
   "categories": {
@@ -112,11 +137,11 @@
   },
   "reviews": {
     "loading": "載入中...",
-    "empty": "這裡還沒有任何文章",
+    "empty": "這裡還沒有任何貼文",
     "anonymousUser": "匿名用戶",
     "showMore": "顯示更多",
     "showLess": "顯示更少",
-    "latest": "最新文章",
+    "latest": "最新貼文",
     "errors": {
       "locationRequired": "請選擇一個地點"
     }
@@ -124,7 +149,9 @@
   "userProfile": {
     "title": "用戶資料",
     "score": "{{name}}的校園分數: {{count}}",
-    "reviews": "{{name}}的文章",
-    "noReviews": "沒有文章"
+    "reviews": "{{name}}的貼文",
+    "noReviews": "沒有貼文",
+    "noBadges": "{{name}}還沒有任何徽章",
+    "badges": "{{name}}的徽章"
   }
 }

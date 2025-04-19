@@ -88,3 +88,11 @@ export const Categories = [
   { name: 'events', color: '#ff6644' },
   { name: 'casual', color: '#55aacc' },
 ]
+
+export const Badges = {
+  legend: { color: '#9023E4' },
+  hero: { color: '#FB5959' },
+  connector: { color: '#F68B51' },
+  explorer: { color: '#2C9A4D' },
+  pioneer: { color: '#3D81E6' },
+}

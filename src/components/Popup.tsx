@@ -18,11 +18,12 @@ interface PopupProps {
   visible: boolean;
   onClose: () => void;
   title?: string;
-  content: string;
+  content?: string;
   contentContainerStyle?: any;
+  children?: React.ReactNode;
 }
 
-const Popup = ({ visible, onClose, title, content, contentContainerStyle }: PopupProps) => {
+const Popup = ({ visible, onClose, title, content, contentContainerStyle, children }: PopupProps) => {
   const { width } = Dimensions.get('window');
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.8)).current;
@@ -75,7 +76,11 @@ const Popup = ({ visible, onClose, title, content, contentContainerStyle }: Popu
             >
               {title && <Text style={styles.title}>{title}</Text>}
               <ScrollView style={styles.contentContainer}>
-                <Text style={styles.content}>{content}</Text>
+                {content ? (
+                  <Text style={styles.content}>{content}</Text>
+                ) : children ? (
+                  children
+                ) : null}
               </ScrollView>
               <PrettyButton
                 style={styles.closeButton}
