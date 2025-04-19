@@ -46,17 +46,17 @@
     "score": "你的校園分數: {{count}}",
     "scoreInfo": {
       "title": "校園分數怎麼計算？",
-      "content": "當你的文章被AI引用來回答其他同學的問題時，若是文章與問題的相關程度大於35，你會獲得1分。"
+      "content": "當 AI 引用你的貼文來回答其他同學的問題時，若是相關程度大於 35，你就能獲得 1 分的校園分數。"
     },
     "myReviews": {
-      "title": "我的文章",
-      "noReviews": "還沒有文章",
+      "title": "我的貼文",
+      "noReviews": "還沒有貼文",
       "options": "選項",
-      "deleteReviewTitle": "刪除文章",
+      "deleteReviewTitle": "刪除貼文",
       "deleteReviewMessage": "確定要刪除{{title}}嗎？",
       "deleteReview": "刪除",
       "editReview": "編輯",
-      "editReviewTitle": "編輯文章",
+      "editReviewTitle": "編輯貼文",
       "likes": "說讚的同學",
       "noLikes": "還沒有人說讚"
     },
@@ -73,8 +73,8 @@
     }
   },
   "new": {
-    "title": "新增文章",
-    "titlePlaceholder": "用一句話描述今天的文章",
+    "title": "新增貼文",
+    "titlePlaceholder": "用一句話描述今天的貼文",
     "location": "地點",
     "selectLocation": "選擇地點",
     "categories": "類別",
@@ -82,7 +82,7 @@
     "addCategory": "新增你覺得最適合的類別",
     "content": "內容",
     "contentPlaceholder": "讓你的故事成為校園的一部分，也可以單純留下資訊幫助其他同學",
-    "allowReference": "允許 AI 引用這篇文章來回答問題",
+    "allowReference": "允許 AI 引用這篇貼文來回答問題",
     "anonymous": "匿名發布",
     "submit": "發布",
     "errors": {
@@ -96,10 +96,10 @@
     "title": "校園問答",
     "placeholder": "對校園有疑問嗎？",
     "inputPlaceholder": "輸入你對校園的疑問...",
-    "emptyChat": "AI 會根據同學們的文章來回答你的問題",
+    "emptyChat": "AI 會根據同學們的貼文來回答你的問題",
     "isReferencing": "正在讀取資料",
     "isGenerating": "正在生成",
-    "relevantReviews": "相關文章",
+    "relevantReviews": "相關貼文",
     "relevanceScore": "相關程度"
   },
   "categories": {
@@ -112,11 +112,11 @@
   },
   "reviews": {
     "loading": "載入中...",
-    "empty": "這裡還沒有任何文章",
+    "empty": "這裡還沒有任何貼文",
     "anonymousUser": "匿名用戶",
     "showMore": "顯示更多",
     "showLess": "顯示更少",
-    "latest": "最新文章",
+    "latest": "最新貼文",
     "errors": {
       "locationRequired": "請選擇一個地點"
     }
@@ -124,7 +124,7 @@
   "userProfile": {
     "title": "用戶資料",
     "score": "{{name}}的校園分數: {{count}}",
-    "reviews": "{{name}}的文章",
-    "noReviews": "沒有文章"
+    "reviews": "{{name}}的貼文",
+    "noReviews": "沒有貼文"
   }
 }
