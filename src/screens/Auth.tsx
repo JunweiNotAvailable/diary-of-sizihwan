@@ -14,7 +14,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserModel } from '../utils/Interfaces';
-import { Colors } from '../utils/Constants';
+import { Colors, Schools } from '../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../contexts/AppContext';
 import { Config } from '../utils/Config';
@@ -144,7 +144,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ imageUrl: base64Data })
+        body: JSON.stringify({ imageUrl: base64Data, school: Schools.nsysu.name })
       });
 
       if (!response.ok) {
@@ -153,7 +153,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
 
       const result = await response.json();
 
-      if (result.success && result.data) {
+      if (result.success && result.data && result.data.isValid) {
         // Set the student ID from the processed image
         setStudentId(result.data.id || '');
         setUsername('');

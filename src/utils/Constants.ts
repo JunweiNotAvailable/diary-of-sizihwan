@@ -49,6 +49,14 @@ export const IconColors = {
   flag: { fg: "#c67878", bg: "#f8e9e9" }        // soft coral
 }
 
+export const Schools = {
+  nsysu: {
+    name: "國立中山大學",
+    name_en: "National Sun Yat-sen University",
+    id: "nsysu"
+  }
+}
+
 export const Locations = {
   nsysu: [
     { id: "il", icon: 'library', name: "圖資大樓(圖IL)", name_en: "Library and Information Building(圖IL)", coordinates: {"latitude": 22.627341580807375, "longitude": 120.26586145162584} },
