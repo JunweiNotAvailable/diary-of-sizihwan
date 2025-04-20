@@ -502,6 +502,7 @@ const styles = StyleSheet.create({
   },
   separatorText: {
     marginHorizontal: 10,
+    marginVertical: 20,
     color: '#999',
     fontSize: 14,
   },

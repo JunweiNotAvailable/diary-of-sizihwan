@@ -1,15 +1,17 @@
 {
   "expo": {
-    "name": "Review My Campus",
-    "slug": "review-my-campus",
-    "scheme": "review-my-campus",
+    "name": "Scripsail",
+    "slug": "scripsail",
+    "scheme": "scripsail",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#fff"
+      "backgroundColor": "#fff",
+      "image": "./assets/splash.png"
     },
+    "icon": "./assets/icon.png",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -17,13 +19,13 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "ReviewMyCampus wants to access your photos."
+          "photosPermission": "Scripsail wants to access your photos."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow ReviewMyCampus to access your camera."
+          "cameraPermission": "Allow Scripsail to access your camera."
         }
       ],
       "expo-secure-store",
@@ -37,7 +39,7 @@
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
       },
-      "bundleIdentifier": "com.reviewmycampus.app"
+      "bundleIdentifier": "com.junweialreadyexist.scripsail"
     },
     "android": {
       "permissions": [
@@ -50,11 +52,11 @@
         }
       },
       "jsEngine": "hermes",
-      "package": "com.reviewmycampus.app"
+      "package": "com.junweialreadyexist.scripsail"
     },
     "extra": {
       "eas": {
-        "projectId": "03aba710-2499-4d49-9592-68d13f854f5d"
+
       }
     }
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Text, Animated, Easing, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppState } from '../contexts/AppContext';
 import LottieView from 'lottie-react-native';
@@ -66,11 +66,9 @@ const SplashScreen = ({ navigation }: { navigation: any }) => {
             }
           ]}
         >
-          <LottieView 
+          <Image 
+            source={require('../../assets/splash.png')} 
             style={styles.lottie} 
-            source={require('../../assets/splash.json')} 
-            autoPlay 
-            loop 
           />
         </Animated.View>
       </View>
