@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "ReviewMyCampus",
-    "slug": "rmc",
-    "scheme": "rmc",
+    "name": "Review My Campus",
+    "slug": "review-my-campus",
+    "scheme": "review-my-campus",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -36,7 +36,8 @@
       },
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
-      }
+      },
+      "bundleIdentifier": "com.reviewmycampus.app"
     },
     "android": {
       "permissions": [
@@ -47,11 +48,13 @@
         "googleMaps": {
           "apiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
         }
-      }
+      },
+      "jsEngine": "hermes",
+      "package": "com.reviewmycampus.app"
     },
     "extra": {
       "eas": {
-        "projectId": "4a9f08ec-6363-4406-9cb1-bcfd360aec51"
+        "projectId": "03aba710-2499-4d49-9592-68d13f854f5d"
       }
     }
   }

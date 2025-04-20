@@ -10,11 +10,6 @@ import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText } from '../../components';
 
-interface ReviewWithScore {
-  review: ReviewModel;
-  score: number;
-}
-
 const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { reviews = [] } = route.params || {};
   const [users, setUsers] = useState<UserModel[]>([]);
@@ -28,13 +23,13 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
 
   useEffect(() => {
     // Fetch users for the reviews
-    loadUsers();
+    (async () => {
+      await loadUsers();
+    })();
   }, []);
 
   const loadUsers = async () => {
     try {
-      setIsLoading(true);
-      
       // Extract user IDs from reviews, making sure they're strings
       const userIds: string[] = [];
       reviews.forEach((item: any) => {

@@ -74,8 +74,8 @@ export const Locations = {
     { id: "gm", icon: 'dumbbell', name: "體育館(體GM)", name_en: "Gymnasium(體GM)", coordinates: {"latitude": 22.624776060302267, "longitude": 120.26631474494934} },
     { id: "syshall", icon: 'landmark', name: "逸仙館", name_en: "Sun Yat-sen Hall", coordinates: {"latitude": 22.62478998665862, "longitude": 120.26535015553236} },
     { id: "ir", icon: 'globe', name: "國際研究大樓(國IR)", name_en: "Building of International Research(國IR)", coordinates: {"latitude": 22.623816066737394, "longitude": 120.26607602834702} },
-    { id: "sw-sports", icon: 'sailboat', name: "西子灘海域中心", name_en: "Sizihwan Marine Sports Center", coordinates: {"latitude": 22.62723079092313, "longitude": 120.26391517370939} },
-    { id: "beach-resort", icon: 'umbrella', name: "西子灘沙灘會館", name_en: "Sunset Beach Resort", coordinates: {"latitude": 22.624844144697683, "longitude": 120.26457365602255} },
+    { id: "sw-sports", icon: 'sailboat', name: "西子灣海域中心", name_en: "Sizihwan Marine Sports Center", coordinates: {"latitude": 22.62723079092313, "longitude": 120.26391517370939} },
+    { id: "beach-resort", icon: 'umbrella', name: "西子灣沙灘會館", name_en: "Sunset Beach Resort", coordinates: {"latitude": 22.624844144697683, "longitude": 120.26457365602255} },
     { id: "field", icon: 'flag', name: "運動場", name_en: "Athletic Field", coordinates: {"latitude": 22.623306048087187, "longitude": 120.26456627994776} },
   ]
 }

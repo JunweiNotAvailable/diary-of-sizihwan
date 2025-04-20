@@ -1,5 +1,5 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HomeScreen from './Main/Home';
 import ProfileScreen from './Main/Profile';
 import NewScreen from './Main/New';
@@ -13,9 +13,20 @@ import LatestScreen from './Main/Latest';
 import RelevantReviewsScreen from './Main/RelevantReviews';
 import AskHistory from './Main/ProfileOptions/AskHistory';
 import AskHistoryView from './Main/ProfileOptions/AskHistoryView';
+import { Platform } from 'react-native';
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
 const backgroundColor = '#fff';
+
+const getModalOptions = (animation: 'slide_from_bottom' | 'flip'): NativeStackNavigationOptions => {
+  return Platform.OS === 'ios' ? {
+    presentation: 'modal',
+    animation: animation || 'slide_from_bottom',
+    contentStyle: { backgroundColor },
+  } : {
+    contentStyle: { backgroundColor },
+  };
+};
 
 const MainScreen = () => {
 
@@ -32,9 +43,6 @@ const MainScreen = () => {
 			<Stack.Screen
         name="New"
         component={NewScreen}
-        options={{
-          presentation: 'fullScreenModal',
-        }}
       />
       {/* Reviews */}
 			<Stack.Screen
@@ -43,100 +51,62 @@ const MainScreen = () => {
       />
       {/* Latest */}
       <Stack.Screen name="Latest" component={LatestScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Ask */}
 			<Stack.Screen
         name="Ask"
         component={AskScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Relevant reviews */}
       <Stack.Screen
         name="RelevantReviews"
         component={RelevantReviewsScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
 
       {/* Profile */}
       <Stack.Screen 
         name="Profile" 
         component={ProfileScreen} 
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* My reviews */}
       <Stack.Screen
         name="MyReviews"
         component={MyReviewsScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Edit review */}
       <Stack.Screen
         name="EditReview"
         component={EditReviewScreen}
-        options={{
-          presentation: 'fullScreenModal',
-        }}
       />
       {/* Ask history */}
       <Stack.Screen
         name="AskHistory"
         component={AskHistory}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Ask history view */}
       <Stack.Screen
         name="AskHistoryView"
         component={AskHistoryView}
-        options={{
-          presentation: 'modal',
-          animation: 'flip',
-        }}
+        options={getModalOptions('flip')}
       />
       {/* Settings */}
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
       
       {/* User profile */}
       <Stack.Screen
         name="UserProfile"
         component={UserProfileScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          contentStyle: { backgroundColor },
-        }}
+        options={getModalOptions('slide_from_bottom')}
       />
     </Stack.Navigator>
   );
