@@ -8,12 +8,13 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#fff",
+      "backgroundColor": "#ffffff",
       "image": "./assets/splash.png"
     },
     "icon": "./assets/icon.png",
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/c2e563cc-cd11-4a57-898f-445c69bf696d"
     },
     "plugins": [
       [
@@ -44,6 +45,8 @@
     "android": {
       "permissions": [
         "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA"
       ],
       "config": {
@@ -58,6 +61,7 @@
       "eas": {
         "projectId": "c2e563cc-cd11-4a57-898f-445c69bf696d"
       }
-    }
+    },
+    "runtimeVersion": "1.0.0"
   }
 }
