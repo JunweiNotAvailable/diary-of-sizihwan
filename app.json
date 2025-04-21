@@ -5,6 +5,7 @@
     "scheme": "scripsail",
     "version": "1.0.0",
     "orientation": "portrait",
+    "supportsTablet": true,
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
