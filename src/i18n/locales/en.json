@@ -70,6 +70,9 @@
       "preferences": "Preferences",
       "account": "Account",
       "username": "Username"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy"
     }
   },
   "new": {

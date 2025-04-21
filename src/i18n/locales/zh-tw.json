@@ -70,6 +70,9 @@
       "preferences": "偏好",
       "account": "帳號",
       "username": "用戶名稱"
+    },
+    "privacyPolicy": {
+      "title": "隱私權政策"
     }
   },
   "new": {

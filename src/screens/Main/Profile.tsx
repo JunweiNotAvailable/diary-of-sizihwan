@@ -10,12 +10,13 @@ import {
   Animated,
   Platform,
   TouchableWithoutFeedback,
-  Alert
+  Alert,
+  Linking
 } from 'react-native';
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import { Colors } from '../../utils/Constants';
-import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, SettingsIcon } from '../../utils/Svgs';
+import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrivacyPolicyIcon, SettingsIcon } from '../../utils/Svgs';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -258,6 +259,18 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
               <Text style={styles.cardTitle}>{t('profile.settings.title', 'Settings')}</Text>
               <View style={styles.cardImage}>
                 <SettingsIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
+              </View>
+            </PrettyButton>
+          </View>
+          <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
+            {/* Privacy Policy */}
+            <PrettyButton
+              style={styles.card}
+              onPress={() => Linking.openURL(Config.privacyPolicyUrl)}
+            >
+              <Text style={styles.cardTitle}>{t('profile.privacyPolicy.title', 'Privacy Policy')}</Text>
+              <View style={styles.cardImage}>
+                <PrivacyPolicyIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
             </PrettyButton>
           </View>
