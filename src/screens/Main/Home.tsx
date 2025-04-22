@@ -16,6 +16,7 @@ import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import { LocationIcon } from '../../components/LocationIcon';
 import { Config } from '../../utils/Config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations
 const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
@@ -34,6 +35,14 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 	const [showUser, setShowUser] = useState(false);
 
 	const mapRef = useRef<MapView>(null);
+
+	// Load preferences
+	useEffect(() => {
+		(async () => {
+			const showMyLocation = await AsyncStorage.getItem(Config.storage.showMyLocation);
+			setShowUser(!showMyLocation || showMyLocation !== 'false');
+		})();
+	}, [AsyncStorage.getItem(Config.storage.showMyLocation)]);
 
 	// Request location permission and get user's location
 	useEffect(() => {
@@ -55,8 +64,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 					};
 
 					const libraryLocation = Locations.nsysu[0].coordinates;
-					// setCurrentLocation(locationCoords); // User's current location
-					setCurrentLocation(libraryLocation); // Library's location
+					setCurrentLocation(locationCoords); // User's current location
 
 					setInitialRegion({
 						// ...locationCoords,
@@ -132,7 +140,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				liteMode={false}
 			>
 				{/* Location markers */}
-				{Locations.nsysu.map((location) => {
+				{Locations.nsysu.map((location, index) => {
 					const Icon = LocationIcon[location.icon as keyof typeof LocationIcon];
 					const iconColors = IconColors[location.icon as keyof typeof IconColors] || { fg: Colors.primary, bg: Colors.secondary };
 					return (
@@ -141,6 +149,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 							coordinate={location.coordinates}
 							anchor={{ x: 0.5, y: 0.5 }}
 							onPress={() => navigation.navigate('Reviews', { location })}
+							style={{ zIndex: Locations.nsysu.length - index }}
 						>
 							<View style={[styles.marker, { backgroundColor: iconColors.bg, borderColor: iconColors.fg + '66' }]}>
 								{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
@@ -154,6 +163,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 					<Marker
 						coordinate={currentLocation}
 						anchor={{ x: 0.5, y: 0.5 }}
+						onPress={() => navigation.navigate('Profile')}
+						style={{ zIndex: 100 }}
 					>
 						<View style={styles.profileButton}>
 							{user?.picture ? (
@@ -238,7 +249,8 @@ const styles = StyleSheet.create({
 	profileButton: {
 		width: 40,
 		height: 40,
-		borderRadius: 20,
+		backgroundColor: '#f3f3f3',
+		borderRadius: 16,
 		shadowColor: '#0008',
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.1,
@@ -248,7 +260,7 @@ const styles = StyleSheet.create({
 	profileImage: {
 		width: 40,
 		height: 40,
-		borderRadius: 20,
+		borderRadius: 16,
 		borderWidth: 2,
 		borderColor: 'white',
 	},
@@ -311,7 +323,7 @@ const styles = StyleSheet.create({
 	},
 	bottomBarContainer: {
 		flexDirection: 'row',
-		alignItems: 'center',
+		alignItems: 'flex-end',
 		justifyContent: 'space-between',
 		paddingHorizontal: 16,
 		paddingVertical: 16,

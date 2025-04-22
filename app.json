@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Scripsail",
-    "slug": "scripsail",
-    "scheme": "scripsail",
+    "name": "diary-of-sizihwan",
+    "slug": "diary-of-sizihwan",
+    "scheme": "diary-of-sizihwan",
     "version": "1.0.0",
     "orientation": "portrait",
     "supportsTablet": true,
@@ -21,13 +21,13 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Scripsail wants to access your photos."
+          "photosPermission": "This app wants to access your photos."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Scripsail to access your camera."
+          "cameraPermission": "Allow this app to access your camera."
         }
       ],
       "expo-secure-store",
@@ -41,7 +41,9 @@
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
       },
-      "bundleIdentifier": "com.junweialreadyexist.scripsail"
+      "bundleIdentifier": "com.junweialreadyexist.diary-of-sizihwan",
+      "supportsTablet": true,
+      "requiresFullScreen": false
     },
     "android": {
       "permissions": [
@@ -56,11 +58,11 @@
         }
       },
       "jsEngine": "hermes",
-      "package": "com.junweialreadyexist.scripsail"
+      "package": "com.junweialreadyexist.diary-of-sizihwan"
     },
     "extra": {
       "eas": {
-        "projectId": "c2e563cc-cd11-4a57-898f-445c69bf696d"
+
       }
     },
     "runtimeVersion": "1.0.0"

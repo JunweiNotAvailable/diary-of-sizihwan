@@ -67,9 +67,12 @@
     },
     "settings": {
       "title": "設定",
-      "preferences": "偏好",
       "account": "帳號",
-      "username": "用戶名稱"
+      "username": "用戶名稱",
+      "preferences": {
+        "title": "偏好",
+        "showMyLocation": "顯示我的位置"
+      }
     },
     "privacyPolicy": {
       "title": "隱私權政策"

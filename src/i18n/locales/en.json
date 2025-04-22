@@ -67,9 +67,12 @@
     },
     "settings": {
       "title": "Settings",
-      "preferences": "Preferences",
       "account": "Account",
-      "username": "Username"
+      "username": "Username",
+      "preferences": {
+        "title": "Preferences",
+        "showMyLocation": "Show My Location"
+      }
     },
     "privacyPolicy": {
       "title": "Privacy Policy"

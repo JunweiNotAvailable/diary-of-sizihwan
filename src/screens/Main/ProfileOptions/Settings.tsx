@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, Platform, ScrollView } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Platform, ScrollView, Switch } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Colors } from '../../../utils/Constants';
 import { Input, PrettyButton } from '../../../components';
@@ -15,11 +15,21 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
 
   const [name, setName] = useState(user?.name || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Preferences
+  const [showMyLocation, setShowMyLocation] = useState(false);
 
   // Setup fields
   useEffect(() => {
     setName(user?.name || '');
   }, [user]);
+  
+  // Load preferences
+  useEffect(() => {
+    (async () => {
+      const showMyLocation = await AsyncStorage.getItem(Config.storage.showMyLocation);
+      setShowMyLocation(showMyLocation !== 'false');
+    })();
+  }, []);
 
   const handleClose = () => {
     navigation.goBack();
@@ -41,6 +51,8 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
       },
       body: JSON.stringify(userData)
     });
+
+    await AsyncStorage.setItem(Config.storage.showMyLocation, showMyLocation.toString());
 
     setUser(newUser);
     navigation.goBack();
@@ -101,6 +113,21 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
               placeholder={t('profile.settings.usernamePlaceholder', 'Enter your username')}
               containerStyle={{ marginBottom: 20 }}
             />
+          </View>
+          {/* Preferences */}
+          <View style={[styles.section, { marginTop: 20 }]}>
+            <Text style={styles.sectionTitle}>{t('profile.settings.preferences.title', 'Preferences')}</Text>
+            <View style={styles.preferenceRow}>
+              <Text style={styles.preferenceLabel}>{t('profile.settings.preferences.showMyLocation', 'Show My Location')}</Text>
+              <Switch
+                value={showMyLocation}
+                trackColor={{ false: '#ddd', true: Colors.secondary }}
+                thumbColor={showMyLocation ? Colors.primary : '#f4f3f4'}
+                onValueChange={async () => {
+                  setShowMyLocation(!showMyLocation);
+                }}
+              />
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -169,6 +196,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 20,
+  },
+  preferenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  preferenceLabel: {
+    fontSize: 14,
   },
 });
 

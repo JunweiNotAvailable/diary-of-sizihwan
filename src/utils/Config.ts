@@ -6,6 +6,7 @@ export const Config = {
   },
   storage: {
     user: 'current_user',
+    showMyLocation: 'show_my_location',
   },
   s3: {
     bucketName: 'review-my-campas-assets',
