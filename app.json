@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "diary-of-sizihwan",
+    "name": "西灣日記",
     "slug": "diary-of-sizihwan",
     "scheme": "diary-of-sizihwan",
     "version": "1.0.0",
@@ -36,7 +36,8 @@
     "ios": {
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show it on the map.",
-        "NSCameraUsageDescription": "This app uses the camera to scan student ID cards."
+        "NSCameraUsageDescription": "This app uses the camera to scan student ID cards.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
@@ -47,8 +48,6 @@
     },
     "android": {
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA"
       ],
@@ -62,7 +61,7 @@
     },
     "extra": {
       "eas": {
-
+        "projectId": "e270cb44-b7c5-493e-85a5-96bed795d35c"
       }
     },
     "runtimeVersion": "1.0.0"

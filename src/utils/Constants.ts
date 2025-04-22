@@ -45,7 +45,6 @@ export const IconColors = {
   landmark: { fg: "#c49e6b", bg: "#f7f0e6" },   // soft bronze
   globe: { fg: "#7595c4", bg: "#e8eff7" },      // soft blue-gray
   sailboat: { fg: "#7db7c4", bg: "#e8f4f8" },   // soft light blue
-  umbrella: { fg: "#d9a680", bg: "#faf2eb" },   // soft sand
   flag: { fg: "#c67878", bg: "#f8e9e9" }        // soft coral
 }
 
@@ -59,6 +58,7 @@ export const Schools = {
 
 export const Locations = {
   nsysu: [
+    { id: "sw-beach", icon: 'sailboat', name: "西子灣海灘", name_en: "Sizihwan Beach", coordinates: {"latitude": 22.62600807316937, "longitude": 120.26357587426901} },
     { id: "il", icon: 'library', name: "圖資大樓(圖IL)", name_en: "Library and Information Building(圖IL)", coordinates: {"latitude": 22.627341580807375, "longitude": 120.26586145162584} },
     { id: "dorm-wuling", icon: 'bed', name: "學生宿舍-武嶺", name_en: "Dormitory - Wu-ling Villa", coordinates: {"latitude": 22.630826465076076, "longitude": 120.2637565881014} },
     { id: "dorm-tsuiheng", icon: 'bed', name: "學生宿舍-翠亨", name_en: "Dormitory - Tsui-heng Villa", coordinates: {"latitude": 22.628534268487233, "longitude": 120.26864457875492} },
@@ -82,8 +82,6 @@ export const Locations = {
     { id: "gm", icon: 'dumbbell', name: "體育館(體GM)", name_en: "Gymnasium(體GM)", coordinates: {"latitude": 22.624776060302267, "longitude": 120.26631474494934} },
     { id: "syshall", icon: 'landmark', name: "逸仙館", name_en: "Sun Yat-sen Hall", coordinates: {"latitude": 22.62478998665862, "longitude": 120.26535015553236} },
     { id: "ir", icon: 'globe', name: "國際研究大樓(國IR)", name_en: "Building of International Research(國IR)", coordinates: {"latitude": 22.623816066737394, "longitude": 120.26607602834702} },
-    { id: "sw-sports", icon: 'sailboat', name: "西子灣海域中心", name_en: "Sizihwan Marine Sports Center", coordinates: {"latitude": 22.62723079092313, "longitude": 120.26391517370939} },
-    { id: "beach-resort", icon: 'umbrella', name: "西子灣沙灘會館", name_en: "Sunset Beach Resort", coordinates: {"latitude": 22.624844144697683, "longitude": 120.26457365602255} },
     { id: "field", icon: 'flag', name: "運動場", name_en: "Athletic Field", coordinates: {"latitude": 22.623306048087187, "longitude": 120.26456627994776} },
   ]
 }
