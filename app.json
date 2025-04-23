@@ -24,8 +24,8 @@
       "expo-camera"
     ],
     "locales": {
-      "en": "./assets/locales/en.lproj",
-      "zh": "./assets/locales/zh.lproj"
+      "en": "./locales/en.json",
+      "zh": "./locales/zh.json"
     },
     "ios": {
       "infoPlist": {

@@ -1,8 +1,0 @@
-/* Camera permission */
-"NSCameraUsageDescription" = "Allow this app to access your camera to scan student ID.";
-
-/* Photo Library permission */
-"NSPhotoLibraryUsageDescription" = "Allow this app to access your photos to upload your profile picture.";
-
-/* Location permission */
-"NSLocationWhenInUseUsageDescription" = "This app needs to use your location to display your position on the map."; 

@@ -1,0 +1,5 @@
+{
+  "NSCameraUsageDescription": "允許這個應用程式存取您的相機來掃描學生證。",
+  "NSPhotoLibraryUsageDescription": "允許這個應用程式存取您的照片來上傳您的頭貼圖片。",
+  "NSLocationWhenInUseUsageDescription": "允許這個應用程式存取您的位置來顯示在地圖上。"
+}

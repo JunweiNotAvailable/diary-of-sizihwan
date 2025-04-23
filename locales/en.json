@@ -1,0 +1,5 @@
+{
+  "NSCameraUsageDescription": "Allow this app to access your camera to scan student ID.",
+  "NSPhotoLibraryUsageDescription": "Allow this app to access your photos to upload your profile picture.",
+  "NSLocationWhenInUseUsageDescription": "This app needs to use your location to display your position on the map."
+}
