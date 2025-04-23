@@ -16,7 +16,7 @@ import {
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import { Colors } from '../../utils/Constants';
-import { AskIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrivacyPolicyIcon, SettingsIcon } from '../../utils/Svgs';
+import { AskIcon, FeatherPenIcon, InfoIcon, PersonIcon, PlusIcon, PrivacyPolicyIcon, SettingsIcon } from '../../utils/Svgs';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -263,18 +263,17 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
             </PrettyButton>
           </View>
           <View style={[styles.section, { flexDirection: 'row', gap: 10 }]}>
-            {/* Privacy Policy */}
+            {/* About */}
             <PrettyButton
               style={styles.card}
-              onPress={() => Linking.openURL(Config.privacyPolicyUrl)}
+              onPress={() => navigation.navigate('About')}
             >
-              <Text style={styles.cardTitle}>{t('profile.privacyPolicy.title', 'Privacy Policy')}</Text>
+              <Text style={styles.cardTitle}>{t('profile.about.title', 'About')}</Text>
               <View style={styles.cardImage}>
-                <PrivacyPolicyIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
+                <InfoIcon width={'100%'} height={'100%'} fill={Colors.primaryLightGray} />
               </View>
             </PrettyButton>
           </View>
-
         </ScrollView>
       </View>
 

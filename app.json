@@ -21,13 +21,13 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "This app wants to access your photos."
+          "photosPermission": "允許這個應用程式存取您的相片。"
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow this app to access your camera."
+          "cameraPermission": "允許這個應用程式存取您的相機。"
         }
       ],
       "expo-secure-store",
@@ -35,8 +35,8 @@
     ],
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to show it on the map.",
-        "NSCameraUsageDescription": "This app uses the camera to scan student ID cards.",
+        "NSLocationWhenInUseUsageDescription": "這個應用程式需要使用您的位置來顯示地圖。",
+        "NSCameraUsageDescription": "這個應用程式需要使用您的相機來掃描學生證。",
         "ITSAppUsesNonExemptEncryption": false
       },
       "config": {

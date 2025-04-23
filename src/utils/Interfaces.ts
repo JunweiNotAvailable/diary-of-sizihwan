@@ -26,7 +26,6 @@ export interface ReviewModel {
   created_at: string;
   allow_reference: boolean;
   extra: {
-    is_anonymous?: boolean;
     score: number;
     likes: string[];
   }

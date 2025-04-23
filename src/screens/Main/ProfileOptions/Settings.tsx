@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, StyleSheet, Platform, ScrollView, Switch } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, Platform, ScrollView, Switch, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Colors } from '../../../utils/Constants';
 import { Input, PrettyButton } from '../../../components';
@@ -15,6 +15,7 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
 
   const [name, setName] = useState(user?.name || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   // Preferences
   const [showMyLocation, setShowMyLocation] = useState(false);
 
@@ -65,6 +66,67 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
     navigation.replace('Auth');
   }
 
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    // Show confirmation alert
+    Alert.alert(
+      t('profile.settings.dangerZone.deleteAccount'),
+      t('profile.settings.dangerZone.deleteAccountMessage'),
+      [
+        {
+          text: t('general.cancel', 'Cancel'),
+          style: 'cancel'
+        },
+        {
+          text: t('general.delete', 'Delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsDeleting(true);
+              
+              // 1. Delete all posts by the user
+              const deletePostsResponse = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user.id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (!deletePostsResponse.ok) {
+                throw new Error('Failed to delete user posts');
+              }
+              
+              // 2. Delete user account
+              const deleteUserResponse = await fetch(`${Config.api.url}/data?table=users&id=${user.id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (!deleteUserResponse.ok) {
+                throw new Error('Failed to delete user account');
+              }
+              
+              // 3. Clear local storage and logout
+              await AsyncStorage.removeItem(Config.storage.user);
+              await AsyncStorage.removeItem(Config.storage.showMyLocation);
+              
+              // 4. Navigate to authentication screen
+              setUser(null);
+              navigation.replace('Auth');
+            } catch (error) {
+              console.error('Error deleting account:', error);
+            } finally {
+              setIsDeleting(false);
+            }
+          }
+        }
+      ]
+    );
+  }
+
   return (
     <SafeAreaView style={styles.modalContainer}>
       <View style={styles.modalContent}>
@@ -103,17 +165,6 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
 
         {/* Content */}
         <ScrollView style={styles.scrollContent}>
-          {/* Account */}
-          <View style={[styles.section, { marginTop: 20 }]}>
-            <Text style={styles.sectionTitle}>{t('profile.settings.account', 'Account')}</Text>
-            <Input
-              value={name}
-              label={t('profile.settings.username', 'Username')}
-              onChangeText={(text) => setName(text)}
-              placeholder={t('profile.settings.usernamePlaceholder', 'Enter your username')}
-              containerStyle={{ marginBottom: 20 }}
-            />
-          </View>
           {/* Preferences */}
           <View style={[styles.section, { marginTop: 20 }]}>
             <Text style={styles.sectionTitle}>{t('profile.settings.preferences.title', 'Preferences')}</Text>
@@ -126,6 +177,34 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
                 onValueChange={async () => {
                   setShowMyLocation(!showMyLocation);
                 }}
+              />
+            </View>
+          </View>
+          {/* Account */}
+          <View style={[styles.section, { marginTop: 40 }]}>
+            <Text style={styles.sectionTitle}>{t('profile.settings.account', 'Account')}</Text>
+            <Input
+              value={name}
+              label={t('profile.settings.username', 'Username')}
+              onChangeText={(text) => setName(text)}
+              placeholder={t('profile.settings.usernamePlaceholder', 'Enter your username')}
+              containerStyle={{ marginBottom: 20 }}
+            />
+          </View>
+          {/* Danger Zone */}
+          <View style={[styles.section, { marginTop: 40 }]}>
+            <Text style={styles.sectionTitle}>{t('profile.settings.dangerZone.title', 'Danger Zone')}</Text>
+            <View style={{ alignSelf: 'flex-start' }}>
+              <PrettyButton
+                style={{ width: 'auto', paddingHorizontal: 20, height: 36, borderRadius: 12, borderColor: Colors.danger + 'aa' }}
+                textStyle={{ fontSize: 14, color: Colors.danger + 'cc' }}
+                type='secondary'
+                title={isDeleting ? 
+                  <PrettyLoadingIcon width={14} height={14} stroke={Colors.danger + 'cc'} /> : 
+                  t('profile.settings.dangerZone.deleteAccount', 'Delete Account')
+                }
+                disabled={isDeleting}
+                onPress={handleDeleteAccount}
               />
             </View>
           </View>
@@ -187,7 +266,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flex: 1,
-    gap: 20,
+    gap: 40,
   },
   section: {
     paddingHorizontal: 20,
@@ -204,6 +283,10 @@ const styles = StyleSheet.create({
   },
   preferenceLabel: {
     fontSize: 14,
+  },
+  labelText: {
+    fontSize: 14,
+    color: '#555',
   },
 });
 

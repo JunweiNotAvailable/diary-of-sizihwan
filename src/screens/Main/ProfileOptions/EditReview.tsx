@@ -247,16 +247,6 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
             />
 
             <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>{t('new.anonymous', 'Anonymous')}</Text>
-              <Switch
-                value={review?.extra?.is_anonymous}
-                onValueChange={review ? (value) => setReview({ ...review, extra: { ...review.extra, is_anonymous: value } }) : undefined}
-                trackColor={{ false: '#ddd', true: Colors.secondary }}
-                thumbColor={review?.extra?.is_anonymous ? Colors.primary : '#f4f3f4'}
-              />
-            </View>
-
-            <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>{t('new.allowReference', 'Allow us to reference this post')}</Text>
               <Switch
                 value={review?.allow_reference}

@@ -267,10 +267,6 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           </View>
         </View>
 
-        {item.extra.is_anonymous && (
-          <Text style={styles.anonymousText}>{t('new.anonymous', 'Anonymous')}</Text>
-        )}
-
         <Text style={styles.reviewTitle}>{item.title}</Text>
 
         <View style={styles.contentContainer}>

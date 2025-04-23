@@ -14,6 +14,8 @@ import RelevantReviewsScreen from './Main/RelevantReviews';
 import AskHistory from './Main/ProfileOptions/AskHistory';
 import AskHistoryView from './Main/ProfileOptions/AskHistoryView';
 import { Platform } from 'react-native';
+import AboutScreen from './Main/ProfileOptions/About';
+import ContactUsScreen from './Main/ProfileOptions/ContactUs';
 // Create the stack navigator
 const Stack = createNativeStackNavigator();
 const backgroundColor = '#fff';
@@ -99,6 +101,18 @@ const MainScreen = () => {
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
+        options={getModalOptions('slide_from_bottom')}
+      />
+      {/* About */}
+      <Stack.Screen
+        name="About"
+        component={AboutScreen}
+        options={getModalOptions('slide_from_bottom')}
+      />
+      {/* Contact us */}
+      <Stack.Screen
+        name="ContactUs"
+        component={ContactUsScreen}
         options={getModalOptions('slide_from_bottom')}
       />
       

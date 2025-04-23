@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Colors } from '../utils/Constants';
 import { PrettyButton } from '.';
@@ -23,7 +24,7 @@ interface PopupProps {
 }
 
 const Popup = ({ visible, onClose, title, content, contentContainerStyle }: PopupProps) => {
-  const { width } = Dimensions.get('window');
+  const { width, height } = Dimensions.get('window');
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.8)).current;
 
@@ -60,33 +61,49 @@ const Popup = ({ visible, onClose, title, content, contentContainerStyle }: Popu
 
   if (!visible) return null;
 
+  // Calculate maximum height for the popup (70% of screen height)
+  const maxPopupHeight = height * 0.7;
+  // Calculate maximum height for content (popup height minus title and padding)
+  const titleHeight = title ? 50 : 0; // Approximate title height including margin
+  const paddingTotal = 48; // Total vertical padding (24px top + 24px bottom)
+  const maxContentHeight = maxPopupHeight - titleHeight - paddingTotal;
+
   return (
     <Modal transparent visible={visible} animationType="none">
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <Animated.View
-              style={[
-                styles.popupContainer,
-                { width: width * 0.9, maxHeight: Dimensions.get('window').height * 0.8 },
-                { opacity, transform: [{ scale }] },
-                contentContainerStyle
-              ]}
-            >
-              {title && <Text style={styles.title}>{title}</Text>}
-              <ScrollView style={styles.contentContainer}>
-                <Text style={styles.content}>{content}</Text>
-              </ScrollView>
-              <PrettyButton
-                style={styles.closeButton}
-                onPress={onClose}
-              >
-                <View style={{ transform: [{ rotate: '45deg' }] }}><PlusIcon width={12} height={12} /></View>
-              </PrettyButton>
-            </Animated.View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.overlayTouchable} />
+        </TouchableWithoutFeedback>
+
+        <Animated.View
+          style={[
+            styles.popupContainer,
+            { width: width * 0.9, maxHeight: maxPopupHeight },
+            { opacity, transform: [{ scale }] },
+            contentContainerStyle
+          ]}
+        >
+          {title && <Text style={styles.title}>{title}</Text>}
+
+          <ScrollView
+            style={[styles.contentContainer, { maxHeight: maxContentHeight }]}
+            contentContainerStyle={styles.scrollContentContainer}
+            showsVerticalScrollIndicator={true}
+            scrollEventThrottle={16}
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.content}>{content}</Text>
+          </ScrollView>
+
+          <PrettyButton
+            style={styles.closeButton}
+            onPress={onClose}
+          >
+            <View style={{ transform: [{ rotate: '45deg' }] }}><PlusIcon width={12} height={12} /></View>
+          </PrettyButton>
+        </Animated.View>
+      </View>
     </Modal>
   );
 };
@@ -97,6 +114,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  overlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   popupContainer: {
     backgroundColor: 'white',
@@ -117,9 +141,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 16,
     textAlign: 'center',
+    width: '100%',
   },
   contentContainer: {
     width: '100%',
+    flexGrow: 0,
+  },
+  scrollContentContainer: {
+    paddingBottom: 8,
   },
   content: {
     fontSize: 16,
@@ -137,6 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondaryGray,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
   },
   closeText: {
     fontSize: 24,

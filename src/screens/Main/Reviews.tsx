@@ -217,9 +217,9 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <TouchableWithoutFeedback onPress={item.extra.is_anonymous ? undefined : () => navigation.navigate('UserProfile', { userId: user.id })}>
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('UserProfile', { userId: user.id })}>
             <View style={styles.userInfo}>
-              {(!item.extra.is_anonymous && user.picture) ? (
+              {(user.picture) ? (
                 <Image
                   source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${user.picture}` }}
                   style={styles.userImage}
@@ -233,7 +233,7 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
               )}
               <View style={styles.userTextContainer}>
                 <Text style={styles.userName}>
-                  {item.extra.is_anonymous ? t('reviews.anonymousUser') : user.name}
+                  {user.name}
                 </Text>
               </View>
             </View>
