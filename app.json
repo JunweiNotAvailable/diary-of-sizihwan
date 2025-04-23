@@ -29,10 +29,7 @@
     },
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "這個應用程式需要使用您的位置來顯示在地圖上。",
-        "NSCameraUsageDescription": "這個應用程式需要使用您的相機來掃描學生證。",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "這個應用程式需要使用您的相片來上傳你的頭貼圖片。",
         "CFBundleAllowMixedLocalizations": true
       },
       "config": {
