@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Categories, Colors, Locations } from '../../../utils/Constants';
-import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon } from '../../../utils/Svgs';
+import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon, BlockIcon } from '../../../utils/Svgs';
 import { Config } from '../../../utils/Config';
 import { PrettyButton, BottomModal, OptionItem } from '../../../components';
 import { ReviewModel, UserModel } from '../../../utils/Interfaces';
@@ -22,7 +22,7 @@ import { useAppState } from '../../../contexts/AppContext';
 
 const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { t } = useTranslation();
-  const { user, locale } = useAppState();
+  const { user, locale, setUser } = useAppState();
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -245,11 +245,71 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
     );
   };
 
+  const handleBlockUser = async () => {
+    if (!selectedReview || !user) return;
+    
+    const userToBlock = selectedReview.user_id;
+    
+    Alert.alert(
+      t('profile.blockUser.title', 'Block User'),
+      t('profile.blockUser.message', 'Are you sure you want to block this user? You will no longer see their posts.'),
+      [
+        {
+          text: t('general.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('general.block', 'Block'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Update local state
+              const blockedUsers = user.settings?.blocked_users || [];
+              if (!blockedUsers.includes(userToBlock)) {
+                const updatedBlockedUsers = [...blockedUsers, userToBlock];
+                const updatedSettings = {
+                  ...user.settings,
+                  blocked_users: updatedBlockedUsers
+                };
+                
+                // Update on server
+                await fetch(`${Config.api.url}/data?table=users&id=${user.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ settings: updatedSettings })
+                });
+                
+                // Update context
+                const updatedUser = {
+                  ...user,
+                  settings: updatedSettings
+                };
+                
+                // Update the user in the AppContext
+                setUser(updatedUser);
+                
+                // Close modal and remove the review from the list
+                setOptionsModalVisible(false);
+                setReviews(prev => prev.filter(review => review.user_id !== userToBlock));
+              }
+            } catch (error) {
+              console.error('Error blocking user:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderReviewItem = ({ item }: { item: ReviewModel }) => {
     if (!user) return null;
 
     const isShowingTranslation = showingTranslations[item.id] || false;
     const isCurrentlyTranslating = isTranslating[item.id] || false;
+    const isCurrentUserReview = user.id === item.user_id;
+    
     // Determine which content to show (original or translated)
     const displayContent = isShowingTranslation ? translatedReviews[item.id] : item.content;
 
@@ -411,19 +471,33 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           onClose={() => setOptionsModalVisible(false)}
           title={t('profile.myReviews.options')}
         >
-          <OptionItem
-            label={t('profile.myReviews.editReview')}
-            labelStyle={{ fontWeight: '600' }}
-            onPress={handleEditReview}
-            icon={<FeatherPenIcon width={20} height={20} fill={Colors.primary} />}
-          />
-          <OptionItem
-            label={t('profile.myReviews.deleteReview')}
-            labelStyle={{ fontWeight: '600' }}
-            onPress={handleDeleteReview}
-            icon={<TrashIcon width={20} height={20} fill="#FF3B30" />}
-            destructive
-          />
+          {selectedReview && user && user.id === selectedReview.user_id ? (
+            // Current user's post options
+            <>
+              <OptionItem
+                label={t('profile.myReviews.editReview')}
+                labelStyle={{ fontWeight: '600' }}
+                onPress={handleEditReview}
+                icon={<FeatherPenIcon width={20} height={20} fill={Colors.primary} />}
+              />
+              <OptionItem
+                label={t('profile.myReviews.deleteReview')}
+                labelStyle={{ fontWeight: '600' }}
+                onPress={handleDeleteReview}
+                icon={<TrashIcon width={20} height={20} fill="#FF3B30" />}
+                destructive
+              />
+            </>
+          ) : (
+            // Other user's post options
+            <OptionItem
+              label={t('profile.blockUser.blockUser', 'Block User')}
+              labelStyle={{ fontWeight: '600' }}
+              onPress={handleBlockUser}
+              icon={<BlockIcon width={20} height={20} fill="#FF3B30" />}
+              destructive
+            />
+          )}
         </BottomModal>
 
         {/* Likes Modal */}
@@ -803,7 +877,34 @@ const styles = StyleSheet.create({
     padding: 40,
     textAlign: 'center',
     color: '#aaa',
-  }
+  },
+  reportContainer: {
+    padding: 20,
+  },
+  reportMessage: {
+    fontSize: 16,
+    color: Colors.primaryGray,
+    marginBottom: 20,
+  },
+  selectedReportOption: {
+    backgroundColor: Colors.primaryLightGray + '40',
+  },
+  reportButtonContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  reportButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    minWidth: 200,
+  },
+  reportButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
 
 export default MyReviewsScreen; 

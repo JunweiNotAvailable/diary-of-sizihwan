@@ -5,10 +5,10 @@ import { Colors, Categories, Locations } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
+import { ChevronDownIcon, EllipsisIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TrashIcon, TranslateIcon, BlockIcon, FlagIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
-import { MarkdownText } from '../../components';
+import { MarkdownText, BottomModal, OptionItem } from '../../components';
 
 const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
@@ -19,13 +19,20 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
-  const { user, locale } = useAppState();
+  const { user, locale, setUser } = useAppState();
   const { t } = useTranslation();
   // pagination
   const [page, setPage] = useState(0);
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const limit = 10;
+  // Options modal
+  const [optionsModalVisible, setOptionsModalVisible] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<ReviewModel | null>(null);
+  // Report modal
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportReason, setReportReason] = useState<string>('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   useEffect(() => {
     // Fetch reviews and users from database
@@ -38,12 +45,18 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
     try {
       // Get reviews
       const newReviews = await loadReviews(0);
-      setReviews(newReviews.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
+
+      // Filter out reviews from blocked users
+      const filteredReviews = user?.settings?.blocked_users
+        ? newReviews.filter((review: ReviewModel) => !user.settings?.blocked_users?.includes(review.user_id))
+        : newReviews;
+
+      setReviews(filteredReviews.sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
       setPage(0);
       setHasMoreReviews(newReviews.length === limit);
 
       // Get users
-      await loadMoreUsers(newReviews.map((review: ReviewModel) => review.user_id));
+      await loadMoreUsers(filteredReviews.map((review: ReviewModel) => review.user_id));
     } catch (error) {
       setError(t('reviews.errors.fetchFailed'));
     } finally {
@@ -79,12 +92,17 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
       const newReviews = await loadReviews(nextPage);
 
       if (newReviews.length > 0) {
-        setReviews(prev => [...prev, ...newReviews].sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
+        // Filter out reviews from blocked users
+        const filteredReviews = user?.settings?.blocked_users
+          ? newReviews.filter((review: ReviewModel) => !user.settings?.blocked_users?.includes(review.user_id))
+          : newReviews;
+
+        setReviews(prev => [...prev, ...filteredReviews].sort((a: ReviewModel, b: ReviewModel) => a.created_at > b.created_at ? -1 : 1));
         setPage(nextPage);
         setHasMoreReviews(newReviews.length === limit);
 
         // Load users for new reviews
-        await loadMoreUsers(newReviews.map((review: ReviewModel) => review.user_id));
+        await loadMoreUsers(filteredReviews.map((review: ReviewModel) => review.user_id));
       } else {
         setHasMoreReviews(false);
       }
@@ -177,6 +195,175 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
     }
   };
 
+  const handleOptionPress = (review: ReviewModel) => {
+    setSelectedReview(review);
+    setOptionsModalVisible(true);
+  };
+
+  const handleEditReview = () => {
+    if (!selectedReview) return;
+
+    setOptionsModalVisible(false);
+    navigation.navigate('EditReview', {
+      reviewId: selectedReview.id, onDone: (review: ReviewModel | undefined) => {
+        if (!review) return;
+        setReviews(prev => prev.map(r => r.id === review.id ? review : r));
+      }
+    });
+  };
+
+  const handleDeleteReview = () => {
+    if (!selectedReview) return;
+
+    Alert.alert(
+      t('profile.myReviews.deleteReviewTitle'),
+      t('profile.myReviews.deleteReviewMessage').replace('{{title}}', selectedReview.title),
+      [
+        {
+          text: t('general.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('general.delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const reviewId = selectedReview.id;
+              await fetch(`${Config.api.url}/data?table=reviews&id=${reviewId}`, {
+                method: 'DELETE',
+              });
+
+              // Remove from local state
+              setReviews(prev => prev.filter(review => review.id !== reviewId));
+              setOptionsModalVisible(false);
+            } catch (error) {
+              console.error('Error deleting review:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleBlockUser = async () => {
+    if (!selectedReview || !user) return;
+
+    const userToBlock = selectedReview.user_id;
+
+    Alert.alert(
+      t('profile.blockUser.title', 'Block User'),
+      t('profile.blockUser.message', 'Are you sure you want to block this user? You will no longer see their posts.'),
+      [
+        {
+          text: t('general.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('general.block', 'Block'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Update local state
+              const blockedUsers = user.settings?.blocked_users || [];
+              if (!blockedUsers.includes(userToBlock)) {
+                const updatedBlockedUsers = [...blockedUsers, userToBlock];
+                const updatedSettings = {
+                  ...user.settings,
+                  blocked_users: updatedBlockedUsers
+                };
+
+                // Update on server
+                await fetch(`${Config.api.url}/data?table=users&id=${user.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ settings: updatedSettings })
+                });
+
+                // Update context
+                const updatedUser = {
+                  ...user,
+                  settings: updatedSettings
+                };
+
+                // Update the user in the AppContext
+                setUser(updatedUser);
+
+                // Close modal and remove the blocked user's reviews from the list
+                setOptionsModalVisible(false);
+                setReviews(prev => prev.filter(review => review.user_id !== userToBlock));
+              }
+            } catch (error) {
+              console.error('Error blocking user:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleReportReview = () => {
+    if (!selectedReview) return;
+    
+    setOptionsModalVisible(false);
+    setReportModalVisible(true);
+  };
+
+  const submitReport = async () => {
+    if (!selectedReview || !user || !reportReason) return;
+    
+    setIsSubmittingReport(true);
+    
+    try {
+      // Format message with report details
+      const messageContent = `
+Report Information:
+------------------
+Review ID: ${selectedReview.id}
+Review Title: ${selectedReview.title}
+Posted by: User ID ${selectedReview.user_id}
+
+Reported by: User ID ${user.id} (${user.name})
+Reason: ${reportReason}
+Date Reported: ${new Date().toISOString()}
+      `;
+      
+      // Send email report
+      await fetch(`${Config.api.url}/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to: "junwnotavailable@gmail.com", 
+          subject: "Post Report", 
+          message: messageContent
+        })
+      });
+      
+      // Close the report modal
+      setReportModalVisible(false);
+      setReportReason('');
+      
+      // Show success message
+      Alert.alert(
+        t('reviews.report.reportSent'),
+        t('reviews.report.reportSentMessage')
+      );
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      
+      // Show error message
+      Alert.alert(
+        t('reviews.report.reportFailed'),
+        t('reviews.report.reportFailedMessage')
+      );
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -203,6 +390,7 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
 
     const isShowingTranslation = showingTranslations[item.id] || false;
     const isCurrentlyTranslating = isTranslating[item.id] || false;
+    const isCurrentUserPost = user?.id === item.user_id;
 
     // Determine which content to show (original or translated)
     const displayContent = isShowingTranslation ? translatedReviews[item.id] : item.content;
@@ -231,7 +419,15 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
               </View>
             </View>
           </TouchableWithoutFeedback>
-          <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
+            <PrettyButton
+              style={styles.optionsButton}
+              onPress={() => handleOptionPress(item)}
+            >
+              <EllipsisIcon width={24} height={24} />
+            </PrettyButton>
+          </View>
         </View>
 
         <Text style={styles.locationText}>{Locations.nsysu.find((location: any) => location.id === item.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
@@ -321,6 +517,97 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
         onEndReached={loadMoreReviews}
         onEndReachedThreshold={0.3}
       />
+
+      {/* Options Modal */}
+      <BottomModal
+        visible={optionsModalVisible}
+        onClose={() => setOptionsModalVisible(false)}
+        title={t('profile.myReviews.options', 'Options')}
+      >
+        {selectedReview && user && user.id === selectedReview.user_id ? (
+          // Current user's post options
+          <>
+            <OptionItem
+              label={t('profile.myReviews.editReview', 'Edit')}
+              labelStyle={{ fontWeight: '600' }}
+              onPress={handleEditReview}
+              icon={<FeatherPenIcon width={20} height={20} fill={Colors.primary} />}
+            />
+            <OptionItem
+              label={t('profile.myReviews.deleteReview', 'Delete')}
+              labelStyle={{ fontWeight: '600' }}
+              onPress={handleDeleteReview}
+              icon={<TrashIcon width={20} height={20} fill="#FF3B30" />}
+              destructive
+            />
+          </>
+        ) : (
+          <>
+            <OptionItem
+              label={t('reviews.report.title', 'Report Review')}
+              labelStyle={{ fontWeight: '600' }}
+              onPress={handleReportReview}
+              icon={<FlagIcon width={20} height={20} />}
+            />
+            <OptionItem
+              label={t('profile.blockUser.blockUser', 'Block User')}
+              labelStyle={{ fontWeight: '600' }}
+              onPress={handleBlockUser}
+              icon={<BlockIcon width={20} height={20} fill="#FF3B30" />}
+              destructive
+            />
+          </>
+        )}
+      </BottomModal>
+
+      {/* Report Review Modal */}
+      <BottomModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        title={t('reviews.report.title', 'Report Review')}
+      >
+        <View style={styles.reportContainer}>
+          <Text style={styles.reportMessage}>{t('reviews.report.message')}</Text>
+          
+          <OptionItem
+            label={t('reviews.report.options.inappropriate')}
+            onPress={() => setReportReason('inappropriate')}
+            style={reportReason === 'inappropriate' ? styles.selectedReportOption : {}}
+          />
+          
+          <OptionItem
+            label={t('reviews.report.options.spam')}
+            onPress={() => setReportReason('spam')}
+            style={reportReason === 'spam' ? styles.selectedReportOption : {}}
+          />
+          
+          <OptionItem
+            label={t('reviews.report.options.offensive')}
+            onPress={() => setReportReason('offensive')}
+            style={reportReason === 'offensive' ? styles.selectedReportOption : {}}
+          />
+          
+          <OptionItem
+            label={t('reviews.report.options.other')}
+            onPress={() => setReportReason('other')}
+            style={reportReason === 'other' ? styles.selectedReportOption : {}}
+          />
+          
+          <View style={styles.reportButtonContainer}>
+            <PrettyButton
+              onPress={submitReport}
+              style={styles.reportButton}
+              disabled={!reportReason || isSubmittingReport}
+            >
+              {isSubmittingReport ? (
+                <PrettyLoadingIcon width={24} height={24} stroke="#fff" />
+              ) : (
+                <Text style={styles.reportButtonText}>{t('reviews.report.submitReport')}</Text>
+              )}
+            </PrettyButton>
+          </View>
+        </View>
+      </BottomModal>
     </SafeAreaView>
   );
 };
@@ -526,6 +813,39 @@ const styles = StyleSheet.create({
   },
   strikethrough: {
     textDecorationLine: 'line-through',
+  },
+  optionsButton: {
+    height: 24,
+    backgroundColor: 'transparent',
+    alignSelf: 'flex-start',
+    padding: 0,
+  },
+  // Report styles
+  reportContainer: {
+    padding: 20,
+  },
+  reportMessage: {
+    fontSize: 16,
+    color: Colors.primaryGray,
+    marginBottom: 20,
+  },
+  selectedReportOption: {
+    backgroundColor: Colors.primaryLightGray + '80',
+  },
+  reportButtonContainer: {
+    marginTop: 20,
+  },
+  reportButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 200,
+  },
+  reportButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

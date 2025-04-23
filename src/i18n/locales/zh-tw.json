@@ -6,7 +6,9 @@
     "delete": "刪除",
     "save": "儲存",
     "ok": "確定",
-    "error": "錯誤"
+    "error": "錯誤",
+    "block": "封鎖",
+    "report": "舉報"
   },
   "auth": {
     "signIn": "登入",
@@ -42,13 +44,18 @@
     "permissionDenied": "我們需要您的位置權限來顯示你在地圖上的位置。請在設定中啟用位置權限。"
   },
   "profile": {
-    "title": "我ㄉ個人資料",
+    "title": "我的檔案",
     "signOut": "登出",
     "signingOut": "登出中...",
     "score": "你的校園分數: {{count}}",
     "scoreInfo": {
-      "title": "校園分數怎麼計算？",
-      "content": "當 AI 引用你的貼文來回答其他同學的問題時，若是相關程度大於 35，你就能獲得 1 分的校園分數。"
+      "title": "校園分數如何計算",
+      "content": "當你的貼文被 AI 引用來回答其他同學的問題時，如果相關度分數超過 35，你就會獲得 1 分。"
+    },
+    "blockUser": {
+      "title": "封鎖用戶",
+      "message": "確定要封鎖這位用戶嗎？你將不會再看到他們的貼文。",
+      "blockUser": "封鎖用戶"
     },
     "myReviews": {
       "title": "我的貼文",
@@ -160,6 +167,21 @@
     "latest": "最新貼文",
     "errors": {
       "locationRequired": "請選擇一個地點"
+    },
+    "report": {
+      "title": "舉報此貼文",
+      "message": "您為什麼要舉報這篇貼文？",
+      "options": {
+        "inappropriate": "不適當內容",
+        "spam": "垃圾訊息或誤導性信息",
+        "offensive": "冒犯性或有害內容",
+        "other": "其他原因"
+      },
+      "submitReport": "提交舉報",
+      "reportSent": "舉報已送出",
+      "reportSentMessage": "感謝您幫助維護我們的社區安全。我們會盡快審核這份舉報。",
+      "reportFailed": "舉報失敗",
+      "reportFailedMessage": "提交舉報時發生錯誤。請稍後再試。"
     }
   },
   "userProfile": {

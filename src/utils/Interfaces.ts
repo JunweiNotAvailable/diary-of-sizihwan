@@ -13,6 +13,7 @@ export interface UserModel {
   settings?: {
     language?: string;
     theme?: string;
+    blocked_users?: string[];
   }
 }
 

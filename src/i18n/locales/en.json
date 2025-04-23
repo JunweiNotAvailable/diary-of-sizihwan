@@ -6,7 +6,9 @@
     "delete": "Delete",
     "save": "Save",
     "ok": "OK",
-    "error": "Error"
+    "error": "Error",
+    "block": "Block",
+    "report": "Report"
   },
   "auth": {
     "signIn": "Sign In",
@@ -49,6 +51,11 @@
     "scoreInfo": {
       "title": "How Campus Scores Work",
       "content": "When your post is referenced by AI to answer other students' questions, and the relevance score is greater than 35, you will get 1 point."
+    },
+    "blockUser": {
+      "title": "Block User",
+      "message": "Are you sure you want to block this user? You will no longer see their posts.",
+      "blockUser": "Block User"
     },
     "myReviews": {
       "title": "My Reviews",
@@ -160,6 +167,21 @@
     "latest": "Latest Reviews",
     "errors": {
       "locationRequired": "Please select a location"
+    },
+    "report": {
+      "title": "Report Review",
+      "message": "Why are you reporting this review?",
+      "options": {
+        "inappropriate": "Inappropriate content",
+        "spam": "Spam or misleading information",
+        "offensive": "Offensive or harmful content",
+        "other": "Other reason"
+      },
+      "submitReport": "Submit Report",
+      "reportSent": "Report Sent",
+      "reportSentMessage": "Thank you for helping to keep our community safe. We'll review this report as soon as possible.",
+      "reportFailed": "Report Failed",
+      "reportFailedMessage": "There was an error submitting your report. Please try again later."
     }
   },
   "userProfile": {

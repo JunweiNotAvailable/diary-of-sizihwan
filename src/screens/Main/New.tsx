@@ -168,9 +168,14 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
       // Check if there's an onDone callback and use it to return the new review
       if (route.params?.onDone) {
         route.params.onDone(review);
+        navigation.goBack();
+      } else {
+        navigation.goBack();
+        setTimeout(() => {
+          navigation.navigate('Reviews', { location: Locations.nsysu.find(location => location.id === review.location) });
+        }, 500);
       }
 
-      navigation.goBack();
     } catch (error) {
       console.error('Error posting review:', error);
     } finally {
