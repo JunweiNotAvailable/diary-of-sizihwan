@@ -272,7 +272,7 @@ const AuthScreen = ({ navigation }: { navigation: any }) => {
       await AsyncStorage.setItem(USER_STORAGE_KEY, studentId);
 
       setIsLoading(false);
-      navigation.replace('Main');
+      navigation.replace('Main', { showTermOfUse: true });
     } catch (error) {
       setIsLoading(false);
       Alert.alert('', t('auth.errors.signUpFailed'));

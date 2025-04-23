@@ -122,8 +122,9 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
       // Fetch user data for each like
       const userPromises = review.extra.likes.map(async (userId: string) => {
         const response = await fetch(`${Config.api.url}/data?table=users&id=${userId}`);
+        if (!response.ok) return null;
         const data = await response.json();
-        return data.data;
+        return data.data || null;
       });
       
       const userData = await Promise.all(userPromises);

@@ -21,13 +21,13 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "允許這個應用程式存取您的相片。"
+          "photosPermission": "允許這個應用程式存取您的相片來上傳你的頭貼圖片。"
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "允許這個應用程式存取您的相機。"
+          "cameraPermission": "允許這個應用程式存取您的相機來掃描學生證。"
         }
       ],
       "expo-secure-store",
@@ -37,7 +37,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "這個應用程式需要使用您的位置來顯示地圖。",
         "NSCameraUsageDescription": "這個應用程式需要使用您的相機來掃描學生證。",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "這個應用程式需要使用您的相片來上傳你的頭貼圖片。"
       },
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"

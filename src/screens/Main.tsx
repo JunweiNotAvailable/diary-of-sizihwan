@@ -30,7 +30,8 @@ const getModalOptions = (animation: 'slide_from_bottom' | 'flip'): NativeStackNa
   };
 };
 
-const MainScreen = () => {
+const MainScreen = ({ route }: { route: any }) => {
+  const { showTermOfUse } = route.params || {};
 
   return (
     <Stack.Navigator
@@ -40,7 +41,7 @@ const MainScreen = () => {
       }}
     >
       {/* Home */}
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} initialParams={{ showTermOfUse }} />
       {/* New review */}
 			<Stack.Screen
         name="New"

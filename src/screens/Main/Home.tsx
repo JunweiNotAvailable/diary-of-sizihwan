@@ -7,6 +7,11 @@ import {
 	Text,
 	Image,
 	SafeAreaView,
+	Modal,
+	ScrollView,
+	TouchableOpacity,
+	Animated,
+	Dimensions,
 } from 'react-native';
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
@@ -25,16 +30,66 @@ const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map
 	stylers: [{ visibility: "off" }]
 }));
 
-const HomeScreen = ({ navigation }: { navigation: any }) => {
+const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 	const { t } = useTranslation();
 	const { user } = useAppState();
+	const { showTermOfUse } = route.params || {};
 	const [locationPermission, setLocationPermission] = useState(false);
 	const [mapError, setMapError] = useState(false);
 	const [initialRegion, setInitialRegion] = useState(Map.defaultLocation);
 	const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 	const [showUser, setShowUser] = useState(false);
+	
+	// Terms of Use state variables
+	const [termsModalVisible, setTermsModalVisible] = useState(false);
+	const [canAgree, setCanAgree] = useState(false);
+	const scrollViewRef = useRef<ScrollView>(null);
+	const opacity = useRef(new Animated.Value(0)).current;
+	const scale = useRef(new Animated.Value(0.8)).current;
+	
+	// Reference to the location subscription
+	const locationSubscription = useRef<Location.LocationSubscription | null>(null);
 
 	const mapRef = useRef<MapView>(null);
+
+	// Show Terms of Use modal if required
+	useEffect(() => {
+		if (showTermOfUse) {
+			setTermsModalVisible(true);
+		}
+	}, [showTermOfUse]);
+	
+	// Animation for the Terms modal
+	useEffect(() => {
+		if (termsModalVisible) {
+			Animated.parallel([
+				Animated.timing(opacity, {
+					toValue: 1,
+					duration: 300,
+					useNativeDriver: true,
+				}),
+				Animated.spring(scale, {
+					toValue: 1,
+					tension: 65,
+					friction: 7,
+					useNativeDriver: true,
+				}),
+			]).start();
+		} else {
+			Animated.parallel([
+				Animated.timing(opacity, {
+					toValue: 0,
+					duration: 200,
+					useNativeDriver: true,
+				}),
+				Animated.timing(scale, {
+					toValue: 0.8,
+					duration: 200,
+					useNativeDriver: true,
+				}),
+			]).start();
+		}
+	}, [termsModalVisible]);
 
 	// Load preferences
 	useEffect(() => {
@@ -53,7 +108,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				if (status === 'granted') {
 					setLocationPermission(true);
 
-					// Get current location
+					// Get current location initially
 					const location = await Location.getCurrentPositionAsync({
 						accuracy: Location.Accuracy.Balanced,
 					});
@@ -63,15 +118,18 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 						longitude: location.coords.longitude,
 					};
 
-					const libraryLocation = Locations.nsysu[0].coordinates;
+					const beachLocation = Locations.nsysu[0].coordinates;
 					setCurrentLocation(locationCoords); // User's current location
 
 					setInitialRegion({
-						// ...locationCoords,
-						...libraryLocation,
+						...locationCoords,
+						// ...beachLocation,
 						latitudeDelta: 0.0042,
 						longitudeDelta: 0.0042,
 					});
+					
+					// Start watching for location updates
+					startLocationUpdates();
 				} else {
 					// Permission denied
 					Alert.alert(
@@ -85,7 +143,40 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 		};
 
 		getLocationPermission();
+		
+		// Clean up location subscription when component unmounts
+		return () => {
+			if (locationSubscription.current) {
+				locationSubscription.current.remove();
+				locationSubscription.current = null;
+			}
+		};
 	}, []);
+	
+	// Function to start location updates
+	const startLocationUpdates = async () => {
+		try {
+			// Start the subscription to location updates
+			locationSubscription.current = await Location.watchPositionAsync(
+				{
+					accuracy: Location.Accuracy.Balanced,
+					timeInterval: 5000,  // Update every 5 seconds
+					distanceInterval: 10, // Update if moved by 10 meters
+				},
+				(location) => {
+					// Update the current location when changes are detected
+					const newLocation = {
+						latitude: location.coords.latitude,
+						longitude: location.coords.longitude,
+					};
+					
+					setCurrentLocation(newLocation);
+				}
+			);
+		} catch (error) {
+			console.error('Error setting up location tracking:', error);
+		}
+	};
 
 	// Error boundary for map loading
 	useEffect(() => {
@@ -117,6 +208,20 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 				longitudeDelta: 0.0042,
 			}, 500);
 		}
+	};
+	
+	// Handle scroll to detect when user reaches the bottom of Terms
+	const handleScroll = (event: any) => {
+		const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+		const paddingToBottom = 20;
+		if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+			setCanAgree(true);
+		}
+	};
+	
+	// When user agrees to the terms
+	const handleAgreeTerms = () => {
+		setTermsModalVisible(false);
 	};
 
 	if (mapError) {
@@ -224,9 +329,62 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
 				/>
 			</View>
+			
+			{/* Terms of Use Modal */}
+			<Modal
+				transparent
+				visible={termsModalVisible}
+				animationType="none"
+				onRequestClose={() => {}}
+			>
+				<View style={styles.termsOverlay}>
+					<Animated.View
+						style={[
+							styles.termsContainer,
+							{ opacity, transform: [{ scale }] }
+						]}
+					>
+						<Text style={styles.termsTitle}>{t('profile.termOfUse.title', 'Terms of Use')}</Text>
+						
+						<ScrollView
+							ref={scrollViewRef}
+							style={styles.termsScrollView}
+							onScroll={handleScroll}
+							scrollEventThrottle={16}
+						>
+							<Text style={styles.termsContent}>
+								{t('profile.termOfUse.content')}
+							</Text>
+						</ScrollView>
+						
+						<View style={styles.termsFooter}>
+							<TouchableOpacity
+								style={[
+									styles.agreeButton,
+									!canAgree && styles.agreeButtonDisabled
+								]}
+								onPress={handleAgreeTerms}
+								disabled={!canAgree}
+							>
+								<Text style={[
+									styles.agreeButtonText,
+									!canAgree && styles.agreeButtonTextDisabled
+								]}>
+									{canAgree ? 
+										t('profile.termOfUse.agree', 'I Agree') : 
+										t('profile.termOfUse.scrollToAgree', 'Scroll to bottom to agree')
+									}
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</Animated.View>
+				</View>
+			</Modal>
 		</View>
 	);
 };
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
 	loadingContainer: {
@@ -363,6 +521,62 @@ const styles = StyleSheet.create({
 		color: Colors.primary,
 		fontWeight: '600',
 		fontSize: 12,
+	},
+	termsOverlay: {
+		flex: 1,
+		backgroundColor: 'rgba(0, 0, 0, 0.6)',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	termsContainer: {
+		width: width * 0.9,
+		maxHeight: height * 0.8,
+		backgroundColor: 'white',
+		borderRadius: 16,
+		padding: 20,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.25,
+		shadowRadius: 3.84,
+		elevation: 5,
+	},
+	termsTitle: {
+		fontSize: 18,
+		fontWeight: '700',
+		marginBottom: 16,
+		textAlign: 'center',
+	},
+	termsScrollView: {
+		maxHeight: height * 0.6,
+	},
+	termsContent: {
+		fontSize: 16,
+		lineHeight: 24,
+		textAlign: 'left',
+		marginBottom: 20,
+	},
+	termsFooter: {
+		marginTop: 16,
+		alignItems: 'center',
+	},
+	agreeButton: {
+		backgroundColor: Colors.primary,
+		paddingVertical: 12,
+		paddingHorizontal: 20,
+		borderRadius: 10,
+		width: '100%',
+		alignItems: 'center',
+	},
+	agreeButtonDisabled: {
+		backgroundColor: '#ccc',
+	},
+	agreeButtonText: {
+		color: 'white',
+		fontWeight: '700',
+		fontSize: 16,
+	},
+	agreeButtonTextDisabled: {
+		color: '#888',
 	},
 });
 
