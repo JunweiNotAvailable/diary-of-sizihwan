@@ -147,7 +147,7 @@
     "inputPlaceholder": "Type your campus question...",
     "emptyChat": "AI will answer your questions based on reviews from other students",
     "isReferencing": "Finding relevant information",
-    "isGenerating": "Generating response",
+    "isGenerating": "Thinking",
     "relevantReviews": "Relevant Reviews",
     "relevanceScore": "Relevance Score"
   },
