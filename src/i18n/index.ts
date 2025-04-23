@@ -2,7 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import en from './locales/en.json';
-import zhTw from './locales/zh-tw.json';
+import zh from './locales/zh.json';
 
 // Initialize i18next
 i18n
@@ -13,7 +13,7 @@ i18n
         translation: en
       },
       zh: {
-        translation: zhTw
+        translation: zh
       }
     },
     lng: 'en', // default language
