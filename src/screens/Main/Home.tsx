@@ -12,16 +12,19 @@ import {
 	TouchableOpacity,
 	Animated,
 	Dimensions,
+	Easing,
 } from 'react-native';
 import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
-import { Colors, Map, Locations, IconColors } from '../../utils/Constants';
+import { Colors, Map as MapDefaults, Locations, IconColors } from '../../utils/Constants';
 import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import { LocationIcon } from '../../components/LocationIcon';
 import { Config } from '../../utils/Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ReviewModel, UserModel } from '../../utils/Interfaces';
+import { getTimeFromNow } from '../../utils/Functions';
 
 // Custom map style to remove text labels for geographical elements while preserving user annotations
 const mapStyle: MapStyleElement[] = ["poi", "transit", "water", "landscape"].map(featureType => ({
@@ -36,21 +39,115 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 	const { showTermOfUse } = route.params || {};
 	const [locationPermission, setLocationPermission] = useState(false);
 	const [mapError, setMapError] = useState(false);
-	const [initialRegion, setInitialRegion] = useState(Map.defaultLocation);
+	const [initialRegion, setInitialRegion] = useState({ ...MapDefaults.defaultLocation });
 	const [currentLocation, setCurrentLocation] = useState<{ latitude: number, longitude: number } | null>(null);
 	const [showUser, setShowUser] = useState(false);
-	
+
+	const [recentReviews, setRecentReviews] = useState<ReviewModel[]>([]);
+	const [recentReviewUsers, setRecentReviewUsers] = useState<UserModel[]>([]);
+
 	// Terms of Use state variables
 	const [termsModalVisible, setTermsModalVisible] = useState(false);
 	const [canAgree, setCanAgree] = useState(false);
 	const scrollViewRef = useRef<ScrollView>(null);
 	const opacity = useRef(new Animated.Value(0)).current;
 	const scale = useRef(new Animated.Value(0.8)).current;
-	
+
 	// Reference to the location subscription
 	const locationSubscription = useRef<Location.LocationSubscription | null>(null);
 
 	const mapRef = useRef<MapView>(null);
+
+	// Add animated value for marker scaling
+	const markerScale = useRef(new Animated.Value(1)).current;
+
+	// Get recent reviews
+	useEffect(() => {
+		(async () => {
+			await loadRecentReviews();
+		})();
+	}, []);
+
+	useEffect(() => {
+		(async () => {
+			const newUsers: UserModel[] = [];
+			for (const review of recentReviews) {
+				if (!newUsers.find(user => user.id === review.user_id)) {
+					const res = await fetch(`${Config.api.url}/data?table=users&id=${review.user_id}`);
+					const data = await res.json();
+					const user = data.data as UserModel;
+					newUsers.push(user);
+				}
+			}
+			setRecentReviewUsers(newUsers);
+		})();
+	}, [recentReviews]);
+
+	// Function to load recent reviews with specific requirements
+	const loadRecentReviews = async () => {
+		try {
+			let page = 0;
+			const limit = 20;
+			const targetCount = 15;
+			const locationMap = new Map<string, ReviewModel>();
+			let hasMoreData = true;
+			const threeDaysAgo = new Date();
+			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+			// Continue loading until we meet our conditions
+			while (
+				locationMap.size < targetCount && // Need 15 different locations
+				hasMoreData // Still have data to load
+			) {
+				// Fetch reviews sorted by creation date
+				const response = await fetch(
+					`${Config.api.url}/data?table=reviews&limit=${limit}&offset=${page * limit}&sortBy=created_at&order=desc`
+				);
+
+				const data = await response.json();
+				const reviews: ReviewModel[] = data.data || [];
+
+				// No more data to load
+				if (reviews.length === 0) {
+					hasMoreData = false;
+					break;
+				}
+
+				// Process each review
+				for (const review of reviews) {
+					// Skip if the review is older than 3 days
+					const reviewDate = new Date(review.created_at);
+					if (reviewDate < threeDaysAgo) {
+						hasMoreData = false;
+						break;
+					}
+
+					// Check if we already have a review for this location
+					if (!locationMap.has(review.location)) {
+						// Add this review as the most recent one for this location
+						locationMap.set(review.location, review);
+
+						// Check if we have reached our target
+						if (locationMap.size >= targetCount) {
+							break;
+						}
+					}
+				}
+
+				// Move to the next page
+				page++;
+			}
+
+			// Convert the map to an array and update the state
+			const uniqueReviews = Array.from(locationMap.values());
+			setRecentReviews(uniqueReviews as ReviewModel[]);
+
+			// Debug log
+			console.log(`Loaded ${uniqueReviews.length} recent reviews from ${page} pages of data`);
+		} catch (error) {
+			console.error('Error loading recent reviews:', error);
+		}
+	};
 
 	// Show Terms of Use modal if required
 	useEffect(() => {
@@ -58,7 +155,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 			setTermsModalVisible(true);
 		}
 	}, [showTermOfUse]);
-	
+
 	// Animation for the Terms modal
 	useEffect(() => {
 		if (termsModalVisible) {
@@ -127,7 +224,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 						latitudeDelta: 0.0042,
 						longitudeDelta: 0.0042,
 					});
-					
+
 					// Start watching for location updates
 					startLocationUpdates();
 				} else {
@@ -143,7 +240,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 		};
 
 		getLocationPermission();
-		
+
 		// Clean up location subscription when component unmounts
 		return () => {
 			if (locationSubscription.current) {
@@ -152,7 +249,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 			}
 		};
 	}, []);
-	
+
 	// Function to start location updates
 	const startLocationUpdates = async () => {
 		try {
@@ -169,7 +266,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 						latitude: location.coords.latitude,
 						longitude: location.coords.longitude,
 					};
-					
+
 					setCurrentLocation(newLocation);
 				}
 			);
@@ -209,7 +306,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 			}, 500);
 		}
 	};
-	
+
 	// Handle scroll to detect when user reaches the bottom of Terms
 	const handleScroll = (event: any) => {
 		const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
@@ -218,11 +315,39 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 			setCanAgree(true);
 		}
 	};
-	
+
 	// When user agrees to the terms
 	const handleAgreeTerms = () => {
 		setTermsModalVisible(false);
 	};
+
+	// Marker pulsing animation
+	useEffect(() => {
+		const pulseAnimation = () => {
+			Animated.sequence([
+				Animated.timing(markerScale, {
+					toValue: 1,
+					duration: 2000,
+					delay: Math.random() * 200,
+					easing: Easing.inOut(Easing.sin),
+					useNativeDriver: true,
+				}),
+				Animated.timing(markerScale, {
+					toValue: 0.97,
+					delay: Math.random() * 200,
+					duration: 2000,
+					easing: Easing.inOut(Easing.sin),
+					useNativeDriver: true,
+				})
+			]).start(() => pulseAnimation());
+		};
+
+		pulseAnimation();
+
+		return () => {
+			markerScale.stopAnimation();
+		};
+	}, []);
 
 	if (mapError) {
 		return (
@@ -240,7 +365,6 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 				provider={PROVIDER_GOOGLE}
 				customMapStyle={mapStyle}
 				region={initialRegion}
-				showsCompass={false}
 				rotateEnabled={false}
 				liteMode={false}
 			>
@@ -248,17 +372,50 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 				{Locations.nsysu.map((location, index) => {
 					const Icon = LocationIcon[location.icon as keyof typeof LocationIcon];
 					const iconColors = IconColors[location.icon as keyof typeof IconColors] || { fg: Colors.primary, bg: Colors.secondary };
+					// Check if this location has a recent review
+					const hasRecentReview = recentReviews.find(review => review.location === location.id);
+					const reviewUser = recentReviewUsers.find(user => user.id === hasRecentReview?.user_id);
+
 					return (
 						<Marker
 							key={location.id}
 							coordinate={location.coordinates}
 							anchor={{ x: 0.5, y: 0.5 }}
 							onPress={() => navigation.navigate('Reviews', { location })}
-							style={{ zIndex: Locations.nsysu.length - index }}
+							style={{ zIndex: hasRecentReview ? Locations.nsysu.length + 1 : Locations.nsysu.length - index }}
 						>
-							<View style={[styles.marker, { backgroundColor: iconColors.bg, borderColor: iconColors.fg + '66' }]}>
-								{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
-							</View>
+							{hasRecentReview ? 
+								<Animated.View style={[
+									styles.profileButton,
+									{ transform: [{ scale: markerScale }] }
+								]}>
+									{reviewUser?.picture ? (
+										<Image
+											source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${reviewUser.picture}` }}
+											style={[styles.profileImage, { borderColor: iconColors.fg + '66' }]}
+										/>
+									) : (
+										<View style={[styles.profilePlaceholder, { borderColor: iconColors.fg + '66' }]}>
+											<View style={{ marginTop: 8 }}>
+												<PersonIcon width={28} height={28} fill="#ccc" />
+											</View>
+										</View>
+									)}
+									<View style={styles.reviewTimeFromNow}>
+										<Text style={styles.reviewTimeFromNowText}>{getTimeFromNow(hasRecentReview.created_at)}</Text>
+									</View>
+								</Animated.View> 
+								: 
+								<View style={[
+									styles.marker,
+									{
+										backgroundColor: iconColors.bg,
+										borderColor: iconColors.fg + '66',
+									}
+								]}>
+									{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
+								</View>
+							}
 						</Marker>
 					)
 				})}
@@ -329,13 +486,13 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
 				/>
 			</View>
-			
+
 			{/* Terms of Use Modal */}
 			<Modal
 				transparent
 				visible={termsModalVisible}
 				animationType="none"
-				onRequestClose={() => {}}
+				onRequestClose={() => { }}
 			>
 				<View style={styles.termsOverlay}>
 					<Animated.View
@@ -345,7 +502,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 						]}
 					>
 						<Text style={styles.termsTitle}>{t('profile.termOfUse.title', 'Terms of Use')}</Text>
-						
+
 						<ScrollView
 							ref={scrollViewRef}
 							style={styles.termsScrollView}
@@ -356,7 +513,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 								{t('profile.termOfUse.content')}
 							</Text>
 						</ScrollView>
-						
+
 						<View style={styles.termsFooter}>
 							<TouchableOpacity
 								style={[
@@ -370,8 +527,8 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 									styles.agreeButtonText,
 									!canAgree && styles.agreeButtonTextDisabled
 								]}>
-									{canAgree ? 
-										t('profile.termOfUse.agree', 'I Agree') : 
+									{canAgree ?
+										t('profile.termOfUse.agree', 'I Agree') :
 										t('profile.termOfUse.scrollToAgree', 'Scroll to bottom to agree')
 									}
 								</Text>
@@ -414,6 +571,7 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.1,
 		shadowRadius: 3,
 		elevation: 0,
+		position: 'relative',
 	},
 	profileImage: {
 		width: 40,
@@ -432,6 +590,25 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		overflow: 'hidden',
+	},
+	reviewTimeFromNow: {
+		position: 'absolute',
+		bottom: 0,
+		right: 0,
+		backgroundColor: '#eee',
+		padding: 2,
+		borderRadius: 4,
+		shadowColor: '#000',
+		shadowOffset: { width: 1, height: 1 },
+		shadowOpacity: 0.2,
+		shadowRadius: 2,
+		elevation: 2,
+		borderWidth: 1,
+		borderColor: '#fff',
+	},
+	reviewTimeFromNowText: {
+		color: '#888',
+		fontSize: 9,
 	},
 	safeAreaContainer: {
 		position: 'absolute',

@@ -29,7 +29,7 @@ export const getTimeFromNow = (date: string): string => {
     if (diffHours === 0) {
       // Less than an hour ago
       const diffMinutes = Math.floor(diffTime / (1000 * 60));
-      return diffMinutes === 0 ? 'just now' : `${diffMinutes}m`;
+      return diffMinutes === 0 ? `${Math.round(diffTime / 1000)}s` : `${diffMinutes}m`;
     }
     return `${diffHours}h`;
   } else if (diffDays < 7) {
@@ -160,7 +160,7 @@ Here are relevant student posts tagged as helpful:
 -----
 
 ${reviews
-    .map((r, i) => `${i + 1}. ${r.review.title}:\nStudent: ${r.review.extra.is_anonymous ? 'Anonymous student' : r.user.name}\nPosted date: ${getDateString(r.review.created_at)}\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${Math.round(r.score * 100)}%)`)
+    .map((r, i) => `${i + 1}. ${r.review.title}:\nStudent: ${r.user.name}\nPosted date: ${getDateString(r.review.created_at)}\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${Math.round(r.score * 100)}%)`)
     .join('\n\n')}
 
 -----
