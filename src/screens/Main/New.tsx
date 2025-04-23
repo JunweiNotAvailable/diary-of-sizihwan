@@ -17,6 +17,7 @@ import { Input, Textarea, PrettyButton, Select } from '../../components';
 import { EmbeddingModel, ReviewModel } from '../../utils/Interfaces';
 import { Config } from '../../utils/Config';
 import { generateRandomString } from '../../utils/Functions';
+import { hasInappropriateContent } from '../../utils/ContentFilter';
 
 const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { t } = useTranslation();
@@ -58,12 +59,18 @@ const NewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
     if (!title.trim()) {
       setTitleError(t('new.errors.titleRequired', 'Title is required'));
       isValid = false;
+    } else if (hasInappropriateContent(title)) {
+      setTitleError(t('new.errors.inappropriate', 'Title contains inappropriate language'));
+      isValid = false;
     } else {
       setTitleError('');
     }
 
     if (!content.trim()) {
       setContentError(t('new.errors.contentRequired', 'Content is required'));
+      isValid = false;
+    } else if (hasInappropriateContent(content)) {
+      setContentError(t('new.errors.inappropriate', 'Content contains inappropriate language'));
       isValid = false;
     } else {
       setContentError('');

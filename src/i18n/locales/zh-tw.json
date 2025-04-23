@@ -137,7 +137,8 @@
       "titleRequired": "標題不能是空白",
       "contentRequired": "內容不能是空白",
       "locationRequired": "選擇一個地點",
-      "categoryRequired": "選擇至少一個類別"
+      "categoryRequired": "選擇至少一個類別",
+      "inappropriate": "內容可能違反社群規範"
     }
   },
   "ask": {

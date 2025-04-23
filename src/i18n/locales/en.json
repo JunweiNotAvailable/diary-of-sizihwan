@@ -137,7 +137,8 @@
       "titleRequired": "Title cannot be empty",
       "contentRequired": "Content cannot be empty",
       "locationRequired": "Please select a location",
-      "categoryRequired": "Please select at least one category"
+      "categoryRequired": "Please select at least one category",
+      "inappropriate": "Content may violate community guidelines"
     }
   },
   "ask": {

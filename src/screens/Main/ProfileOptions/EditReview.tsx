@@ -17,6 +17,7 @@ import { Input, Textarea, PrettyButton, Select } from '../../../components';
 import { EmbeddingModel, ReviewModel } from '../../../utils/Interfaces';
 import { Config } from '../../../utils/Config';
 import { generateRandomString } from '../../../utils/Functions';
+import { hasInappropriateContent } from '../../../utils/ContentFilter';
 
 const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { t } = useTranslation();
@@ -59,12 +60,18 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
     if (!review?.title.trim()) {
       setTitleError(t('new.errors.titleRequired', 'Title is required'));
       isValid = false;
+    } else if (review && hasInappropriateContent(review.title)) {
+      setTitleError(t('new.errors.inappropriate', 'Title contains inappropriate language'));
+      isValid = false;
     } else {
       setTitleError('');
     }
 
     if (!review?.content.trim()) {
       setContentError(t('new.errors.contentRequired', 'Content is required'));
+      isValid = false;
+    } else if (review && hasInappropriateContent(review.content)) {
+      setContentError(t('new.errors.inappropriate', 'Content contains inappropriate language'));
       isValid = false;
     } else {
       setContentError('');
