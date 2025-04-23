@@ -3,7 +3,7 @@
     "name": "西灣日記",
     "slug": "diary-of-sizihwan",
     "scheme": "diary-of-sizihwan",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "supportsTablet": true,
     "userInterfaceStyle": "light",
@@ -18,27 +18,22 @@
       "url": "https://u.expo.dev/c2e563cc-cd11-4a57-898f-445c69bf696d"
     },
     "plugins": [
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "允許這個應用程式存取您的相片來上傳你的頭貼圖片。"
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "允許這個應用程式存取您的相機來掃描學生證。"
-        }
-      ],
+      "expo-localization",
       "expo-secure-store",
-      "expo-localization"
+      "expo-image-picker",
+      "expo-camera"
     ],
+    "locales": {
+      "en": "./assets/locales/en.lproj",
+      "zh": "./assets/locales/zh.lproj"
+    },
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "這個應用程式需要使用您的位置來顯示地圖。",
+        "NSLocationWhenInUseUsageDescription": "這個應用程式需要使用您的位置來顯示在地圖上。",
         "NSCameraUsageDescription": "這個應用程式需要使用您的相機來掃描學生證。",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "這個應用程式需要使用您的相片來上傳你的頭貼圖片。"
+        "NSPhotoLibraryUsageDescription": "這個應用程式需要使用您的相片來上傳你的頭貼圖片。",
+        "CFBundleAllowMixedLocalizations": true
       },
       "config": {
         "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"

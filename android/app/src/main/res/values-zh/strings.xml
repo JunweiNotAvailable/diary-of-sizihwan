@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">西灣日記</string>
+    <!-- Permission Strings -->
+    <string name="permission_camera">允許這個應用程式存取您的相機來掃描學生證。</string>
+    <string name="permission_photos">允許這個應用程式存取您的相片來上傳你的頭貼圖片。</string>
+    <string name="permission_location">這個應用程式需要使用您的位置來顯示地圖。</string>
+</resources> 
