@@ -739,11 +739,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   reviewsList: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     paddingBottom: 24,
   },
   reviewItem: {
-    padding: 16,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.primaryLightGray,
   },
