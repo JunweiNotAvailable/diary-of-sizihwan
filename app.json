@@ -25,7 +25,7 @@
     ],
     "locales": {
       "en": "./locales/en.json",
-      "zh": "./locales/zh.json"
+      "zh": "./locales/zh-tw.json"
     },
     "ios": {
       "infoPlist": {
