@@ -23,10 +23,6 @@
       "expo-image-picker",
       "expo-camera"
     ],
-    "locales": {
-      "en": "./locales/en.json",
-      "zh": "./locales/zh.json"
-    },
     "ios": {
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -38,6 +34,10 @@
       "bundleIdentifier": "com.junweialreadyexist.diary-of-sizihwan",
       "supportsTablet": true,
       "requiresFullScreen": false
+    },
+    "locales": {
+      "en": "./locales/en.json",
+      "zh-Hant": "./locales/zh.json"
     },
     "android": {
       "permissions": [
