@@ -18,7 +18,7 @@ import { useAppState } from '../../contexts/AppContext';
 import { useTranslation } from 'react-i18next';
 import * as Location from 'expo-location';
 import { Colors, Map as MapDefaults, Locations, IconColors } from '../../utils/Constants';
-import { PlusIcon, LocateIcon, PersonIcon, BubbleIcon } from '../../utils/Svgs';
+import { PlusIcon, LocateIcon, PersonIcon, FireIcon } from '../../utils/Svgs';
 import { PrettyButton } from '../../components';
 import { LocationIcon } from '../../components/LocationIcon';
 import { Config } from '../../utils/Config';
@@ -221,8 +221,8 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 					setInitialRegion({
 						...locationCoords,
 						// ...beachLocation,
-						latitudeDelta: 0.0042,
-						longitudeDelta: 0.0042,
+						latitudeDelta: 0.004,
+						longitudeDelta: 0.004,
 					});
 
 					// Start watching for location updates
@@ -301,8 +301,18 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 		if (currentLocation && mapRef.current) {
 			mapRef.current.animateToRegion({
 				...currentLocation,
-				latitudeDelta: 0.0042,
-				longitudeDelta: 0.0042,
+				latitudeDelta: 0.004,
+				longitudeDelta: 0.004,
+			}, 500);
+		}
+	};
+
+	const centerOnSchoolCenter = () => {
+		if (currentLocation && mapRef.current) {
+			mapRef.current.animateToRegion({
+				...Locations.nsysu[1].coordinates,
+				latitudeDelta: 0.004,
+				longitudeDelta: 0.004,
 			}, 500);
 		}
 	};
@@ -469,7 +479,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 					style={styles.mapButton}
 					onPress={() => navigation.navigate('Latest')}
 					contentStyle={{ gap: 0 }}
-					children={<BubbleIcon width={24} height={24} fill={Colors.primary} />}
+					children={<FireIcon width={24} height={24} fill={Colors.primary} />}
 				/>
 				{/* Bottom primary button */}
 				<PrettyButton
@@ -481,7 +491,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 				{/* Relocate user button */}
 				<PrettyButton
 					style={styles.mapButton}
-					onPress={centerOnUser}
+					onPress={centerOnSchoolCenter}
 					contentStyle={{ gap: 0 }}
 					children={<LocateIcon width={24} height={24} stroke={Colors.primary} />}
 				/>

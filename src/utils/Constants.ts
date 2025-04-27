@@ -12,8 +12,8 @@ export const Map = {
   defaultLocation: {
     latitude: 22.6273,
     longitude: 120.2657,
-    latitudeDelta: 0.0042,
-    longitudeDelta: 0.0042,
+    latitudeDelta: 0.004,
+    longitudeDelta: 0.004,
   }
 }
 
@@ -61,9 +61,9 @@ export const Locations = {
     { id: "sw-beach", icon: 'sailboat', name: "西子灣海灘", name_en: "Sizihwan Beach", coordinates: {"latitude": 22.62600807316937, "longitude": 120.26357587426901} },
     { id: "il", icon: 'library', name: "圖資大樓(圖IL)", name_en: "Library and Information Building(圖IL)", coordinates: {"latitude": 22.627341580807375, "longitude": 120.26586145162584} },
     { id: "dorm-wuling", icon: 'bed', name: "學生宿舍-武嶺", name_en: "Dormitory - Wu-ling Villa", coordinates: {"latitude": 22.630826465076076, "longitude": 120.2637565881014} },
-    { id: "dorm-tsuiheng", icon: 'bed', name: "學生宿舍-翠亨", name_en: "Dormitory - Tsui-heng Villa", coordinates: {"latitude": 22.628534268487233, "longitude": 120.26864457875492} },
-    { id: "dorm-hl", icon: 'bed', name: "學生宿舍-H/L棟", name_en: "Dormitory - Building (H&L)", coordinates: {"latitude": 22.627821256650268, "longitude": 120.26838574558498} },
-    { id: 're-e', icon: 'fork', name: "E餐", name_en: "E Restaurant", coordinates: {"latitude": 22.628362514671952, "longitude": 120.26836093515158} },
+    { id: "dorm-tsuiheng", icon: 'bed', name: "學生宿舍-翠亨", name_en: "Dormitory - Tsui-heng Villa", coordinates: {"latitude": 22.628541, "longitude": 120.268303} },
+    { id: "dorm-hl", icon: 'bed', name: "學生宿舍-翠亨H/L棟", name_en: "Dormitory - Tsui-heng H&L Building", coordinates: {"latitude": 22.627821256650268, "longitude": 120.26838574558498} },
+    { id: 're-e', icon: 'fork', name: "E棟餐廳", name_en: "Tsui-heng E Restaurant", coordinates: {"latitude": 22.628295, "longitude": 120.267847} },
     { id: 're-sh', icon: 'fork', name: "山海樓", name_en: "Shanghai Restaurant", coordinates: {"latitude": 22.62843926234928, "longitude": 120.26472352445126} },
     { id: 're-milo', icon: 'fork', name: "米羅餐廳", name_en: "Milo Restaurant", coordinates: {"latitude": 22.63022827570103, "longitude": 120.26376463472845} },
     { id: "std-center", icon: 'users', name: "學生活動中心", name_en: "Student Center", coordinates: {"latitude": 22.628271840949587, "longitude": 120.2650474011898} },
@@ -78,7 +78,7 @@ export const Locations = {
     { id: "la", icon: 'book', name: "文學院(文LA)", name_en: "College of Liberal Arts(文LA)", coordinates: {"latitude": 22.634540875014988, "longitude": 120.26109617203474} },
     { id: "fa", icon: 'palette', name: "藝術大樓(文FA)", name_en: "Fine Art Building(文FA)", coordinates: {"latitude": 22.634389862055816, "longitude": 120.26216872036456} },
     { id: "admin", icon: 'admin', name: "行政大樓(行AD)", name_en: "Administration Building(行AD)", coordinates: {"latitude": 22.625850551918763, "longitude": 120.26585809886454} },
-    { id: "square", icon: 'tree', name: "中庭廣場", name_en: "Central Square", coordinates: {"latitude": 22.626635061662643, "longitude": 120.26588324457408} },
+    { id: "square", icon: 'tree', name: "中庭廣場", name_en: "Central Square", coordinates: {"latitude": 22.626411, "longitude": 120.265881} },
     { id: "gm", icon: 'dumbbell', name: "體育館(體GM)", name_en: "Gymnasium(體GM)", coordinates: {"latitude": 22.624776060302267, "longitude": 120.26631474494934} },
     { id: "syshall", icon: 'landmark', name: "逸仙館", name_en: "Sun Yat-sen Hall", coordinates: {"latitude": 22.62478998665862, "longitude": 120.26535015553236} },
     { id: "ir", icon: 'globe', name: "國際研究大樓(國IR)", name_en: "Building of International Research(國IR)", coordinates: {"latitude": 22.623816066737394, "longitude": 120.26607602834702} },
