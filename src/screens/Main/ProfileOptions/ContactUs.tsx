@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Colors } from '../../../utils/Constants';
 import { Input, PrettyButton } from '../../../components';
 import { useTranslation } from 'react-i18next';
-import { PlusIcon, PrettyLoadingIcon } from '../../../utils/Svgs';
+import { PlusIcon, PrettyLoadingIcon, ChevronDownIcon } from '../../../utils/Svgs';
 import { useAppState } from '../../../contexts/AppContext';
 import { Config } from '../../../utils/Config';
 
@@ -75,18 +75,18 @@ const ContactUs = ({ navigation }: { navigation: any }) => {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          {/* Header with close button */}
+          {/* Header with back button */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('profile.contactUs.title')}</Text>
             <PrettyButton
-              style={styles.closeButton}
+              style={[styles.headerButton, { alignItems: 'flex-start' }]}
               onPress={handleClose}
-              contentStyle={{ gap: 0 }}
             >
-              <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-                <PlusIcon width={14} height={14} />
+              <View style={{ transform: [{ rotate: '90deg' }] }}>
+                <ChevronDownIcon width={20} height={20} />
               </View>
             </PrettyButton>
+            <Text style={styles.headerTitle}>{t('profile.contactUs.title')}</Text>
+            <View style={styles.headerButton} />
           </View>
 
           <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
@@ -166,27 +166,28 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   header: {
+    height: 50,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    position: 'relative',
+    borderBottomColor: Colors.primaryLightGray,
+    width: '100%',
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
   },
-  closeButton: {
-    position: 'absolute',
-    right: 20,
-    width: 28,
-    height: 28,
-    borderRadius: 16,
-    backgroundColor: '#f3f3f3',
-    alignItems: 'center',
+  headerButton: {
+    padding: 0,
+    margin: 0,
+    backgroundColor: '#0000',
+    width: 40,
+    height: 40,
     justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   scrollContent: {
     flex: 1,

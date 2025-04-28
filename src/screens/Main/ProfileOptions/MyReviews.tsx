@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Categories, Colors, Locations } from '../../../utils/Constants';
-import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon, BlockIcon } from '../../../utils/Svgs';
+import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon, BlockIcon, ChevronDownIcon } from '../../../utils/Svgs';
 import { Config } from '../../../utils/Config';
 import { PrettyButton, BottomModal, OptionItem } from '../../../components';
 import { ReviewModel, UserModel } from '../../../utils/Interfaces';
@@ -435,18 +435,18 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
   return (
     <SafeAreaView style={styles.modalContainer}>
       <View style={styles.modalContent}>
-        {/* Header with close button */}
+        {/* Header with back button */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('profile.myReviews.title', 'My Reviews')}</Text>
           <PrettyButton
-            style={styles.closeButton}
+            style={[styles.headerButton, { alignItems: 'flex-start' }]}
             onPress={handleClose}
-            contentStyle={{ gap: 0 }}
           >
-            <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-              <PlusIcon width={14} height={14} />
+            <View style={{ transform: [{ rotate: '90deg' }] }}>
+              <ChevronDownIcon width={20} height={20} />
             </View>
           </PrettyButton>
+          <Text style={styles.headerTitle}>{t('profile.myReviews.title', 'My Reviews')}</Text>
+          <View style={styles.headerButton} />
         </View>
 
         {/* Use FlatList with ListHeaderComponent instead of nested ScrollView */}
@@ -555,17 +555,28 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   header: {
+    height: 50,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    paddingHorizontal: 10,
+    borderBottomColor: Colors.primaryLightGray,
+    width: '100%',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    position: 'relative',
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  headerButton: {
+    padding: 0,
+    margin: 0,
+    backgroundColor: '#0000',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   closeButton: {
     position: 'absolute',

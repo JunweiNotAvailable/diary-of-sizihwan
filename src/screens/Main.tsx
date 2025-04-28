@@ -46,11 +46,13 @@ const MainScreen = ({ route }: { route: any }) => {
 			<Stack.Screen
         name="New"
         component={NewScreen}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Reviews */}
 			<Stack.Screen
         name="Reviews"
         component={ReviewsScreen}
+        options={getModalOptions('slide_from_bottom')}
       />
       {/* Latest */}
       <Stack.Screen name="Latest" component={LatestScreen}

@@ -488,21 +488,23 @@ Date Reported: ${new Date().toISOString()}
     <SafeAreaView style={styles.container}>
       {/* header */}
       <View style={styles.locationHeader}>
-        {/* Title */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.title} ellipsizeMode="middle" numberOfLines={1}>
-            {t('reviews.latest')}
-          </Text>
-        </View>
+        {/* Back button */}
         <PrettyButton
-          style={styles.closeButton}
+          style={[styles.headerButton, { alignItems: 'flex-start' }]}
           onPress={() => navigation.goBack()}
-          contentStyle={{ gap: 0 }}
         >
-          <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-            <PlusIcon width={14} height={14} />
+          <View style={{ transform: [{ rotate: '90deg' }] }}>
+            <ChevronDownIcon width={20} height={20} />
           </View>
         </PrettyButton>
+        
+        {/* Title */}
+        <Text style={styles.title} ellipsizeMode="middle" numberOfLines={1}>
+          {t('reviews.latest')}
+        </Text>
+        
+        {/* Empty view for balance */}
+        <View style={styles.headerButton} />
       </View>
 
       <FlatList
@@ -617,9 +619,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 16,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
   },
   loadingContainer: {
     flex: 1,
@@ -654,19 +653,15 @@ const styles = StyleSheet.create({
     width: '100%',
     borderBottomWidth: 1,
   },
-  closeButton: {
-    position: 'absolute',
-    right: 20,
-    width: 28,
-    height: 28,
-    borderRadius: 16,
-    backgroundColor: '#f3f3f3',
-    alignItems: 'center',
+  headerButton: {
+    padding: 0,
+    margin: 0,
+    backgroundColor: '#0000',
+    width: 40,
+    height: 40,
     justifyContent: 'center',
-  },
-  titleContainer: {
-    flex: 1,
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    flexShrink: 0,
   },
   title: {
     fontSize: 18,
