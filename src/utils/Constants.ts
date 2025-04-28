@@ -79,9 +79,7 @@ export const Locations = {
     { id: "fa", icon: 'palette', name: "藝術大樓(文FA)", name_en: "Fine Art Building(文FA)", coordinates: {"latitude": 22.634389862055816, "longitude": 120.26216872036456} },
     { id: "admin", icon: 'admin', name: "行政大樓(行AD)", name_en: "Administration Building(行AD)", coordinates: {"latitude": 22.625850551918763, "longitude": 120.26585809886454} },
     { id: "square", icon: 'tree', name: "中庭廣場", name_en: "Central Square", coordinates: {"latitude": 22.626411, "longitude": 120.265881} },
-    { id: "gm", icon: 'dumbbell', name: "體育館(體GM)", name_en: "Gymnasium(體GM)", coordinates: {"latitude": 22.624776060302267, "longitude": 120.26631474494934} },
-    { id: "syshall", icon: 'landmark', name: "逸仙館", name_en: "Sun Yat-sen Hall", coordinates: {"latitude": 22.62478998665862, "longitude": 120.26535015553236} },
-    { id: "ir", icon: 'globe', name: "國際研究大樓(國IR)", name_en: "Building of International Research(國IR)", coordinates: {"latitude": 22.623816066737394, "longitude": 120.26607602834702} },
+    { id: "gm", icon: 'landmark', name: "體育館、逸仙館、國際研究大樓", name_en: "Gymnasium, Sun Yat-sen Hall, Building of International Research", coordinates: {"latitude": 22.624316, "longitude": 120.265836} },
     { id: "field", icon: 'flag', name: "運動場", name_en: "Athletic Field", coordinates: {"latitude": 22.623306048087187, "longitude": 120.26456627994776} },
   ]
 }
