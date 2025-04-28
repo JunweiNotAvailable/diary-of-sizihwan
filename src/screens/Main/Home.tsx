@@ -392,7 +392,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 							coordinate={location.coordinates}
 							anchor={{ x: 0.5, y: 0.5 }}
 							onPress={() => navigation.navigate('Reviews', { location })}
-							style={{ zIndex: hasRecentReview ? Locations.nsysu.length + 1 : Locations.nsysu.length - index }}
+							style={[styles.markerContainer, { zIndex: hasRecentReview ? Locations.nsysu.length + 1 : Locations.nsysu.length - index }]}
 						>
 							{hasRecentReview ? 
 								<Animated.View style={[
@@ -572,10 +572,10 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	profileButton: {
-		width: 40,
-		height: 40,
+		width: 32,
+		height: 32,
 		backgroundColor: '#f3f3f3',
-		borderRadius: 16,
+		borderRadius: 12,
 		shadowColor: '#0008',
 		shadowOffset: { width: 0, height: 1 },
 		shadowOpacity: 0.1,
@@ -584,16 +584,16 @@ const styles = StyleSheet.create({
 		position: 'relative',
 	},
 	profileImage: {
-		width: 40,
-		height: 40,
-		borderRadius: 16,
+		width: 32,
+		height: 32,
+		borderRadius: 12,
 		borderWidth: 2,
 		borderColor: 'white',
 	},
 	profilePlaceholder: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
+		width: 32,
+		height: 32,
+		borderRadius: 12,
 		backgroundColor: '#ddd',
 		borderWidth: 2,
 		borderColor: 'white',
@@ -696,12 +696,16 @@ const styles = StyleSheet.create({
 		fontWeight: '600',
 		fontSize: 16,
 	},
-	marker: {
+	markerContainer: {
 		width: 40,
 		height: 40,
+	},
+	marker: {
+		width: 32,
+		height: 32,
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderRadius: 16,
+		borderRadius: 12,
 		borderWidth: 2,
 	},
 	markerText: {

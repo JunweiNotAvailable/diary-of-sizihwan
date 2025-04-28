@@ -4,7 +4,7 @@ import { Colors } from '../../utils/Constants'
 import { Config } from '../../utils/Config'
 import { Input, PrettyButton } from '../../components'
 import { t } from 'i18next'
-import { PlusIcon, PrettyLoadingIcon, SendIcon } from '../../utils/Svgs'
+import { PlusIcon, PrettyLoadingIcon, SendIcon, ChevronDownIcon } from '../../utils/Svgs'
 import { AskModel, ReviewModel, UserModel } from '../../utils/Interfaces'
 import { generateRandomString, getSystemPrompt } from '../../utils/Functions'
 import { useAppState } from '../../contexts/AppContext'
@@ -185,16 +185,16 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('ask.title', 'Ask Question')}</Text>
         <PrettyButton
-          style={styles.closeButton}
+          style={[styles.headerButton, { alignItems: 'flex-start' }]}
           onPress={handleClose}
-          contentStyle={{ gap: 0 }}
         >
-          <View style={{ transform: [{ rotate: '45deg' }], width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
-            <PlusIcon width={14} height={14} />
+          <View style={{ transform: [{ rotate: '90deg' }] }}>
+            <ChevronDownIcon width={20} height={20} />
           </View>
         </PrettyButton>
+        <Text style={styles.headerTitle}>{t('ask.title', 'Ask Question')}</Text>
+        <View style={styles.headerButton} />
       </View>
 
       <KeyboardAvoidingView
@@ -298,27 +298,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    height: 50,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    position: 'relative',
+    borderBottomColor: Colors.primaryLightGray,
+    width: '100%',
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
   },
-  closeButton: {
-    position: 'absolute',
-    right: 20,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
+  headerButton: {
+    padding: 0,
+    margin: 0,
+    backgroundColor: '#0000',
+    width: 40,
+    height: 40,
     justifyContent: 'center',
-    backgroundColor: '#f3f3f3',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   chatContainer: {
     flex: 1,
@@ -388,6 +389,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 12,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 24,
     borderTopWidth: 1,
     borderTopColor: '#eee',
     backgroundColor: '#fff',
