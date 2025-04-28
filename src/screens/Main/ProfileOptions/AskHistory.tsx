@@ -72,6 +72,7 @@ const AskHistory = ({ navigation }: { navigation: any }) => {
         {/* Use FlatList with ListHeaderComponent instead of nested ScrollView */}
         <FlatList
           data={asks}
+          removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
           keyExtractor={(item) => item.id}
           renderItem={renderAskItem}
           ListEmptyComponent={

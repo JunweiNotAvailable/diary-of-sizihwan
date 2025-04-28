@@ -9,6 +9,7 @@ import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon } from '../../
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText } from '../../components';
+import { Platform } from 'react-native';
 
 const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const { reviews = [] } = route.params || {};
@@ -278,6 +279,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
           const scoreB = typeof b?.score === 'number' ? b.score : 0;
           return scoreB - scoreA;
         })}
+        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         keyExtractor={(item, index) => (item?.review?.id || `review-${index}`)}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}

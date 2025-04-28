@@ -3,7 +3,7 @@
     "name": "西灣日記 - Diary of Sizihwan",
     "slug": "diary-of-sizihwan",
     "scheme": "diary-of-sizihwan",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "supportsTablet": true,
     "userInterfaceStyle": "light",
@@ -50,13 +50,13 @@
         }
       },
       "jsEngine": "hermes",
-      "package": "com.junweialreadyexist.diary-of-sizihwan"
+      "package": "com.junweialreadyexist.diaryofsizihwan"
     },
     "extra": {
       "eas": {
         "projectId": "e270cb44-b7c5-493e-85a5-96bed795d35c"
       }
     },
-    "runtimeVersion": "1.0.1"
+    "runtimeVersion": "1.0.2"
   }
 }

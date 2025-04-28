@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Platform } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import { Colors, Categories, Locations } from '../../utils/Constants';
@@ -553,6 +553,7 @@ Date Reported: ${new Date().toISOString()}
 
       <FlatList
         data={reviews}
+        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         keyExtractor={(item) => item.id}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
@@ -572,6 +573,7 @@ Date Reported: ${new Date().toISOString()}
       >
         <FlatList
           data={Locations.nsysu}
+          removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
           renderItem={renderLocationItem}
           keyExtractor={(item) => item.id}
           style={styles.locationsList}

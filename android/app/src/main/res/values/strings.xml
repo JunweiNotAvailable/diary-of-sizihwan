@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Sizihwan Diary</string>
-    <!-- Permission Strings -->
-    <string name="permission_camera">Allow this app to access your camera to scan student ID.</string>
-    <string name="permission_photos">Allow this app to access your photos to upload your profile picture.</string>
-    <string name="permission_location">This app needs to use your location to display your position on the map.</string>
-</resources> 

@@ -452,6 +452,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
         {/* Use FlatList with ListHeaderComponent instead of nested ScrollView */}
         <FlatList
           data={reviews}
+          removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
           keyExtractor={(item) => item.id}
           renderItem={renderReviewItem}
           ListEmptyComponent={
@@ -513,6 +514,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
           ) : likeUsers.length > 0 ? (
             <FlatList
               data={likeUsers}
+              removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
               keyExtractor={(item) => item.id}
               renderItem={renderLikeUserItem}
               style={styles.likeUsersList}

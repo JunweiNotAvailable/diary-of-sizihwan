@@ -512,6 +512,7 @@ Date Reported: ${new Date().toISOString()}
         {/* Use FlatList with ListHeaderComponent instead of nested ScrollView */}
         <FlatList
           data={reviews}
+          removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
           keyExtractor={(item) => item.id}
           renderItem={renderReviewItem}
           ListHeaderComponent={renderProfileHeader}

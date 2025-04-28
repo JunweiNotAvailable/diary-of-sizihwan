@@ -128,6 +128,7 @@ const Select: React.FC<SelectProps> = ({
       <FlatList
         data={options}
         style={{ maxHeight: 350 }}
+        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
