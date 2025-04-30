@@ -8,6 +8,7 @@ import {
   StyleProp,
   ViewStyle,
   TextStyle,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Colors } from '../utils/Constants';
 
@@ -39,7 +40,7 @@ const PrettyButton: React.FC<PrettyButtonProps> = ({
   const animatedScale = useRef(new Animated.Value(1)).current;
 
   // Create an animated version of Pressable
-  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+  const AnimatedPressable = Animated.createAnimatedComponent(TouchableWithoutFeedback);
 
   const handlePressIn = () => {
     Animated.spring(animatedScale, {
@@ -72,9 +73,6 @@ const PrettyButton: React.FC<PrettyButtonProps> = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled || loading}
-      android_ripple={{
-        color: type === 'primary' ? '#2980b9' : '#e1f0fa',
-      }}
     >
       {children ? (
         children
