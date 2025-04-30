@@ -40,7 +40,7 @@ const PrettyButton: React.FC<PrettyButtonProps> = ({
   const animatedScale = useRef(new Animated.Value(1)).current;
 
   // Create an animated version of Pressable
-  const AnimatedPressable = Animated.createAnimatedComponent(TouchableWithoutFeedback);
+  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
   const handlePressIn = () => {
     Animated.spring(animatedScale, {
