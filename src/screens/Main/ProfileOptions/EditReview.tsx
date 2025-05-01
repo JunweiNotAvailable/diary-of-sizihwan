@@ -196,7 +196,12 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
               </View>
             </PrettyButton>
             <Text style={styles.headerTitle}>{t('profile.myReviews.editReviewTitle', 'Edit Review')}</Text>
-            <View style={styles.headerButton} />
+            <PrettyButton
+              style={[styles.headerButton, { alignItems: 'flex-start' }]}
+              onPress={handlePost}
+            >
+              {isSubmitting ? <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray} /> : <Text style={{ fontSize: 14, fontWeight: '600' }}>{t('general.save', 'Save')}</Text>}
+            </PrettyButton>
           </View>
 
           {/* Content */}
@@ -252,27 +257,7 @@ const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }
               labelStyle={{ fontWeight: '600' }}
               buttonStyle={{ borderRadius: 12 }}
             />
-
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>{t('new.allowReference', 'Allow us to reference this post')}</Text>
-              <Switch
-                value={review?.allow_reference}
-                onValueChange={review ? (value) => setReview({ ...review, allow_reference: value }) : undefined}
-                trackColor={{ false: '#ddd', true: Colors.secondary }}
-                thumbColor={review?.allow_reference ? Colors.primary : '#f4f3f4'}
-              />
-            </View>
           </ScrollView>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <PrettyButton
-              title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke='#fff' /> : t('general.save', 'Save')}
-              disabled={isSubmitting}
-              onPress={handlePost}
-              style={{ width: '100%' }}
-            />
-          </View>
         </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
