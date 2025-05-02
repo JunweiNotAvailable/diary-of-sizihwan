@@ -464,11 +464,6 @@ Date Reported: ${new Date().toISOString()}
               </View>
             ))}
           </View>
-          {/* likes */}
-          <PrettyButton style={styles.likesContainer} onPress={async () => await toggleLike(item)}>
-            <ThumbsUpIcon width={24} height={24} fill={item.extra.likes.includes(user?.id) ? Colors.like : Colors.primaryGray + '88'} />
-            <Text style={[styles.likesText, { color: item.extra.likes.includes(user?.id) ? Colors.like : Colors.primaryGray + '88' }]}>{item.extra.likes.length}</Text>
-          </PrettyButton>
         </View>
       </View>
     );

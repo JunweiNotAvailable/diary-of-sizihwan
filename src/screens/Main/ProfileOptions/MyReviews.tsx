@@ -360,27 +360,6 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
               </View>
             ))}
           </View>
-          {/* likes */}
-          <PrettyButton 
-            style={[
-              styles.likesContainer, 
-              { backgroundColor: Colors.secondaryGray }
-            ]} 
-            onPress={() => handleShowLikes(item)}
-            contentStyle={{ gap: 6 }}
-          >
-            <ThumbsUpIcon 
-              width={16} 
-              height={16} 
-              fill={Colors.primaryGray} 
-            />
-            <Text style={[
-              styles.likesText, 
-              { color: Colors.primaryGray }
-            ]}>
-              {item.extra.likes.length}
-            </Text>
-          </PrettyButton>
         </View>
       </View>
     );
