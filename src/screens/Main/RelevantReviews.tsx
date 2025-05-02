@@ -233,25 +233,6 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
               </View>
             ))}
           </View>
-          {/* Likes */}
-          <PrettyButton 
-            style={styles.likesContainer} 
-            onPress={() => toggleLike(review)}
-          >
-            <ThumbsUpIcon 
-              width={24} 
-              height={24} 
-              fill={review.extra.likes.includes(user?.id || '') ? Colors.like : Colors.primaryGray + '88'} 
-            />
-            <Text 
-              style={[
-                styles.likesText, 
-                { color: review.extra.likes.includes(user?.id || '') ? Colors.like : Colors.primaryGray + '88' }
-              ]}
-            >
-              {review.extra.likes.length}
-            </Text>
-          </PrettyButton>
         </View>
       </View>
     );
