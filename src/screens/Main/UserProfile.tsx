@@ -36,6 +36,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
+  const [isTranslatingAll, setIsTranslatingAll] = useState(false);
   const [showScoreInfo, setShowScoreInfo] = useState(false);
   // Options modals
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
@@ -137,6 +138,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
 
     try {
       // Determine source language based on current locale
+      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
       const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
 
       // Make the translation request
@@ -147,6 +149,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
         },
         body: JSON.stringify({
           text: content,
+          sourceLang,
           targetLang,
         })
       });
@@ -176,6 +179,82 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
         ...prev,
         [reviewId]: false
       }));
+    }
+  };
+
+  const translateAllReviews = async () => {
+    if (isTranslatingAll || reviews.length === 0) return;
+
+    setIsTranslatingAll(true);
+
+    try {
+      // Determine source language based on current locale
+      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
+      const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
+
+      // Process reviews in batches to update UI more frequently
+      const processReviews = async () => {
+        for (const review of reviews) {
+          // Skip if already translated
+          if (translatedReviews[review.id] && showingTranslations[review.id]) continue;
+
+          // Set as translating for this specific review
+          setIsTranslating(prev => ({
+            ...prev,
+            [review.id]: true
+          }));
+
+          try {
+            // Make the translation request
+            const response = await fetch(`${Config.api.url}/translate`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                text: review.content,
+                sourceLang,
+                targetLang,
+              })
+            });
+
+            if (!response.ok) {
+              console.error(`Translation failed for review ${review.id}`);
+              continue; // Skip to next review instead of stopping everything
+            }
+
+            const data = (await response.json()).data;
+
+            // Store the translated text
+            setTranslatedReviews(prev => ({
+              ...prev,
+              [review.id]: data.translatedText
+            }));
+
+            // Show the translation
+            setShowingTranslations(prev => ({
+              ...prev,
+              [review.id]: true
+            }));
+          } catch (error) {
+            console.error(`Error translating review ${review.id}:`, error);
+          } finally {
+            // Clear translating state for this review
+            setIsTranslating(prev => ({
+              ...prev,
+              [review.id]: false
+            }));
+          }
+        }
+      };
+
+      // Start the translation process
+      processReviews().finally(() => {
+        setIsTranslatingAll(false);
+      });
+    } catch (error) {
+      console.error('Bulk translation error:', error);
+      setIsTranslatingAll(false);
     }
   };
 
@@ -470,7 +549,27 @@ Date Reported: ${new Date().toISOString()}
 
         {/* Reviews header */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('userProfile.reviews').replace('{{name}}', user?.name || '')}</Text>
+          <View style={styles.reviewsHeaderContainer}>
+            <Text style={styles.sectionTitle}>{t('userProfile.reviews').replace('{{name}}', user?.name || '')}</Text>
+            {reviews.length > 0 && (
+              <PrettyButton
+                style={styles.translateAllButton}
+                onPress={translateAllReviews}
+                disabled={isTranslatingAll || reviews.length === 0}
+              >
+                <View style={styles.translateAllButtonContent}>
+                  {isTranslatingAll ? (
+                    <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
+                  ) : (
+                    <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
+                  )}
+                  <Text style={styles.translateAllButtonText}>
+                    {t('reviews.translateAll', 'Translate all')}
+                  </Text>
+                </View>
+              </PrettyButton>
+            )}
+          </View>
           <View style={{ borderBottomWidth: 1, borderBottomColor: Colors.primaryLightGray }} />
         </View>
       </>
@@ -966,6 +1065,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  reviewsHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  translateAllButton: {
+    backgroundColor: '#0000',
+    alignItems: 'center',
+  },
+  translateAllButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  translateAllButtonText: {
+    color: Colors.primaryGray + '88',
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
 

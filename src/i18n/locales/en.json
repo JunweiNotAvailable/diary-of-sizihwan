@@ -160,6 +160,7 @@
     "casual": "Daily Life"
   },
   "reviews": {
+    "translateAll": "Translate all",
     "loading": "Loading...",
     "empty": "No reviews here yet",
     "anonymousUser": "Anonymous User",
