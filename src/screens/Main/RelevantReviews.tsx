@@ -1,11 +1,11 @@
 import { View, Text, FlatList, StyleSheet, Image, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Colors } from '../../utils/Constants';
+import { Categories, Colors } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon } from '../../utils/Svgs';
+import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon, PrettyLoadingIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText } from '../../components';
@@ -19,6 +19,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
+  const [isTranslatingAll, setIsTranslatingAll] = useState(false);
   const { user, locale } = useAppState();
   const { t } = useTranslation();
 
@@ -101,7 +102,8 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
     }));
 
     try {
-      // Determine target language based on current locale
+      // Determine source language based on current locale
+      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
       const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
 
       // Make the translation request
@@ -112,6 +114,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
         },
         body: JSON.stringify({
           text: content,
+          sourceLang,
           targetLang,
         })
       });
@@ -140,6 +143,88 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
         ...prev,
         [reviewId]: false
       }));
+    }
+  };
+
+  const translateAllReviews = async () => {
+    if (isTranslatingAll || reviews.length === 0) return;
+
+    setIsTranslatingAll(true);
+
+    try {
+      // Determine source language based on current locale
+      const sourceLang = locale === 'zh' ? 'en' : 'zh-TW';
+      const targetLang = locale === 'zh' ? 'zh-TW' : 'en';
+
+      // Process reviews in batches to update UI more frequently
+      const processReviews = async () => {
+        for (const item of reviews) {
+          if (!item?.review?.id || !item?.review?.content) continue;
+          
+          const review = item.review;
+          const reviewId = review.id;
+          const content = review.content;
+          
+          // Skip if already translated
+          if (translatedReviews[reviewId] && showingTranslations[reviewId]) continue;
+
+          // Set as translating for this specific review
+          setIsTranslating(prev => ({
+            ...prev,
+            [reviewId]: true
+          }));
+
+          try {
+            // Make the translation request
+            const response = await fetch(`${Config.api.url}/translate`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                text: content,
+                sourceLang,
+                targetLang,
+              })
+            });
+
+            if (!response.ok) {
+              console.error(`Translation failed for review ${reviewId}`);
+              continue; // Skip to next review instead of stopping everything
+            }
+
+            const data = (await response.json()).data;
+
+            // Store the translated text
+            setTranslatedReviews(prev => ({
+              ...prev,
+              [reviewId]: data.translatedText
+            }));
+
+            // Show the translation
+            setShowingTranslations(prev => ({
+              ...prev,
+              [reviewId]: true
+            }));
+          } catch (error) {
+            console.error(`Error translating review ${reviewId}:`, error);
+          } finally {
+            // Clear translating state for this review
+            setIsTranslating(prev => ({
+              ...prev,
+              [reviewId]: false
+            }));
+          }
+        }
+      };
+
+      // Start the translation process
+      processReviews().finally(() => {
+        setIsTranslatingAll(false);
+      });
+    } catch (error) {
+      console.error('Bulk translation error:', error);
+      setIsTranslatingAll(false);
     }
   };
 
@@ -228,12 +313,37 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
           {/* Categories */}
           <View style={styles.categoriesContainer}>
             {review.categories && review.categories.map((category, index) => (
-              <View key={index} style={styles.categoryTag}>
-                <Text style={styles.categoryText}>{t(`categories.${category}`)}</Text>
+              <View key={index} style={[styles.categoryTag, { backgroundColor: Categories.find((c: any) => c.name === category)?.color + '1a' }]}>
+                <Text style={[styles.categoryText, { color: Categories.find((c: any) => c.name === category)?.color }]}>{t(`categories.${category}`)}</Text>
               </View>
             ))}
           </View>
         </View>
+      </View>
+    );
+  };
+
+  const renderTranslateHeader = () => {
+    if (reviews.length === 0) return null;
+    
+    return (
+      <View style={styles.beforeListContainer}>
+        <PrettyButton
+          style={styles.translateAllButton}
+          onPress={translateAllReviews}
+          disabled={isTranslatingAll || reviews.length === 0}
+        >
+          <View style={styles.translateAllButtonContent}>
+            {isTranslatingAll ? (
+              <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
+            ) : (
+              <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
+            )}
+            <Text style={styles.translateAllButtonText}>
+              {t('reviews.translateAll', 'Translate all')}
+            </Text>
+          </View>
+        </PrettyButton>
       </View>
     );
   };
@@ -264,6 +374,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
         keyExtractor={(item, index) => (item?.review?.id || `review-${index}`)}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
+        ListHeaderComponent={renderTranslateHeader}
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('relevantReviews.empty', 'No relevant reviews found')}</Text>
         }
@@ -433,6 +544,28 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontSize: 16,
     color: Colors.primaryGray,
+  },
+  beforeListContainer: {
+    paddingHorizontal: 10,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+  },
+  translateAllButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    backgroundColor: '#0000',
+    alignItems: 'center',
+  },
+  translateAllButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  translateAllButtonText: {
+    color: Colors.primaryGray + '88',
+    fontSize: 13,
+    fontWeight: '500',
   },
 });
 
