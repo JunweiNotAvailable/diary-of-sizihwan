@@ -183,12 +183,6 @@ const AskScreen = ({ navigation, route }: { navigation: any, route: any }) => {
           message,
         })
       });
-      console.log(getSystemPrompt(
-        { latitude: Math.round(userLocation.latitude * 100000) / 100000, longitude: Math.round(userLocation.longitude * 100000) / 100000 }, 
-        locationData, 
-        newResponseReviews, 
-        locale === 'en' ? 'English' : 'zh-TW'
-      ));
       const responseText = (await askResponse.json()).data.response;
       setResponse(responseText);
     
