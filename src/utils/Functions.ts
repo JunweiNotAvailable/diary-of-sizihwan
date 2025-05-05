@@ -1,5 +1,6 @@
 import { ReviewModel, UserModel } from "./Interfaces";
 import { useEffect, useRef, useState } from 'react';
+import { Locations } from "./Constants";
 
 export const generateRandomString = (length: number, prefix?: string) => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -151,15 +152,124 @@ export const useChatSocket = (url: string, systemPrompt: string, userMessage: st
   return response;
 };
 
+// Get the location detection prompt with available locations
+export const getLocationCheckPrompt = (): string => {
+  // Format the available locations as a readable list
+  const locationsList = Locations.nsysu.map(loc => 
+    `- ID: "${loc.id}", Chinese Name: "${loc.name}", English Name: "${loc.name_en}"`
+  ).join('\n');
+  
+  return `
+You are a location detection assistant for a campus app. Your sole job is to analyze if the user's message is location-based or not.
+
+Available campus locations:
+${locationsList}
+
+Examples of location-based questions:
+- Where is the library located?
+- How do I get to the student center?
+- What's the closest convenience store to the engineering building?
+- Where can I find food on campus?
+- How far is the dormitory from the main building?
+- Are there any study spaces in the science building?
+If message is location-based, but not about specific locations, should return all locations, example of these types of questions:
+- Where am I?
+- Where's the nearest study spot in campus?
+- Where's the nearest restroom?
+
+IMPORTANT: If the user is asking about specific campus locations, respond with a valid JSON object in the following format:
+{
+  "isLocationQuestion": true,
+  "locations": ["location_id1", "location_id2", ...]
+}
+
+Where "locations" is an array containing the IDs of relevant locations from the available campus locations listed above. Include ALL possible locations that might be relevant to the query.
+
+If the query is not about physical locations, respond with:
+{
+  "isLocationQuestion": false
+}
+
+DO NOT include any explanatory text, ONLY return the JSON object.
+`.trim();
+};
+
+// Legacy constant for backward compatibility
+export const checkLocationPrompt = getLocationCheckPrompt();
+
+// Helper function to calculate distance between two coordinates in meters
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = lat1 * Math.PI/180;
+  const φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+};
+
 // Get the system prompt
-export const getSystemPrompt = (reviews: { review: ReviewModel, score: number, user: UserModel }[], language?: 'English' | 'zh-TW'): string => `
-You are a helpful and honest campus assistant AI. A student has asked a question about campus life. Your job is to answer them using the experiences and reviews written by other students.
+export const getSystemPrompt = (userLocation: { latitude: number, longitude: number }, locations: { name: string, name_en: string, coordinates: { latitude: number, longitude: number } }[], reviews: { review: ReviewModel, score: number, user: UserModel }[], language?: 'English' | 'zh-TW'): string => {
+  const isEnglish = language !== 'zh-TW';
+  
+  // Create location information section if locations are provided
+  let locationInfo = '';
+  if (locations && locations.length > 0) {
+    // Map locations with distance information if user location is available
+    const locationsWithDistance = locations.map((loc, i) => {
+      let locationText = `${isEnglish ? loc.name_en : loc.name}`;
+      
+      // Add distance information if user location is available
+      if (userLocation && loc.coordinates) {
+        const distance = calculateDistance(
+          userLocation.latitude, 
+          userLocation.longitude, 
+          loc.coordinates.latitude, 
+          loc.coordinates.longitude
+        );
+        
+        // Convert to appropriate unit and add to location info
+        const distanceText = distance < 1000 
+          ? `${Math.round(distance)} meters` 
+          : `${(distance / 1000).toFixed(1)} km`;
+          
+        locationText += ` (${distanceText} from your current location)`;
+      }
+      
+      return locationText;
+    }).join('\n');
+    
+    // Add extra instructions for directions if user location is available
+    const directionsInstruction = userLocation 
+      ? "\n- Directions from the student's current location" 
+      : "";
+    
+    locationInfo = `
+You need to provide information about the following campus locations if user has asked about them:
+${locationsWithDistance}
+`;
+  }
+  
+  return `
+You are a helpful and honest campus assistant AI. A student has asked a question about campus life. Your job is to answer them using the experiences and reviews written by other students.${locationInfo ? '\n' + locationInfo : ''}
 
 Here are relevant student posts tagged as helpful:
 -----
 
 ${reviews
-    .map((r, i) => `${i + 1}. ${r.review.title}:\nStudent: ${r.user.name}\nPosted date: ${getDateString(r.review.created_at)}\nLocation: ${r.review.location}\n${r.review.content}\n\n(Relevance score: ${Math.round(r.score * 100)}%)`)
+    .map((r, i) => {
+      // Find the location object from Locations.nsysu based on the location ID
+      const locationObj = Locations.nsysu.find((loc: { id: string, name: string, name_en: string }) => loc.id === r.review.location);
+      // Use the appropriate name based on language
+      const locationName = locationObj ? (isEnglish ? locationObj.name_en : locationObj.name) : r.review.location;
+      
+      return `${i + 1}. ${r.review.title}:\nStudent: ${r.user.name}\nPosted date: ${getDateString(r.review.created_at)}\nLocation: ${locationName}\n\n${r.review.content}`;
+    })
     .join('\n\n')}
 
 -----
@@ -167,8 +277,10 @@ ${reviews
 Use only the information from the reviews above. Summarize trends, highlight common insights, and avoid making up information not reflected in the posts. 
 Be clear, concise, and use a casual and friendly tone, using emojis occassionally is allowed.
 If there's conflicting info, reflect that honestly in your answer.
+${locations && locations.length > 0 ? `\nIf the question relates to campus locations, try to be specific about directions, accessibility, and useful features of these places.${userLocation ? ' Since the student has shared their current location, provide guidance on how to get to the relevant locations from where they are now.' : ''}` : ''}
 
 Rules:
 - Use plain text, no markdown.
 - Respond in user's language: ${language || 'English'}.
 `.trim();
+};

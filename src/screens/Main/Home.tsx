@@ -462,7 +462,7 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 					{/* Search input button */}
 					<PrettyButton
 						style={styles.searchInputButton}
-						onPress={() => navigation.navigate('Ask')}
+						onPress={() => navigation.navigate('Ask', { userLocation: currentLocation })}
 					>
 						<Text style={styles.searchPlaceholder}>{t('ask.placeholder', 'Ask me about the campus...')}</Text>
 					</PrettyButton>

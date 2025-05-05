@@ -1,7 +1,7 @@
 import { View, Text, FlatList, StyleSheet, Image, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Categories, Colors } from '../../utils/Constants';
+import { Categories, Colors, Locations } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
@@ -283,6 +283,8 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
           <Text style={styles.reviewDate}>{getTimeFromNow(review.created_at)}</Text>
         </View>
 
+        <Text style={styles.locationText}>{Locations.nsysu.find((location: any) => location.id === review.location)?.[locale === 'zh' ? 'name' : 'name_en']}</Text>
+
         <Text style={styles.reviewTitle}>{review.title}</Text>
 
         <View style={styles.contentContainer}>
@@ -479,6 +481,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
     marginTop: 2,
+  },
+  locationText: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 10,
   },
   reviewTitle: {
     fontSize: 18,

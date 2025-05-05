@@ -1,22 +1,23 @@
 import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, Keyboard, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView, Platform, Animated } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
-import { Colors } from '../../utils/Constants'
+import { Colors, Locations } from '../../utils/Constants'
 import { Config } from '../../utils/Config'
 import { Input, PrettyButton } from '../../components'
 import { t } from 'i18next'
 import { PlusIcon, PrettyLoadingIcon, SendIcon, ChevronDownIcon } from '../../utils/Svgs'
 import { AskModel, ReviewModel, UserModel } from '../../utils/Interfaces'
-import { generateRandomString, getSystemPrompt } from '../../utils/Functions'
+import { generateRandomString, checkLocationPrompt, getSystemPrompt } from '../../utils/Functions'
 import { useAppState } from '../../contexts/AppContext'
 
-const AskScreen = ({ navigation }: { navigation: any }) => {
+const AskScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const scrollViewRef = useRef<ScrollView>(null)
-  const inputRef = useRef<TextInput>(null)
+  const inputRef = useRef<TextInput>(null);
+  const { userLocation } = route.params;
   const { user, locale } = useAppState();
   const [query, setQuery] = useState('');
   const [question, setQuestion] = useState('');
   // Response
-  const [responseState, setResponseState] = useState<'referencing' | 'generating' | 'done'>('done');
+  const [responseState, setResponseState] = useState<'referencing' | 'checking_location' | 'generating' | 'done'>('done');
   const [response, setResponse] = useState('');
   const [displayedResponse, setDisplayedResponse] = useState('');
   const [isAnimatingText, setIsAnimatingText] = useState(false);
@@ -138,7 +139,33 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
         }
         newResponseReviews.push({ review: reviewData, score: result.score, user: userData });
       }
-      setResponseReviews(newResponseReviews);
+      setResponseReviews(newResponseReviews.slice(0, 10));
+
+      // Check if the question requires location-based response
+      setResponseState('checking_location');
+      const checkLocationResponse = await fetch(`${Config.api.url}/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemPrompt: checkLocationPrompt,
+          message,
+          isJson: true
+        })
+      });
+      const locationResults = (await checkLocationResponse.json()).data.response;
+      let locationData: { name: string, name_en: string, coordinates: { latitude: number, longitude: number } }[] = [];
+      if (locationResults.isLocationQuestion) {
+        for (const locationId of locationResults.locations) {
+          const location = Locations.nsysu.find((loc: { id: string, name: string, name_en: string }) => loc.id === locationId);
+          if (location) {
+            locationData.push({
+              name: location.name,
+              name_en: location.name_en,
+              coordinates: { latitude: Math.round(location.coordinates.latitude * 100000) / 100000, longitude: Math.round(location.coordinates.longitude * 100000) / 100000 }
+            });
+          }
+        }
+      }
 
       // Start generating response
       setResponseState('generating');
@@ -147,10 +174,21 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemPrompt: getSystemPrompt(newResponseReviews, locale === 'en' ? 'English' : 'zh-TW'),
+          systemPrompt: getSystemPrompt(
+            { latitude: Math.round(userLocation.latitude * 100000) / 100000, longitude: Math.round(userLocation.longitude * 100000) / 100000 }, 
+            locationData, 
+            newResponseReviews, 
+            locale === 'en' ? 'English' : 'zh-TW'
+          ),
           message,
         })
       });
+      console.log(getSystemPrompt(
+        { latitude: Math.round(userLocation.latitude * 100000) / 100000, longitude: Math.round(userLocation.longitude * 100000) / 100000 }, 
+        locationData, 
+        newResponseReviews, 
+        locale === 'en' ? 'English' : 'zh-TW'
+      ));
       const responseText = (await askResponse.json()).data.response;
       setResponse(responseText);
     
@@ -220,7 +258,10 @@ const AskScreen = ({ navigation }: { navigation: any }) => {
                 {/* Status */}
                 {responseState !== 'done' ? <View style={{ padding: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <PrettyLoadingIcon width={16} height={16} stroke={'#aaa'} />
-                  <Text style={styles.statusText}>{responseState === 'referencing' ? t('ask.isReferencing') : t('ask.isGenerating')}</Text> 
+                  <Text style={styles.statusText}>{
+                    responseState === 'referencing' ? t('ask.isReferencing') 
+                      : responseState === 'checking_location' ? t('ask.isCheckingLocation')
+                      : t('ask.isGenerating')}</Text> 
                 </View>
                   : <></>}
 

@@ -16,7 +16,6 @@ import { ChevronDownIcon, PlusIcon, PrettyLoadingIcon } from '../../../utils/Svg
 import { Input, Textarea, PrettyButton, Select } from '../../../components';
 import { EmbeddingModel, ReviewModel } from '../../../utils/Interfaces';
 import { Config } from '../../../utils/Config';
-import { generateRandomString } from '../../../utils/Functions';
 import { hasInappropriateContent } from '../../../utils/ContentFilter';
 
 const EditReviewScreen = ({ navigation, route }: { navigation: any, route: any }) => {

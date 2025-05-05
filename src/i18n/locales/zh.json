@@ -147,6 +147,7 @@
     "inputPlaceholder": "輸入你對校園的疑問...",
     "emptyChat": "AI 會根據同學們的貼文來回答你的問題",
     "isReferencing": "正在讀取資料",
+    "isCheckingLocation": "正在檢查訊息是否需要你的位置資訊",
     "isGenerating": "正在思考",
     "relevantReviews": "相關貼文",
     "relevanceScore": "相關程度"
