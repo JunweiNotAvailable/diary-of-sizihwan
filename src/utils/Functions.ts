@@ -59,7 +59,6 @@ export const parseMarkdown = (text: string) => {
     { pattern: /\*\*(.*?)\*\*/g, style: { fontWeight: 'bold' } },
     { pattern: /\*(.*?)\*/g, style: { fontStyle: 'italic' } },
     { pattern: /_(.*?)_/g, style: { textDecorationLine: 'underline' } },
-    { pattern: /-(.*?)-/g, style: { textDecorationLine: 'line-through' } }
   ];
 
   // Initialize result with the original text
