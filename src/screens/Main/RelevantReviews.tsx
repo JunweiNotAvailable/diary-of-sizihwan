@@ -366,6 +366,9 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
         <View style={styles.headerButton} />
       </View>
 
+      {/* Translate all button */}
+      {renderTranslateHeader()}
+
       <FlatList
         data={[...reviews].sort((a, b) => {
           const scoreA = typeof a?.score === 'number' ? a.score : 0;
@@ -376,7 +379,6 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
         keyExtractor={(item, index) => (item?.review?.id || `review-${index}`)}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
-        ListHeaderComponent={renderTranslateHeader}
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('relevantReviews.empty', 'No relevant reviews found')}</Text>
         }
@@ -421,6 +423,7 @@ const styles = StyleSheet.create({
   },
   reviewItem: {
     padding: 16,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.primaryLightGray,
   },
