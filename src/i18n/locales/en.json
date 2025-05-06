@@ -8,7 +8,8 @@
     "ok": "OK",
     "error": "Error",
     "block": "Block",
-    "report": "Report"
+    "report": "Report",
+    "you": "You"
   },
   "auth": {
     "signIn": "Sign In",
@@ -163,6 +164,8 @@
     "showMore": "Show More",
     "showLess": "Show Less",
     "latest": "Latest Reviews",
+    "emojiPicker": "Choose an emoji",
+    "reactions": "Emojis",
     "errors": {
       "locationRequired": "Please select a location"
     },

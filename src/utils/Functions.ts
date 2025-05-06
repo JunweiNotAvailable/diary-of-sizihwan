@@ -256,7 +256,7 @@ If there's conflicting info, reflect that honestly in your answer.
 ${locations && locations.length > 0 ? `\nIf the question relates to campus locations, try to be specific about directions, accessibility, and useful features of these places.${userLocation ? ' Since the student has shared their current location, provide guidance on how to get to the relevant locations from where they are now.' : ''}` : ''}
 
 Rules:
-- Use plain text, no markdown.
+- Use plain text, no markdown or other formatting.
 - Respond in user's language: ${language || 'English'}.
 `.trim();
 };

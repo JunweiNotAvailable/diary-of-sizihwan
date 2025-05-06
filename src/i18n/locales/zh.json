@@ -8,7 +8,8 @@
     "ok": "確定",
     "error": "錯誤",
     "block": "封鎖",
-    "report": "舉報"
+    "report": "舉報",
+    "you": "你"
   },
   "auth": {
     "signIn": "登入",
@@ -163,6 +164,8 @@
     "showMore": "顯示更多",
     "showLess": "顯示更少",
     "latest": "最新貼文",
+    "emojiPicker": "選擇表情",
+    "reactions": "表情回應",
     "errors": {
       "locationRequired": "請選擇一個地點"
     },

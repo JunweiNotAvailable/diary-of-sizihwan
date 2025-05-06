@@ -1,18 +1,19 @@
-import { View, Text, FlatList, StyleSheet, Image, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
 import { Categories, Colors, Locations } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon, PrettyLoadingIcon } from '../../utils/Svgs';
+import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon, PrettyLoadingIcon, PlusIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
-import { MarkdownText } from '../../components';
+import { MarkdownText, BottomModal } from '../../components';
 import { Platform } from 'react-native';
 
 const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
-  const { reviews = [] } = route.params || {};
+  const { reviews: initialReviews = [] } = route.params || {};
+  const [reviews, setReviews] = useState<any[]>(initialReviews);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +21,14 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
   const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
+  // Emoji modal
+  const [emojiModalVisible, setEmojiModalVisible] = useState(false);
+  const [emojiReviewId, setEmojiReviewId] = useState<string | null>(null);
+  const [isSubmittingEmoji, setIsSubmittingEmoji] = useState(false);
+  // Emoji details modal
+  const [emojiDetailsModalVisible, setEmojiDetailsModalVisible] = useState(false);
+  const [emojiDetailsReview, setEmojiDetailsReview] = useState<ReviewModel | null>(null);
+  const [isLoadingEmojiUsers, setIsLoadingEmojiUsers] = useState(false);
   const { user, locale } = useAppState();
   const { t } = useTranslation();
 
@@ -58,30 +67,6 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
       newUsers.push(userData);
     }
     setUsers(prev => [...prev, ...newUsers]);
-  };
-
-  const toggleLike = async (review: ReviewModel) => {
-    if (!user?.id || !review?.id) return;
-    
-    // Create a new review object with updated likes
-    const newReview: ReviewModel = { 
-      ...review, 
-      extra: { 
-        ...review.extra, 
-        likes: review.extra.likes.includes(user?.id) 
-          ? review.extra.likes.filter((id: string) => id !== user?.id) 
-          : [...review.extra.likes, user?.id] 
-      } 
-    };
-    
-    // Update the review in the database
-    await fetch(`${Config.api.url}/data?table=reviews&id=${review.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ extra: newReview.extra })
-    });
   };
 
   // Safe translation function that does type checking
@@ -228,6 +213,168 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
     }
   };
 
+  const handleEmojiPress = (reviewId: string) => {
+    setEmojiReviewId(reviewId);
+    setEmojiModalVisible(true);
+  };
+
+  const handleSelectEmoji = async (emoji: string) => {
+    if (!user || !emojiReviewId) return;
+
+    setIsSubmittingEmoji(true);
+
+    try {
+      // Find the review item
+      const reviewItem = reviews.find((item: any) => item.review?.id === emojiReviewId);
+      if (!reviewItem || !reviewItem.review) return;
+
+      const reviewToUpdate = reviewItem.review;
+
+      // Ensure emojis array exists
+      const currentEmojis = reviewToUpdate.extra?.emojis || [];
+
+      // Check if user already added this emoji
+      const existingEmojiIndex = currentEmojis.findIndex(
+        (e: { user_id: string, emoji: string }) => e.user_id === user.id && e.emoji === emoji
+      );
+
+      let updatedEmojis;
+
+      if (existingEmojiIndex !== -1) {
+        // Remove emoji if already added (unselect)
+        updatedEmojis = [
+          ...currentEmojis.slice(0, existingEmojiIndex),
+          ...currentEmojis.slice(existingEmojiIndex + 1)
+        ];
+      } else {
+        // Remove any other emoji by this user
+        const filteredEmojis = currentEmojis.filter((e: { user_id: string, emoji: string }) => e.user_id !== user.id);
+
+        // Add the new emoji
+        updatedEmojis = [
+          ...filteredEmojis,
+          { user_id: user.id, emoji }
+        ];
+      }
+
+      // Make sure extra object exists
+      const updatedExtra = {
+        ...(reviewToUpdate.extra || {}),
+        emojis: updatedEmojis
+      };
+
+      // Update on server
+      const response = await fetch(`${Config.api.url}/data?table=reviews&id=${emojiReviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          extra: updatedExtra
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update emoji');
+      }
+
+      // Update our local state instead of modifying route.params
+      setReviews(prevReviews => 
+        prevReviews.map((item: any) => {
+          if (item.review?.id === emojiReviewId) {
+            return {
+              ...item,
+              review: {
+                ...item.review,
+                extra: updatedExtra
+              }
+            };
+          }
+          return item;
+        })
+      );
+      
+      // Update the emoji details review if it's the currently selected one
+      if (emojiDetailsReview?.id === emojiReviewId) {
+        setEmojiDetailsReview({
+          ...emojiDetailsReview,
+          extra: updatedExtra
+        });
+      }
+
+    } catch (error) {
+      console.error('Error updating emoji:', error);
+      Alert.alert(t('general.error'), t('reviews.emojiUpdateFailed'));
+    } finally {
+      setIsSubmittingEmoji(false);
+      setEmojiModalVisible(false);
+    }
+  };
+
+  // Check if current user reacted with emoji
+  const getUserEmoji = (emojis: { user_id: string, emoji: string }[] = []) => {
+    if (!user) return null;
+
+    const userEmoji = emojis.find(e => e.user_id === user.id);
+    return userEmoji ? userEmoji.emoji : null;
+  };
+
+  // Add a function to handle showing the list of emojis
+  const handleShowEmojiList = async (reviewId: string) => {
+    const reviewItem = reviews.find((item: any) => item.review?.id === reviewId);
+    if (!reviewItem || !reviewItem.review) return;
+
+    setEmojiDetailsReview(reviewItem.review);
+    setEmojiDetailsModalVisible(true);
+    
+    // Load missing user data for emojis if needed
+    if (reviewItem.review.extra?.emojis && reviewItem.review.extra.emojis.length > 0) {
+      const missingUserIds = reviewItem.review.extra.emojis
+        .filter((emoji: { user_id: string }) => !users.some(u => u.id === emoji.user_id))
+        .map((emoji: { user_id: string }) => emoji.user_id);
+      
+      if (missingUserIds.length > 0) {
+        await loadMissingUsers(missingUserIds);
+      }
+    }
+  };
+  
+  // Add function to load missing user data
+  const loadMissingUsers = async (userIds: string[]) => {
+    if (userIds.length === 0) return;
+    
+    setIsLoadingEmojiUsers(true);
+    
+    try {
+      const newUsers: UserModel[] = [];
+      for (const userId of userIds) {
+        // Skip if already loaded
+        if (users.some(u => u.id === userId)) continue;
+        
+        const res = await fetch(`${Config.api.url}/data?table=users&id=${userId}`);
+        if (res.ok) {
+          const userData = (await res.json()).data;
+          if (userData) {
+            newUsers.push(userData);
+          }
+        }
+      }
+      
+      if (newUsers.length > 0) {
+        setUsers(prev => [...prev, ...newUsers]);
+      }
+    } catch (error) {
+      console.error('Error loading emoji user data:', error);
+    } finally {
+      setIsLoadingEmojiUsers(false);
+    }
+  };
+
+  // Check if review has any emojis
+  const hasEmojis = (emojis: { user_id: string, emoji: string }[] = []) => {
+    return emojis && emojis.length > 0;
+  };
+
   const renderReviewItem = ({ item }: { item: any }) => {
     // Check if the item has a valid review property
     if (!item?.review?.id || !item?.review?.content) {
@@ -250,6 +397,9 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
 
     // Calculate relevance percentage (ensure it's between 10-100%)
     const relevancePercentage = Math.round(Math.min(Math.max(score * 100, 10), 100));
+
+    // Get user's emoji for this review
+    const userEmoji = getUserEmoji(review.extra?.emojis || []);
 
     return (
       <View style={styles.reviewItem}>
@@ -320,6 +470,33 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
               </View>
             ))}
           </View>
+          
+          {/* Emoji count button */}
+          {hasEmojis(review.extra?.emojis) && (
+            <TouchableOpacity
+              style={styles.emojiListButton}
+              onPress={() => handleShowEmojiList(review.id)}
+            >
+              <Text style={styles.emojiText}>{review.extra.emojis[0].emoji}</Text>
+              <Text style={styles.emojiListButtonText}>
+                {review.extra?.emojis?.length || 0}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Emoji button */}
+          <View style={styles.emojiButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.emojiButton, userEmoji ? styles.emojiButtonActive : {}]}
+              onPress={() => handleEmojiPress(review.id)}
+            >
+              {userEmoji ? (
+                <Text style={styles.emojiText}>{userEmoji}</Text>
+              ) : (
+                <PlusIcon width={9} height={9} fill={Colors.primaryGray + '60'} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -383,6 +560,104 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
           <Text style={styles.emptyText}>{t('relevantReviews.empty', 'No relevant reviews found')}</Text>
         }
       />
+
+      {/* Emoji Picker Modal */}
+      <BottomModal
+        visible={emojiModalVisible}
+        onClose={() => setEmojiModalVisible(false)}
+        title={t('reviews.emojiPicker', 'Choose a Reaction')}
+      >
+        <View style={styles.emojiPickerContainer}>
+          <View style={styles.emojiGrid}>
+            {['😀', '😍', '😂', '🥰', '👍', '👏', '❤️', '🔥', '🤔', '😭'].map((emoji, index) => {
+              // Check if this emoji is already selected
+              const isSelected = emojiReviewId && reviews.find(
+                (item: any) => item.review?.id === emojiReviewId
+              )?.review?.extra?.emojis?.some(
+                (e: { user_id: string, emoji: string }) => e.user_id === user?.id && e.emoji === emoji
+              );
+
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.emojiPickerItem,
+                    isSelected ? styles.emojiPickerItemSelected : {}
+                  ]}
+                  onPress={() => handleSelectEmoji(emoji)}
+                  disabled={isSubmittingEmoji}
+                >
+                  <Text style={styles.emojiPickerText}>{emoji}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {isSubmittingEmoji && (
+            <View style={styles.emojiLoadingContainer}>
+              <PrettyLoadingIcon width={24} height={24} stroke={Colors.primaryGray} />
+            </View>
+          )}
+
+        </View>
+      </BottomModal>
+
+      {/* Emoji Details Modal */}
+      <BottomModal
+        visible={emojiDetailsModalVisible}
+        onClose={() => setEmojiDetailsModalVisible(false)}
+        title={t('reviews.reactions', 'Reactions')}
+      >
+        {emojiDetailsReview && (
+          <View style={styles.emojiDetailsModalContainer}>
+            {/* List of users who reacted */}
+            {(emojiDetailsReview.extra?.emojis?.length || 0) > 0 ? (
+              <View style={styles.emojiUsersList}>
+                {isLoadingEmojiUsers && (
+                  <View style={styles.emojiLoadingContainer}>
+                    <PrettyLoadingIcon width={24} height={24} stroke={Colors.primaryGray} />
+                  </View>
+                )}
+                {emojiDetailsReview.extra?.emojis?.map((reaction, index) => {
+                  const reactionUser = users.find(u => u.id === reaction.user_id);
+                  const isCurrentUser = reaction.user_id === user?.id;
+                  return (
+                    <TouchableOpacity 
+                      key={index} 
+                      style={styles.emojiUserItem}
+                      onPress={() => navigation.navigate('UserProfile', { userId: reaction.user_id })}
+                    >
+                      <View style={styles.emojiUserInfo}>
+                        {reactionUser?.picture ? (
+                          <Image
+                            source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${reactionUser.picture}` }}
+                            style={styles.emojiUserImage}
+                          />
+                        ) : (
+                          <View style={[styles.emojiUserImage, styles.emojiUserImagePlaceholder]}>
+                            <PersonIcon width={14} height={14} fill={Colors.primaryGray + '88'} />
+                          </View>
+                        )}
+                        <Text style={styles.emojiUserName} numberOfLines={1}>
+                          {isCurrentUser 
+                            ? `${reactionUser?.name || t('general.you', 'You')}`
+                            : (reactionUser?.name || t('general.unknownUser', 'Unknown User'))}
+                          {isCurrentUser && ` (${t('general.you', 'You')})`}
+                        </Text>
+                      </View>
+                      <Text style={styles.emojiUserEmoji}>{reaction.emoji}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : (
+              <Text style={styles.noEmojisText}>
+                {t('reviews.noReactions', 'No reactions yet')}
+              </Text>
+            )}
+          </View>
+        )}
+      </BottomModal>
     </SafeAreaView>
   );
 };
@@ -577,6 +852,121 @@ const styles = StyleSheet.create({
     color: Colors.primaryGray + '88',
     fontSize: 13,
     fontWeight: '500',
+  },
+  emojiListButton: {
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.primaryLightGray + '40',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  emojiText: {
+    fontSize: 12,
+    color: Colors.primaryGray,
+  },
+  emojiListButtonText: {
+    fontSize: 10,
+    color: Colors.primaryGray,
+    fontWeight: '500',
+  },
+  emojiButtonsContainer: {
+    backgroundColor: Colors.primaryLightGray + '40',
+    borderRadius: 12,
+  },
+  emojiButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emojiButtonActive: {
+    backgroundColor: Colors.primaryLightGray + '88',
+  },
+  emojiPickerContainer: {
+    padding: 20,
+  },
+  emojiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  emojiPickerItem: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 8,
+    borderRadius: 8,
+  },
+  emojiPickerItemSelected: {
+    backgroundColor: Colors.primaryLightGray + '88',
+  },
+  emojiPickerText: {
+    fontSize: 24,
+  },
+  emojiLoadingContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  emojiNoteContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  emojiNote: {
+    fontSize: 12,
+    color: Colors.primaryGray + '88',
+    fontStyle: 'italic',
+  },
+  emojiDetailsModalContainer: {
+    padding: 16,
+  },
+  emojiUsersList: {
+    marginTop: 5,
+  },
+  emojiUserItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingVertical: 6,
+  },
+  emojiUserInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  emojiUserImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    marginRight: 8,
+    backgroundColor: Colors.primaryLightGray,
+  },
+  emojiUserImagePlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emojiUserName: {
+    fontSize: 13,
+    color: Colors.primaryGray,
+    flex: 1,
+  },
+  emojiUserEmoji: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  noEmojisText: {
+    fontSize: 13,
+    color: Colors.primaryGray + '88',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
 

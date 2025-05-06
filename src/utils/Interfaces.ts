@@ -28,7 +28,7 @@ export interface ReviewModel {
   allow_reference: boolean;
   extra: {
     score: number;
-    likes: string[];
+    emojis: { user_id: string, emoji: string }[];
   }
 }
 
