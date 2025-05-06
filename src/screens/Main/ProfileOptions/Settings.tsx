@@ -23,7 +23,7 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
   useEffect(() => {
     setName(user?.name || '');
   }, [user]);
-  
+
   // Load preferences
   useEffect(() => {
     (async () => {
@@ -40,8 +40,9 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
     if (!user) return;
 
     setIsSubmitting(true);
-    const newUser: UserModel = { ...user, 
-      name 
+    const newUser: UserModel = {
+      ...user,
+      name
     };
 
     const { id, password, created_at, ...userData } = newUser;
@@ -68,7 +69,7 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    
+
     // Show confirmation alert
     Alert.alert(
       t('profile.settings.dangerZone.deleteAccount'),
@@ -84,7 +85,7 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
           onPress: async () => {
             try {
               setIsDeleting(true);
-              
+
               // 1. Delete all posts by the user
               const deletePostsResponse = await fetch(`${Config.api.url}/data?table=reviews&query=user_id:${user.id}`, {
                 method: 'DELETE',
@@ -92,11 +93,11 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
                   'Content-Type': 'application/json'
                 }
               });
-              
+
               if (!deletePostsResponse.ok) {
                 throw new Error('Failed to delete user posts');
               }
-              
+
               // 2. Delete user account
               const deleteUserResponse = await fetch(`${Config.api.url}/data?table=users&id=${user.id}`, {
                 method: 'DELETE',
@@ -104,15 +105,15 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
                   'Content-Type': 'application/json'
                 }
               });
-              
+
               if (!deleteUserResponse.ok) {
                 throw new Error('Failed to delete user account');
               }
-              
+
               // 3. Clear local storage and logout
               await AsyncStorage.removeItem(Config.storage.user);
               await AsyncStorage.removeItem(Config.storage.showMyLocation);
-              
+
               // 4. Navigate to authentication screen
               setUser(null);
               navigation.replace('Auth');
@@ -183,6 +184,17 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
           {/* Account */}
           <View style={[styles.section, { marginTop: 40 }]}>
             <Text style={styles.sectionTitle}>{t('profile.settings.account', 'Account')}</Text>
+            {/* Email */}
+            <Input
+              value={user?.email || ''}
+              readOnly
+              label={t('profile.settings.email', 'Email')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              containerStyle={{ marginBottom: 20 }}
+              inputStyle={{ backgroundColor: '#f3f3f3' }}
+            />
             <Input
               value={name}
               label={t('profile.settings.username', 'Username')}
@@ -199,8 +211,8 @@ const SettingsScreen = ({ navigation }: { navigation: any }) => {
                 style={{ width: 'auto', paddingHorizontal: 20, height: 36, borderRadius: 12, borderColor: Colors.danger + 'aa' }}
                 textStyle={{ fontSize: 14, color: Colors.danger + 'cc' }}
                 type='secondary'
-                title={isDeleting ? 
-                  <PrettyLoadingIcon width={14} height={14} stroke={Colors.danger + 'cc'} /> : 
+                title={isDeleting ?
+                  <PrettyLoadingIcon width={14} height={14} stroke={Colors.danger + 'cc'} /> :
                   t('profile.settings.dangerZone.deleteAccount', 'Delete Account')
                 }
                 disabled={isDeleting}
