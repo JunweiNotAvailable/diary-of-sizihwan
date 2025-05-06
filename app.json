@@ -3,7 +3,7 @@
     "name": "西灣日記 - Diary of Sizihwan",
     "slug": "diary-of-sizihwan",
     "scheme": "diary-of-sizihwan",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "supportsTablet": true,
     "userInterfaceStyle": "light",
@@ -57,6 +57,6 @@
         "projectId": "e270cb44-b7c5-493e-85a5-96bed795d35c"
       }
     },
-    "runtimeVersion": "1.1.0"
+    "runtimeVersion": "1.1.1"
   }
 }
