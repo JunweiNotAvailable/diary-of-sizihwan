@@ -650,13 +650,15 @@ Date Reported: ${new Date().toISOString()}
         />
       </View>
 
+      {/* Translate all button */}
+      {renderTranslateHeader()}
+
       <FlatList
         data={reviews}
         removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         keyExtractor={(item) => item.id}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
-        ListHeaderComponent={renderTranslateHeader}
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('reviews.empty')}</Text>
         }
@@ -1047,6 +1049,7 @@ const styles = StyleSheet.create({
   beforeListContainer: {
     justifyContent: 'flex-start',
     flexDirection: 'row',
+    paddingHorizontal: 10,
   },
   translateAllButton: {
     paddingVertical: 5,

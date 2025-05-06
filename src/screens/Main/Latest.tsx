@@ -26,7 +26,7 @@ const LatestScreen = ({ navigation, route }: { navigation: any, route: any }) =>
   const [page, setPage] = useState(0);
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const limit = 10;
+  const limit = 20;
   // Options modal
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<ReviewModel | null>(null);
@@ -577,33 +577,32 @@ Date Reported: ${new Date().toISOString()}
         </PrettyButton>
       </View>
 
+      {/* Translate all button */}
+      <View style={styles.beforeListContainer}>
+        <PrettyButton
+          style={styles.translateAllButton}
+          onPress={translateAllReviews}
+          disabled={isTranslatingAll || reviews.length === 0}
+        >
+          <View style={styles.translateAllButtonContent}>
+            {isTranslatingAll ? (
+              <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
+            ) : (
+              <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
+            )}
+            <Text style={styles.translateAllButtonText}>
+              {t('reviews.translateAll', 'Translate all')}
+            </Text>
+          </View>
+        </PrettyButton>
+      </View>
+
       <FlatList
         data={reviews}
         removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         keyExtractor={(item) => item.id}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
-        ListHeaderComponent={
-          // translate all
-          <View style={styles.beforeListContainer}>
-            <PrettyButton
-              style={styles.translateAllButton}
-              onPress={translateAllReviews}
-              disabled={isTranslatingAll || reviews.length === 0}
-            >
-              <View style={styles.translateAllButtonContent}>
-                {isTranslatingAll ? (
-                  <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
-                ) : (
-                  <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
-                )}
-                <Text style={styles.translateAllButtonText}>
-                  {t('reviews.translateAll', 'Translate all')}
-                </Text>
-              </View>
-            </PrettyButton>
-          </View>
-        }
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('reviews.empty')}</Text>
         }
@@ -944,6 +943,7 @@ const styles = StyleSheet.create({
   beforeListContainer: {
     justifyContent: 'flex-start',
     flexDirection: 'row',
+    paddingHorizontal: 10,
   },
   translateAllButton: {
     paddingVertical: 5,

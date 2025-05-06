@@ -1,5 +1,4 @@
 import { ReviewModel, UserModel } from "./Interfaces";
-import { useEffect, useRef, useState } from 'react';
 import { Locations } from "./Constants";
 
 export const generateRandomString = (length: number, prefix?: string) => {
@@ -49,6 +48,10 @@ export const getTimeFromNow = (date: string): string => {
     const diffYears = Math.floor(diffDays / 365);
     return `${diffYears}y`;
   }
+}
+export const isNSYSUEmail = (email: string): boolean => {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return domain?.includes('nsysu');
 }
 
 export const parseMarkdown = (text: string) => {
@@ -123,33 +126,6 @@ export const parseMarkdown = (text: string) => {
   });
 
   return segments;
-};
-
-// Chat socket
-export const useChatSocket = (url: string, systemPrompt: string, userMessage: string) => {
-  const [response, setResponse] = useState('');
-  const socketRef = useRef<WebSocket | null>(null);
-
-  useEffect(() => {
-    const socket = new WebSocket(url);
-    socketRef.current = socket;
-
-    socket.onopen = () => {
-      socket.send(JSON.stringify({ systemPrompt, message: userMessage }));
-    };
-
-    socket.onmessage = (event) => {
-      if (event.data === '[DONE]') {
-        socket.close();
-        return;
-      }
-      setResponse(prev => prev + event.data);
-    };
-
-    return () => socket.close();
-  }, [url, systemPrompt, userMessage]);
-
-  return response;
 };
 
 // Get the location detection prompt with available locations

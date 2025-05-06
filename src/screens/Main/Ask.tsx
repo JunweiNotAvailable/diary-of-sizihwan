@@ -119,7 +119,7 @@ const AskScreen = ({ navigation, route }: { navigation: any, route: any }) => {
         },
         body: JSON.stringify({ vector })
       })
-      const searchResults = (await searchResponse.json()).data.results;
+      const searchResults = (await searchResponse.json()).data.results.sort((a: { score: number }, b: { score: number }) => b.score - a.score).slice(0, 10); // Sort by score in descending order
       const newResponseReviews: { review: ReviewModel, score: number, user: UserModel }[] = [];
       for (const result of searchResults) {
         const reviewResponse = await fetch(`${Config.api.url}/data?table=reviews&id=${result.id}`);
@@ -139,7 +139,7 @@ const AskScreen = ({ navigation, route }: { navigation: any, route: any }) => {
         }
         newResponseReviews.push({ review: reviewData, score: result.score, user: userData });
       }
-      setResponseReviews(newResponseReviews.slice(0, 10));
+      setResponseReviews(newResponseReviews);
 
       // Check if the question requires location-based response
       setResponseState('checking_location');

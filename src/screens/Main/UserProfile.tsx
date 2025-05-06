@@ -31,7 +31,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 20;
   const [expandedReviews, setExpandedReviews] = useState<Record<string, boolean>>({});
   const [translatedReviews, setTranslatedReviews] = useState<Record<string, string>>({});
   const [showingTranslations, setShowingTranslations] = useState<Record<string, boolean>>({});
@@ -265,17 +265,19 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
 
   const handleEditReview = () => {
     if (!selectedReview) return;
-    
+
     setOptionsModalVisible(false);
-    navigation.navigate('EditReview', { reviewId: selectedReview.id, onDone: (review: ReviewModel | undefined) => {
-      if (!review) return;
-      setReviews(prev => prev.map(r => r.id === review.id ? review : r));
-    } });
+    navigation.navigate('EditReview', {
+      reviewId: selectedReview.id, onDone: (review: ReviewModel | undefined) => {
+        if (!review) return;
+        setReviews(prev => prev.map(r => r.id === review.id ? review : r));
+      }
+    });
   };
 
   const handleDeleteReview = () => {
     if (!selectedReview) return;
-    
+
     Alert.alert(
       t('profile.myReviews.deleteReviewTitle'),
       t('profile.myReviews.deleteReviewMessage').replace('{{title}}', selectedReview.title),
@@ -293,7 +295,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
               await fetch(`${Config.api.url}/data?table=reviews&id=${reviewId}`, {
                 method: 'DELETE',
               });
-              
+
               // Remove from local state
               setReviews(prev => prev.filter(review => review.id !== reviewId));
               setOptionsModalVisible(false);
@@ -308,9 +310,9 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
 
   const handleBlockUser = async () => {
     if (!selectedReview || !currentUser) return;
-    
+
     const userToBlock = selectedReview.user_id;
-    
+
     Alert.alert(
       t('profile.blockUser.title', 'Block User'),
       t('profile.blockUser.message', 'Are you sure you want to block this user? You will no longer see their posts.'),
@@ -332,7 +334,7 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
                   ...currentUser.settings,
                   blocked_users: updatedBlockedUsers
                 };
-                
+
                 // Update on server
                 await fetch(`${Config.api.url}/data?table=users&id=${currentUser.id}`, {
                   method: 'PUT',
@@ -341,16 +343,16 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
                   },
                   body: JSON.stringify({ settings: updatedSettings })
                 });
-                
+
                 // Update context
                 const updatedUser = {
                   ...currentUser,
                   settings: updatedSettings
                 };
-                
+
                 // Update the user in the AppContext
                 setUser(updatedUser);
-                
+
                 // Close modal and go back
                 setOptionsModalVisible(false);
                 navigation.goBack();
@@ -366,21 +368,21 @@ const UserProfileScreen = ({ navigation, route }: { navigation: any, route: any 
 
   const handleReportReview = () => {
     if (!selectedReview) return;
-    
+
     setOptionsModalVisible(false);
     setReportModalVisible(true);
   };
 
   const submitReport = async () => {
     if (!selectedReview || !currentUser || !reportReason) return;
-    
+
     setIsSubmittingReport(true);
-    
+
     try {
       // Simulate API call to submit the report
       // In a real implementation, you would submit to your backend
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Format message with report details
       const messageContent = `
 Report Information:
@@ -393,7 +395,7 @@ Reported by: User ID ${currentUser.id} (${currentUser.name})
 Reason: ${reportReason}
 Date Reported: ${new Date().toISOString()}
       `;
-      
+
       // Send email report
       await fetch(`${Config.api.url}/email`, {
         method: 'POST',
@@ -401,16 +403,16 @@ Date Reported: ${new Date().toISOString()}
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          to: "junwnotavailable@gmail.com", 
-          subject: "Post Report", 
+          to: "junwnotavailable@gmail.com",
+          subject: "Post Report",
           message: messageContent
         })
       });
-      
+
       // Close the report modal
       setReportModalVisible(false);
       setReportReason('');
-      
+
       // Show success message
       Alert.alert(
         t('reviews.report.reportSent'),
@@ -418,7 +420,7 @@ Date Reported: ${new Date().toISOString()}
       );
     } catch (error) {
       console.error('Error submitting report:', error);
-      
+
       // Show error message
       Alert.alert(
         t('reviews.report.reportFailed'),
@@ -448,8 +450,8 @@ Date Reported: ${new Date().toISOString()}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Text style={styles.reviewDate}>{getTimeFromNow(item.created_at)}</Text>
             {currentUser && (
-              <PrettyButton 
-                style={styles.optionsButton} 
+              <PrettyButton
+                style={styles.optionsButton}
                 onPress={() => handleOptionPress(item)}
               >
                 <EllipsisIcon width={24} height={24} />
@@ -549,27 +551,7 @@ Date Reported: ${new Date().toISOString()}
 
         {/* Reviews header */}
         <View style={styles.section}>
-          <View style={styles.reviewsHeaderContainer}>
-            <Text style={styles.sectionTitle}>{t('userProfile.reviews').replace('{{name}}', user?.name || '')}</Text>
-            {reviews.length > 0 && (
-              <PrettyButton
-                style={styles.translateAllButton}
-                onPress={translateAllReviews}
-                disabled={isTranslatingAll || reviews.length === 0}
-              >
-                <View style={styles.translateAllButtonContent}>
-                  {isTranslatingAll ? (
-                    <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
-                  ) : (
-                    <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
-                  )}
-                  <Text style={styles.translateAllButtonText}>
-                    {t('reviews.translateAll', 'Translate all')}
-                  </Text>
-                </View>
-              </PrettyButton>
-            )}
-          </View>
+          <Text style={styles.sectionTitle}>{t('userProfile.reviews').replace('{{name}}', user?.name || '')}</Text>
           <View style={{ borderBottomWidth: 1, borderBottomColor: Colors.primaryLightGray }} />
         </View>
       </>
@@ -627,7 +609,7 @@ Date Reported: ${new Date().toISOString()}
         title={t('profile.scoreInfo.title', 'How Scores Work')}
         content={t('profile.scoreInfo.content')}
       />
-      
+
       {/* Options Modal */}
       <BottomModal
         visible={optionsModalVisible}
@@ -670,7 +652,7 @@ Date Reported: ${new Date().toISOString()}
           </>
         )}
       </BottomModal>
-      
+
       {/* Report Review Modal */}
       <BottomModal
         visible={reportModalVisible}
@@ -679,31 +661,31 @@ Date Reported: ${new Date().toISOString()}
       >
         <View style={styles.reportContainer}>
           <Text style={styles.reportMessage}>{t('reviews.report.message')}</Text>
-          
+
           <OptionItem
             label={t('reviews.report.options.inappropriate')}
             onPress={() => setReportReason('inappropriate')}
             style={reportReason === 'inappropriate' ? styles.selectedReportOption : {}}
           />
-          
+
           <OptionItem
             label={t('reviews.report.options.spam')}
             onPress={() => setReportReason('spam')}
             style={reportReason === 'spam' ? styles.selectedReportOption : {}}
           />
-          
+
           <OptionItem
             label={t('reviews.report.options.offensive')}
             onPress={() => setReportReason('offensive')}
             style={reportReason === 'offensive' ? styles.selectedReportOption : {}}
           />
-          
+
           <OptionItem
             label={t('reviews.report.options.other')}
             onPress={() => setReportReason('other')}
             style={reportReason === 'other' ? styles.selectedReportOption : {}}
           />
-          
+
           <View style={styles.reportButtonContainer}>
             <PrettyButton
               onPress={submitReport}
