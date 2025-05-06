@@ -12,5 +12,6 @@ export const Config = {
     bucketName: 'review-my-campas-assets',
     region: 'us-east-1',
   },
-  privacyPolicyUrl: 'https://elderly-pancake-f07.notion.site/Scripsail-1d9277c6518d8079b396fd8b88f1bd3f',
+  teamEmail: 'team@diaryofsizihwan.com',
+  privacyPolicyUrl: 'https://elderly-pancake-f07.notion.site/1d9277c6518d8079b396fd8b88f1bd3f',
 }

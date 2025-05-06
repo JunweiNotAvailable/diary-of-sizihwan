@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
 	profilePlaceholder: {
 		width: 40,
 		height: 40,
-		borderRadius: 20,
+		borderRadius: 16,
 		backgroundColor: '#ddd',
 		borderWidth: 2,
 		borderColor: 'white',

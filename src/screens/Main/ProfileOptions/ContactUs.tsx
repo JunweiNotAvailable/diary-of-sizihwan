@@ -52,7 +52,7 @@ const ContactUs = ({ navigation }: { navigation: any }) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        to: 'junwnotavailable@gmail.com',
+        to: Config.teamEmail,
         subject: subject,
         message: `${message}\n\nFrom: ${name} (${email})`,
       }),
