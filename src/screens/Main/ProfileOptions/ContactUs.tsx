@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, Alert, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Platform, Alert, KeyboardAvoidingView, Linking } from 'react-native'
 import React, { useState } from 'react'
 import { Colors } from '../../../utils/Constants';
 import { Input, PrettyButton } from '../../../components';
@@ -71,6 +71,10 @@ const ContactUs = ({ navigation }: { navigation: any }) => {
     );
   }
 
+  const handleEmailDirect = () => {
+    Linking.openURL(`mailto:${Config.teamEmail}?subject=${encodeURIComponent(subject)}`);
+  }
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <SafeAreaView style={styles.container}>
@@ -130,21 +134,32 @@ const ContactUs = ({ navigation }: { navigation: any }) => {
                 numberOfLines={6}
                 textAlignVertical="top"
                 containerStyle={styles.inputContainer}
-                style={{ height: 120, paddingTop: 12, fontSize: 16 }}
+                style={styles.messageInput}
               />
+
+              <PrettyButton
+                style={styles.sendButton}
+                textStyle={styles.sendButtonText}
+                type="primary"
+                title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke="#fff" /> : t('profile.contactUs.send')}
+                disabled={isSubmitting}
+                onPress={handleSend}
+              />
+
+              <View style={styles.orContainer}>
+                <View style={styles.orLine} />
+                <Text style={styles.orText}>{t('profile.contactUs.or')}</Text>
+                <View style={styles.orLine} />
+              </View>
+
+              <Text style={styles.directEmailText}>
+                {t('profile.contactUs.emailDirectly')}
+              </Text>
+              <Text style={styles.emailLink} selectable>
+                {Config.teamEmail}
+              </Text>
             </View>
           </ScrollView>
-
-          <View style={styles.footer}>
-            <PrettyButton
-              style={styles.sendButton}
-              textStyle={styles.sendButtonText}
-              type="primary"
-              title={isSubmitting ? <PrettyLoadingIcon width={20} height={20} stroke="#fff" /> : t('profile.contactUs.send')}
-              disabled={isSubmitting}
-              onPress={handleSend}
-            />
-          </View>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -208,20 +223,55 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 0,
   },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+  messageInput: { 
+    height: 120, 
+    paddingTop: 12, 
+    fontSize: 16, 
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   sendButton: {
     width: '100%',
     height: 50,
     borderRadius: 12,
+    marginTop: 8,
   },
   sendButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  orContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  orText: {
+    paddingHorizontal: 10,
+    color: Colors.primaryGray,
+    fontSize: 14,
+  },
+  directEmailText: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: Colors.primaryGray,
+    marginBottom: 4,
+  },
+  emailLink: {
+    textAlign: 'center',
+    color: Colors.primary || '#007AFF',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
   },
 });
 

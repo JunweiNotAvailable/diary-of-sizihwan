@@ -11,8 +11,8 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Categories, Colors, Locations } from '../../../utils/Constants';
-import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon, BlockIcon } from '../../../utils/Svgs';
+import { Categories, Colors, Locations, Emojis } from '../../../utils/Constants';
+import { FeatherPenIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TranslateIcon, EllipsisIcon, TrashIcon, PersonIcon, BlockIcon, SmileIcon } from '../../../utils/Svgs';
 import { Config } from '../../../utils/Config';
 import { PrettyButton, BottomModal, OptionItem } from '../../../components';
 import { ReviewModel, UserModel } from '../../../utils/Interfaces';
@@ -509,7 +509,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
                 {userEmoji ? (
                   <Text style={styles.emojiText}>{userEmoji}</Text>
                 ) : (
-                  <PlusIcon width={9} height={9} fill={Colors.primaryGray + '60'} />
+                  <SmileIcon width={20} height={20} fill={Colors.primaryGray + '60'} />
                 )}
               </TouchableOpacity>
             </View>
@@ -665,7 +665,7 @@ const MyReviewsScreen = ({ navigation, route }: { navigation: any, route: any })
         >
           <View style={styles.emojiPickerContainer}>
             <View style={styles.emojiGrid}>
-              {['😀', '😍', '😂', '🥰', '👍', '👏', '❤️', '🔥', '🤔', '😭'].map((emoji, index) => {
+              {Emojis.map((emoji, index) => {
                 // Check if this emoji is already selected
                 const isSelected = emojiReviewId &&
                   reviews.find(r => r.id === emojiReviewId)?.extra?.emojis?.some(

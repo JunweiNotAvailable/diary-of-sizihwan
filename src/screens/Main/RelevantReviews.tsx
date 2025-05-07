@@ -1,11 +1,11 @@
 import { View, Text, FlatList, StyleSheet, Image, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Categories, Colors, Locations } from '../../utils/Constants';
+import { Categories, Colors, Locations, Emojis } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon, PrettyLoadingIcon, PlusIcon } from '../../utils/Svgs';
+import { ChevronDownIcon, PersonIcon, ThumbsUpIcon, TranslateIcon, PrettyLoadingIcon, PlusIcon, SmileIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText, BottomModal } from '../../components';
@@ -493,7 +493,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
               {userEmoji ? (
                 <Text style={styles.emojiText}>{userEmoji}</Text>
               ) : (
-                <PlusIcon width={9} height={9} fill={Colors.primaryGray + '60'} />
+                <SmileIcon width={20} height={20} fill={Colors.primaryGray + '60'} />
               )}
             </TouchableOpacity>
           </View>
@@ -569,7 +569,7 @@ const RelevantReviewsScreen = ({ navigation, route }: { navigation: any, route: 
       >
         <View style={styles.emojiPickerContainer}>
           <View style={styles.emojiGrid}>
-            {['😀', '😍', '😂', '🥰', '👍', '👏', '❤️', '🔥', '🤔', '😭'].map((emoji, index) => {
+            {Emojis.map((emoji, index) => {
               // Check if this emoji is already selected
               const isSelected = emojiReviewId && reviews.find(
                 (item: any) => item.review?.id === emojiReviewId

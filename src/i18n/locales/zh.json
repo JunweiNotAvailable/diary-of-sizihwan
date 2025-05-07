@@ -104,7 +104,9 @@
       "subjectRequired": "請輸入主旨",
       "messageRequired": "請輸入您的訊息",
       "messageSent": "訊息已發送",
-      "messageSentDesc": "您的訊息已發送。我們會盡快回覆您。"
+      "messageSentDesc": "您的訊息已發送。我們會盡快回覆您。",
+      "or": "或是",
+      "emailDirectly": "直接寄信給我們"
     },
     "termOfUse": {
       "title": "使用條款",

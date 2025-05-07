@@ -104,7 +104,9 @@
       "subjectRequired": "Please enter a subject",
       "messageRequired": "Please enter your message",
       "messageSent": "Message Sent",
-      "messageSentDesc": "Your message has been sent. We will respond to you as soon as possible."
+      "messageSentDesc": "Your message has been sent. We will respond to you as soon as possible.",
+      "or": "or",
+      "emailDirectly": "Email us directly at"
     },
     "termOfUse": {
       "title": "Term of Use",

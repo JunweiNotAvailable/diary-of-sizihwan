@@ -1,11 +1,11 @@
 import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Platform } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ReviewModel, UserModel } from '../../utils/Interfaces';
-import { Colors, Categories, Locations } from '../../utils/Constants';
+import { Colors, Categories, Locations, Emojis } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
 import PrettyButton from '../../components/PrettyButton';
-import { CheckIcon, ChevronDownIcon, EllipsisIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TrashIcon, TranslateIcon, BlockIcon, FlagIcon } from '../../utils/Svgs';
+import { CheckIcon, ChevronDownIcon, EllipsisIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TrashIcon, TranslateIcon, BlockIcon, FlagIcon, SmileIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
 import { MarkdownText, BottomModal, OptionItem } from '../../components';
@@ -715,7 +715,7 @@ Date Reported: ${new Date().toISOString()}
               {userEmoji ? (
                 <Text style={styles.emojiText}>{userEmoji}</Text>
               ) : (
-                <PlusIcon width={9} height={9} fill={Colors.primaryGray + '60'} />
+                <SmileIcon width={20} height={20} fill={Colors.primaryGray + '60'} />
               )}
             </TouchableOpacity>
           </View>
@@ -956,7 +956,7 @@ Date Reported: ${new Date().toISOString()}
       >
         <View style={styles.emojiPickerContainer}>
           <View style={styles.emojiGrid}>
-            {['😀', '😍', '😂', '🥰', '👍', '👏', '❤️', '🔥', '🤔', '😭'].map((emoji, index) => {
+            {Emojis.map((emoji, index) => {
               // Check if this emoji is already selected
               const isSelected = emojiReviewId &&
                 reviews.find(r => r.id === emojiReviewId)?.extra?.emojis?.some(

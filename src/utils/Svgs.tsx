@@ -326,3 +326,22 @@ export const FlagIcon = (props: SvgProps) => {
     </Svg>
   );
 };
+
+export const SmileIcon = (props: SvgProps) => {
+  const width = props.width || 24;
+  const height = props.height || 24;
+  const color = props.fill || '#000';
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path 
+        d="M8 14s1.5 2 4 2 4-2 4-2" 
+        stroke={color} 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+      />
+      <Circle cx="8" cy="8" r="1.5" fill={color} />
+      <Circle cx="16" cy="8" r="1.5" fill={color} />
+    </Svg>
+  );
+};
