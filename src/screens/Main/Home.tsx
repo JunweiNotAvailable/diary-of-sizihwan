@@ -88,15 +88,15 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 		try {
 			let page = 0;
 			const limit = 20;
-			const targetCount = 15;
+			const targetCount = 20;
 			const locationMap = new Map<string, ReviewModel>();
 			let hasMoreData = true;
-			const threeDaysAgo = new Date();
-			threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+			const fiveDaysAgo = new Date();
+			fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
 			// Continue loading until we meet our conditions
 			while (
-				locationMap.size < targetCount && // Need 15 different locations
+				locationMap.size < targetCount && // Need 20 different locations
 				hasMoreData // Still have data to load
 			) {
 				// Fetch reviews sorted by creation date
@@ -115,9 +115,9 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 
 				// Process each review
 				for (const review of reviews) {
-					// Skip if the review is older than 3 days
+					// Skip if the review is older than 5 days
 					const reviewDate = new Date(review.created_at);
-					if (reviewDate < threeDaysAgo) {
+					if (reviewDate < fiveDaysAgo) {
 						hasMoreData = false;
 						break;
 					}
@@ -394,38 +394,18 @@ const HomeScreen = ({ navigation, route }: { navigation: any, route: any }) => {
 							onPress={() => navigation.navigate('Reviews', { location })}
 							style={{ zIndex: hasRecentReview ? Locations.nsysu.length + 1 : Locations.nsysu.length - index }}
 						>
-							{hasRecentReview ? 
-								<Animated.View style={[
-									styles.profileButton,
-									{ transform: [{ scale: markerScale }] }
-								]}>
-									{reviewUser?.picture ? (
-										<Image
-											source={{ uri: `https://${Config.s3.bucketName}.s3.${Config.s3.region}.amazonaws.com/${reviewUser.picture}` }}
-											style={[styles.profileImage, { borderColor: iconColors.fg + '66' }]}
-										/>
-									) : (
-										<View style={[styles.profilePlaceholder, { borderColor: iconColors.fg + '66' }]}>
-											<View style={{ marginTop: 8 }}>
-												<PersonIcon width={28} height={28} fill="#ccc" />
-											</View>
-										</View>
-									)}
-									<View style={styles.reviewTimeFromNow}>
-										<Text style={styles.reviewTimeFromNowText}>{getTimeFromNow(hasRecentReview.created_at)}</Text>
-									</View>
-								</Animated.View> 
-								: 
-								<View style={[
-									styles.marker,
-									{
-										backgroundColor: iconColors.bg,
-										borderColor: iconColors.fg + '66',
-									}
-								]}>
-									{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
-								</View>
-							}
+							<View style={[
+								styles.marker,
+								{
+									backgroundColor: iconColors.bg,
+									borderColor: iconColors.fg + '66',
+								}
+							]}>
+								{Icon && <Icon width={16} height={16} stroke={iconColors.fg} fill={iconColors.fg} />}
+								{hasRecentReview && <View style={styles.reviewTimeFromNow}>
+									<Text style={styles.reviewTimeFromNowText}>{getTimeFromNow(hasRecentReview.created_at)}</Text>
+								</View>}
+							</View>
 						</Marker>
 					)
 				})}
@@ -603,9 +583,11 @@ const styles = StyleSheet.create({
 	},
 	reviewTimeFromNow: {
 		position: 'absolute',
-		bottom: 0,
-		right: 0,
+		bottom: -4,
+		right: -4,
 		backgroundColor: '#eee',
+		borderWidth: 1,
+		borderColor: '#fff',
 		padding: 2,
 		borderRadius: 4,
 		shadowColor: '#000',
@@ -613,11 +595,9 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.2,
 		shadowRadius: 2,
 		elevation: 2,
-		borderWidth: 1,
-		borderColor: '#fff',
 	},
 	reviewTimeFromNowText: {
-		color: '#888',
+		color: '#aaa',
 		fontSize: 9,
 	},
 	safeAreaContainer: {
