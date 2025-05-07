@@ -53,3 +53,11 @@ export interface AskModel {
 
   }
 }
+
+export interface LocationImageModel {
+  id: string;
+  location: string;
+  user_id: string;
+  image: string;
+  created_at: string;
+}

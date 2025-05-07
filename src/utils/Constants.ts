@@ -18,7 +18,7 @@ export const Map = {
 }
 
 // Common emoji reactions used across the app
-export const Emojis = ['😀', '😍', '😂', '🥰', '👍', '👏', '❤️', '🔥', '🤔', '😭'];
+export const Emojis = ['😀', '😍', '🤣', '❤️', '👍', '👏', '🔥', '😡', '🤔', '🥲'];
 
 /**
  * Color palette for location markers on the map

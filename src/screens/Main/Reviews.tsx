@@ -1,6 +1,6 @@
-import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, Alert, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { ReviewModel, UserModel } from '../../utils/Interfaces';
+import { ReviewModel, UserModel, LocationImageModel } from '../../utils/Interfaces';
 import { Colors, Categories, Locations, Emojis } from '../../utils/Constants';
 import { useTranslation } from 'react-i18next';
 import { useAppState } from '../../contexts/AppContext';
@@ -8,7 +8,7 @@ import PrettyButton from '../../components/PrettyButton';
 import { CheckIcon, ChevronDownIcon, EllipsisIcon, FeatherPenIcon, PersonIcon, PlusIcon, PrettyLoadingIcon, ThumbsUpIcon, TrashIcon, TranslateIcon, BlockIcon, FlagIcon, SmileIcon } from '../../utils/Svgs';
 import { getTimeFromNow } from '../../utils/Functions';
 import { Config } from '../../utils/Config';
-import { MarkdownText, BottomModal, OptionItem } from '../../components';
+import { MarkdownText, BottomModal, OptionItem, ImagePreview } from '../../components';
 
 const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) => {
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
@@ -44,6 +44,11 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
   const [emojiDetailsModalVisible, setEmojiDetailsModalVisible] = useState(false);
   const [emojiDetailsReview, setEmojiDetailsReview] = useState<ReviewModel | null>(null);
   const [isLoadingEmojiUsers, setIsLoadingEmojiUsers] = useState(false);
+  // Location images
+  const [locationImages, setLocationImages] = useState<LocationImageModel[]>([]);
+  // Image preview
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
 
   useEffect(() => {
     // Check if location parameter is provided
@@ -58,6 +63,50 @@ const ReviewsScreen = ({ navigation, route }: { navigation: any, route: any }) =
       await loadInitialData();
     })();
   }, [location]);
+
+  // Temporary images for demonstration
+  useEffect(() => {
+    // Create some temp image data for testing
+    const tempImages: LocationImageModel[] = [
+      {
+        id: '1',
+        location: location?.id || '',
+        user_id: user?.id || '',
+        image: 'https://picsum.photos/200/200?random=1',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: '2',
+        location: location?.id || '',
+        user_id: user?.id || '',
+        image: 'https://picsum.photos/200/200?random=2',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: '3',
+        location: location?.id || '',
+        user_id: user?.id || '',
+        image: 'https://picsum.photos/200/200?random=3',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: '4',
+        location: location?.id || '',
+        user_id: user?.id || '',
+        image: 'https://picsum.photos/200/200?random=4',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: '5',
+        location: location?.id || '',
+        user_id: user?.id || '',
+        image: 'https://picsum.photos/200/200?random=5',
+        created_at: new Date().toISOString()
+      }
+    ];
+    
+    setLocationImages(tempImages);
+  }, [location, user]);
 
   const loadInitialData = async () => {
     try {
@@ -590,6 +639,93 @@ Date Reported: ${new Date().toISOString()}
     return emojis && emojis.length > 0;
   };
 
+  // Handle adding a new image
+  const handleAddImage = () => {
+    // TODO: Implement image adding functionality
+    Alert.alert('Add Image', 'Image upload functionality will be implemented here.');
+  };
+
+  // Handle preview image
+  const handlePreviewImage = (index: number) => {
+    setPreviewImageIndex(index);
+    setPreviewVisible(true);
+  };
+
+  // Handle close preview
+  const handleClosePreview = () => {
+    setPreviewVisible(false);
+  };
+
+  // Images section component
+  const renderImagesSection = () => {
+    if (locationImages.length === 0) return null;
+
+    return (
+      <View style={styles.imagesContainer}>
+        <ScrollView 
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.imagesScrollContent}
+        >
+          <TouchableOpacity 
+            style={styles.addImageButton}
+            onPress={handleAddImage}
+          >
+            <PlusIcon width={24} height={24} fill={Colors.primary} />
+          </TouchableOpacity>
+          
+          {locationImages.map((image, index) => (
+            <TouchableOpacity 
+              key={image.id} 
+              style={styles.imageItem}
+              onPress={() => handlePreviewImage(index)}
+            >
+              <Image 
+                source={{ uri: image.image }} 
+                style={styles.image} 
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderTranslateHeader = () => {
+    if (reviews.length === 0) return null;
+
+    return (
+      <View style={styles.beforeListContainer}>
+        <PrettyButton
+          style={styles.translateAllButton}
+          onPress={translateAllReviews}
+          disabled={isTranslatingAll || reviews.length === 0}
+        >
+          <View style={styles.translateAllButtonContent}>
+            {isTranslatingAll ? (
+              <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
+            ) : (
+              <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
+            )}
+            <Text style={styles.translateAllButtonText}>
+              {t('reviews.translateAll', 'Translate all')}
+            </Text>
+          </View>
+        </PrettyButton>
+      </View>
+    );
+  };
+
+  // Combined list header component
+  const renderListHeader = () => {
+    return (
+      <>
+        {renderImagesSection()}
+      </>
+    );
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -760,31 +896,6 @@ Date Reported: ${new Date().toISOString()}
     );
   };
 
-  const renderTranslateHeader = () => {
-    if (reviews.length === 0) return null;
-
-    return (
-      <View style={styles.beforeListContainer}>
-        <PrettyButton
-          style={styles.translateAllButton}
-          onPress={translateAllReviews}
-          disabled={isTranslatingAll || reviews.length === 0}
-        >
-          <View style={styles.translateAllButtonContent}>
-            {isTranslatingAll ? (
-              <PrettyLoadingIcon width={16} height={16} stroke={Colors.primaryGray + '88'} />
-            ) : (
-              <TranslateIcon width={16} height={16} fill={Colors.primaryGray + '88'} />
-            )}
-            <Text style={styles.translateAllButtonText}>
-              {t('reviews.translateAll', 'Translate all')}
-            </Text>
-          </View>
-        </PrettyButton>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       {/* header */}
@@ -832,6 +943,7 @@ Date Reported: ${new Date().toISOString()}
         keyExtractor={(item) => item.id}
         renderItem={renderReviewItem}
         contentContainerStyle={styles.reviewsList}
+        ListHeaderComponent={renderListHeader}
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('reviews.empty')}</Text>
         }
@@ -1043,6 +1155,14 @@ Date Reported: ${new Date().toISOString()}
           </View>
         )}
       </BottomModal>
+
+      {/* Image Preview */}
+      <ImagePreview 
+        visible={previewVisible}
+        imageUrls={locationImages.map(image => image.image)}
+        initialIndex={previewImageIndex}
+        onClose={handleClosePreview}
+      />
     </SafeAreaView>
   );
 };
@@ -1458,6 +1578,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.primaryGray + '88',
     fontStyle: 'italic',
+  },
+  // Images section styles
+  imagesContainer: {
+    marginTop: 10,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primaryLightGray,
+  },
+  imagesScrollContent: {
+  },
+  addImageButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    backgroundColor: Colors.secondaryGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: Colors.primaryLightGray,
+    borderStyle: 'dashed',
+  },
+  imageItem: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    marginRight: 10,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
 });
 
