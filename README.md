@@ -2,6 +2,10 @@
 
 一個基於 React Native 的行動應用程式，用於管理和分享評論、用戶資料和互動，並配備 AI 驅動的問答系統，能夠根據用戶評論和位置數據提供智能回應。
 
+<img src="https://github.com/user-attachments/assets/8503c3b8-714f-4ecd-b362-5701d3cd04c3" style="width: 160px;" />
+<img src="https://github.com/user-attachments/assets/09f983e2-1f97-4076-892f-0e33f4489162" style="width: 160px;" />
+<img src="https://github.com/user-attachments/assets/46e68bc4-f2bf-40c8-b4a5-ca4cb1cadef1" style="width: 160px;" />
+
 ## 功能特色
 
 ### AI 驅動的問答系統
