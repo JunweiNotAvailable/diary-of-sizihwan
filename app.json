@@ -29,7 +29,7 @@
         "CFBundleAllowMixedLocalizations": true
       },
       "config": {
-        "googleMapsApiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
+        "googleMapsApiKey": process.env.GOOGLE_MAPS_API_KEY
       },
       "bundleIdentifier": "com.junweialreadyexist.diary-of-sizihwan",
       "supportsTablet": true,
@@ -46,7 +46,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCu96pvVcFvKQy4awjhODZmtK1_KR-xfB0"
+          "apiKey": process.env.GOOGLE_MAPS_API_KEY
         }
       },
       "jsEngine": "hermes",
